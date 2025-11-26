@@ -1079,14 +1079,17 @@
                         displayEvalMessage(`Judging error: ${judgement.error}`, 'error');
                         showNotification('PPTPilot - Judging Failed', judgement.error, false);
                     } else {
-                        judgementDisplay.innerHTML = formatJudgementHTML(judgement);
-                        judgementDisplay.style.display = 'block';
+                        if (judgementDisplay) {
+                            judgementDisplay.innerHTML = formatJudgementHTML(judgement);
+                            judgementDisplay.style.display = 'block';
+                        }
                         if (judgement.judge_time_seconds !== undefined) {
                             judgeTimeDisplay.textContent = `⏱️ Judge time: ${judgement.judge_time_seconds}s`;
                             judgeTimeDisplay.style.display = 'block';
                         }
                         const ifScore = judgement.instruction_following_score ?? 'N/A';
                         const vpScore = judgement.visual_quality_score ?? 'N/A';
+                        appendEvalProgress(`Judge result → IF: ${ifScore}/5, VQ: ${vpScore}/5`);
                         showNotification(
                             'PPTPilot - Judging Complete',
                             `IF: ${ifScore}/5, VQ: ${vpScore}/5 (${judgement.judge_time_seconds || '?'}s)`,

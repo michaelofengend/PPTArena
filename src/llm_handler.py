@@ -316,23 +316,26 @@ def plan_xml_edits_with_router(
     api_keys=None # Added for compatibility with existing calls
 ) -> dict:
     """
-    Calls a lightweight OpenAI model to produce a structured plan for XML editing.
+    Calls a lightweight model (OpenAI or Gemini) to produce a structured plan for XML editing.
     Output schema mirrors the previous Gemini planner.
     """
-    _log("Planning XML edits with GPT router...", request_id)
+    use_openai = _is_openai_model(model_id)
+    planner_model_id = model_id if use_openai else (model_id or "gemini-3-pro-preview")
+    _log(f"Planning XML edits with {'OpenAI' if use_openai else 'Gemini'} router...", request_id)
 
-    openai_key = None
+    resolved_openai_key = None
+    resolved_gemini_key = None
     if api_keys:
-        openai_key = api_keys.get("openai") or api_keys.get("openai_api_key")
-    if not openai_key:
-        keys = load_api_keys()
-        openai_key = keys.get("openai") or keys.get("openai_api_key")
-    if not openai_key:
-        return {"error": "OPENAI_API_KEY missing (set in UI or credentials.env)."}
+        resolved_openai_key = api_keys.get("openai") or api_keys.get("openai_api_key")
+        resolved_gemini_key = api_keys.get("gemini") or api_keys.get("gemini_api_key")
+    keys = load_api_keys()
+    resolved_openai_key = resolved_openai_key or keys.get("openai") or keys.get("openai_api_key")
+    resolved_gemini_key = resolved_gemini_key or keys.get("gemini") or keys.get("gemini_api_key")
 
-    client = _create_openai_client(openai_key)
-    if client is None:
-        return {"error": "Failed to init OpenAI client."}
+    if use_openai and not resolved_openai_key:
+        return {"error": "OPENAI_API_KEY missing (set in UI or credentials.env)."}
+    if not use_openai and not resolved_gemini_key:
+        return {"error": "GEMINI_API_KEY missing (set in UI or credentials.env)."}
 
     files_manifest = {
         "slides": sorted([Path(p).as_posix() for p in all_xml_file_paths if "ppt/slides/slide" in Path(p).as_posix()]),
@@ -369,15 +372,24 @@ Return a single JSON object with:
 """
 
     try:
-        # User's code used client.responses.create here too
-        response = client.responses.create(
-            model=model_id,
-            input=[
-                {"role": "system", "content": [{"type": "input_text", "text": system_prompt.strip()}]},
-                {"role": "user", "content": [{"type": "input_text", "text": prompt.strip()}]},
-            ],
-        )
-        plan_text = _extract_text_from_openai_response(response).strip()
+        if use_openai:
+            client = _create_openai_client(resolved_openai_key)
+            if client is None:
+                return {"error": "Failed to init OpenAI client."}
+            response = client.responses.create(
+                model=planner_model_id,
+                input=[
+                    {"role": "system", "content": [{"type": "input_text", "text": system_prompt.strip()}]},
+                    {"role": "user", "content": [{"type": "input_text", "text": prompt.strip()}]},
+                ],
+            )
+            plan_text = _extract_text_from_openai_response(response).strip()
+        else:
+            _configure_gemini_client(planner_model_id, resolved_gemini_key)
+            model = genai.GenerativeModel(model_name=planner_model_id)
+            response = model.generate_content([system_prompt, prompt])
+            plan_text = (response.text or "").strip()
+
         plan = extract_json_from_llm_response(plan_text)
         return plan
     except Exception as e:
@@ -413,13 +425,25 @@ def get_llm_response(
 
     if use_pre_analysis:
         # --- NEW STAGE 1: LLM Planning for XML targets ---
+        planner_api_keys = {}
+        if api_key:
+            if _is_openai_model(engine_or_model_id):
+                planner_api_keys["openai"] = api_key
+            else:
+                planner_api_keys["gemini"] = api_key
+        loaded_keys = load_api_keys()
+        if "openai" not in planner_api_keys:
+            planner_api_keys["openai"] = loaded_keys.get("openai") or loaded_keys.get("openai_api_key")
+        if "gemini" not in planner_api_keys:
+            planner_api_keys["gemini"] = loaded_keys.get("gemini") or loaded_keys.get("gemini_api_key")
+
         plan = plan_xml_edits_with_router(
             user_prompt=user_prompt,
             ppt_json_data=ppt_json_data,
             all_xml_file_paths=xml_file_paths,
             request_id=request_id,
-            model_id="gpt-5.1-2025-11-13",
-            api_keys={"openai": api_key} if api_key else None,
+            model_id=engine_or_model_id,
+            api_keys=planner_api_keys,
         )
         if plan and not plan.get("error"):
             edit_plan = plan
@@ -506,27 +530,15 @@ def call_llm_router(
     user_prompt: str,
     ppt_json_data: dict,
     api_key: Optional[str] = None,
-    request_id: Optional[str] = None
+    request_id: Optional[str] = None,
+    preferred_model_id: Optional[str] = None,
 ) -> str:
     """
-    Uses a lightweight OpenAI model to decide which editing strategy to use.
+    Uses a lightweight model (OpenAI or Gemini) to decide which editing strategy to use.
     """
-    ROUTER_MODEL_ID = "gpt-5.1-2025-11-13"
-    _log("Calling LLM Router to decide editing strategy...", request_id)
-
-    router_api_key = api_key
-    if not router_api_key:
-        keys = load_api_keys()
-        router_api_key = keys.get("openai") or keys.get("openai_api_key")
-
-    if not router_api_key:
-        _log("Router Error: OpenAI API key not found. Defaulting to XML_EDIT.", request_id)
-        return "XML_EDIT"
-
-    client = _create_openai_client(router_api_key)
-    if client is None:
-        _log("Router Error: Failed to initialize OpenAI client. Defaulting to XML_EDIT.", request_id)
-        return "XML_EDIT"
+    use_openai = _is_openai_model(preferred_model_id) if preferred_model_id else True
+    router_model_id = preferred_model_id if (preferred_model_id and not use_openai) else "gpt-5.1-2025-11-13"
+    _log(f"Calling LLM Router to decide editing strategy via {'OpenAI' if use_openai else 'Gemini'}...", request_id)
 
     system_prompt = """
 You are a decision-making engine. Your task is to choose the best strategy for editing a PowerPoint presentation based on the user's request.
@@ -547,26 +559,56 @@ Analyze the user's prompt and the presentation structure. Respond with ONLY the 
 --- Your Decision ---
 """
 
-    try:
-        response = client.responses.create(
-            model=ROUTER_MODEL_ID,
-            input=[
-                {"role": "system", "content": [{"type": "input_text", "text": system_prompt.strip()}]},
-                {"role": "user", "content": [{"type": "input_text", "text": prompt.strip()}]},
-            ],
-        )
-        decision = _extract_text_from_openai_response(response).strip().upper()
-        if "PYTHON_PPTX_EDIT" in decision:
-            _log("LLM Router decision: PYTHON_PPTX_EDIT", request_id)
-            return "PYTHON_PPTX_EDIT"
-        if "XML_EDIT" in decision:
-            _log("LLM Router decision: XML_EDIT", request_id)
+    if use_openai:
+        router_api_key = api_key
+        if not router_api_key:
+            keys = load_api_keys()
+            router_api_key = keys.get("openai") or keys.get("openai_api_key")
+
+        if not router_api_key:
+            _log("Router Error: OpenAI API key not found. Defaulting to XML_EDIT.", request_id)
             return "XML_EDIT"
-        _log(f"Router Warning: Unexpected response '{decision}'. Defaulting to XML_EDIT.", request_id)
+
+        client = _create_openai_client(router_api_key)
+        if client is None:
+            _log("Router Error: Failed to initialize OpenAI client. Defaulting to XML_EDIT.", request_id)
+            return "XML_EDIT"
+
+        try:
+            response = client.responses.create(
+                model=router_model_id,
+                input=[
+                    {"role": "system", "content": [{"type": "input_text", "text": system_prompt.strip()}]},
+                    {"role": "user", "content": [{"type": "input_text", "text": prompt.strip()}]},
+                ],
+            )
+            decision = _extract_text_from_openai_response(response).strip().upper()
+        except Exception as e:
+            _log(f"Router Error: An exception occurred - {e}. Defaulting to XML_EDIT.", request_id)
+            return "XML_EDIT"
+    else:
+        keys = load_api_keys()
+        gemini_key = api_key or keys.get("gemini") or keys.get("gemini_api_key")
+        if not gemini_key:
+            _log("Router Error: Gemini API key not found. Defaulting to XML_EDIT.", request_id)
+            return "XML_EDIT"
+        try:
+            _configure_gemini_client(router_model_id, gemini_key)
+            model = genai.GenerativeModel(model_name=router_model_id)
+            resp = model.generate_content([system_prompt, prompt])
+            decision = (resp.text or "").strip().upper()
+        except Exception as e:
+            _log(f"Router Error (Gemini): {e}. Defaulting to XML_EDIT.", request_id)
+            return "XML_EDIT"
+
+    if "PYTHON_PPTX_EDIT" in decision:
+        _log("LLM Router decision: PYTHON_PPTX_EDIT", request_id)
+        return "PYTHON_PPTX_EDIT"
+    if "XML_EDIT" in decision:
+        _log("LLM Router decision: XML_EDIT", request_id)
         return "XML_EDIT"
-    except Exception as e:
-        _log(f"Router Error: An exception occurred - {e}. Defaulting to XML_EDIT.", request_id)
-        return "XML_EDIT"
+    _log(f"Router Warning: Unexpected response '{decision}'. Defaulting to XML_EDIT.", request_id)
+    return "XML_EDIT"
 
 def generate_content_for_python_pptx(
     user_prompt: str,

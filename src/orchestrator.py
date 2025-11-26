@@ -49,7 +49,13 @@ def log_processing_details(row: dict) -> None:
     """Log summary rows to console; real CSV logging lives in app.py."""
     print("[Orchestrator-LOG]", row)
 
-def decide_editing_strategy(user_prompt: str, ppt_json_data: dict, api_key: str, request_id: str) -> str:
+def decide_editing_strategy(
+    user_prompt: str,
+    ppt_json_data: dict,
+    api_key: str,
+    request_id: str,
+    selected_model_id: str = None,
+) -> str:
     """
     Uses a preliminary LLM call to decide which editing path to take.
 
@@ -66,7 +72,8 @@ def decide_editing_strategy(user_prompt: str, ppt_json_data: dict, api_key: str,
         user_prompt=user_prompt,
         ppt_json_data=ppt_json_data,
         api_key=api_key,
-        request_id=request_id
+        request_id=request_id,
+        preferred_model_id=selected_model_id,
     )
 
 def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json_data: dict, selected_model_id: str, api_key: str):
@@ -429,43 +436,51 @@ def _process_single_iteration(
     if isinstance(ppt_json_data, dict):
         ppt_json_data['request_id'] = request_id
 
+    def _run_strategy(prompt_override: str, chosen_strategy: str):
+        if chosen_strategy == "PYTHON_PPTX_EDIT":
+            return _execute_python_pptx_edit(
+                original_filepath=original_filepath,
+                user_prompt=prompt_override,
+                ppt_json_data=ppt_json_data,
+                selected_model_id=selected_model_id,
+                api_key=api_key,
+            )
+        return _execute_xml_edit(
+            original_filepath=original_filepath,
+            prompt_text=prompt_override,
+            selected_model_id=selected_model_id,
+            use_pre_analysis=use_pre_analysis,
+            request_id=request_id,
+            api_key=api_key,
+            session_id=session_id,
+            edit_history=edit_history,
+            image_inputs=image_inputs,
+        )
+
     if force_python_pptx:
         progress.append(request_id, "Router bypassed: python-pptx only toggle enabled")
-        return _execute_python_pptx_edit(
-            original_filepath=original_filepath,
-            user_prompt=prompt_text,
-            ppt_json_data=ppt_json_data,
-            selected_model_id=selected_model_id,
-            api_key=api_key,
-        )
+        strategy = "PYTHON_PPTX_EDIT"
+    else:
+        progress.append(request_id, "Routing: deciding editing strategy")
+        # For OpenAI models, force using credentials.env key inside the handler
+        strategy = decide_editing_strategy(prompt_text, ppt_json_data, api_key, request_id, selected_model_id=selected_model_id)
+        print(f"[Orchestrator] Strategy chosen → {strategy}")
+        progress.append(request_id, f"Router decision: {strategy}")
 
-    progress.append(request_id, "Routing: deciding editing strategy")
-    # For OpenAI models, force using credentials.env key inside the handler
-    strategy = decide_editing_strategy(prompt_text, ppt_json_data, api_key, request_id)
-    print(f"[Orchestrator] Strategy chosen → {strategy}")
-    progress.append(request_id, f"Router decision: {strategy}")
+    result = _run_strategy(prompt_text, strategy)
 
-    if strategy == "PYTHON_PPTX_EDIT":
-        return _execute_python_pptx_edit(
-            original_filepath=original_filepath,
-            user_prompt=prompt_text,
-            ppt_json_data=ppt_json_data,
-            selected_model_id=selected_model_id,
-            api_key=api_key,
-        )
+    # Retry once on the same pathway, injecting the error context into the prompt
+    if isinstance(result, dict) and result.get("error"):
+        err_text = str(result.get("error"))
+        retry_prompt = f"{prompt_text}\n\n[Retry after error]\nPrevious attempt error: {err_text}\nPlease resolve the issue and try again using the same approach."
+        progress.append(request_id, f"Retrying {strategy} after error: {err_text}")
+        retry_result = _run_strategy(retry_prompt, strategy)
+        if isinstance(retry_result, dict):
+            retry_result["retry_from_error"] = True
+            retry_result["previous_error"] = err_text
+        return retry_result
 
-    # Fallback / default: XML path
-    return _execute_xml_edit(
-        original_filepath=original_filepath,
-        prompt_text=prompt_text,
-        selected_model_id=selected_model_id,
-        use_pre_analysis=use_pre_analysis,
-        request_id=request_id,
-        api_key=api_key,
-        session_id=session_id,
-        edit_history=edit_history,
-        image_inputs=image_inputs,
-    )
+    return result
 
 
 def process_presentation_hybrid(
