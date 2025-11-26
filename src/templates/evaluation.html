@@ -1,56 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PPTPilot | Arena & Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg: #f5f7fb;
             --ink: #0f172a;
             --muted: #6b7280;
-            --card: rgba(255,255,255,0.9);
+            --card: rgba(255, 255, 255, 0.9);
             --border: #e5e7eb;
             --accent: #4f46e5;
             --accent-2: #0ea5e9;
         }
-        * { box-sizing: border-box; }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
-            background: radial-gradient(120% 120% at 12% 20%, rgba(79,70,229,0.12), transparent 40%), radial-gradient(120% 120% at 88% 0%, rgba(14,165,233,0.14), transparent 42%), var(--bg);
+            background: radial-gradient(120% 120% at 12% 20%, rgba(79, 70, 229, 0.12), transparent 40%), radial-gradient(120% 120% at 88% 0%, rgba(14, 165, 233, 0.14), transparent 42%), var(--bg);
             color: var(--ink);
             min-height: 100vh;
         }
+
         .topbar {
             position: sticky;
             top: 0;
             z-index: 40;
             backdrop-filter: saturate(180%) blur(10px);
-            background: rgba(255,255,255,0.72);
-            border-bottom: 1px solid rgba(226,232,240,0.8);
+            background: rgba(255, 255, 255, 0.72);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
         }
-        .nav-link { color: #475569; font-weight: 600; }
-        .nav-link:hover { color: #0f172a; }
+
+        .nav-link {
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            color: #0f172a;
+        }
+
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
             padding: 0.25rem 0.65rem;
             border-radius: 9999px;
-            background: linear-gradient(120deg, rgba(79,70,229,0.12), rgba(14,165,233,0.1));
+            background: linear-gradient(120deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.1));
             color: #1f2937;
             font-weight: 600;
             font-size: 0.85rem;
         }
+
         .page {
             max-width: 1600px;
             margin: 0 auto;
             padding: 1.75rem 1.5rem 2.5rem 1.5rem;
         }
+
         .hero {
-            background: linear-gradient(120deg, rgba(79,70,229,0.08), rgba(14,165,233,0.08));
+            background: linear-gradient(120deg, rgba(79, 70, 229, 0.08), rgba(14, 165, 233, 0.08));
             border: 1px solid rgba(226, 232, 240, 0.9);
             border-radius: 1.25rem;
             padding: 1.6rem;
@@ -59,29 +76,55 @@
             grid-template-columns: 2fr 1.1fr;
             box-shadow: 0 18px 38px -25px rgba(15, 23, 42, 0.35);
         }
-        .hero h1 { font-size: clamp(1.6rem, 2vw, 2.2rem); letter-spacing: -0.02em; }
-        .hero p { color: var(--muted); max-width: 46ch; }
-        .hero-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 0.65rem; }
+
+        .hero h1 {
+            font-size: clamp(1.6rem, 2vw, 2.2rem);
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            color: var(--muted);
+            max-width: 46ch;
+        }
+
+        .hero-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.65rem;
+        }
+
         .metric {
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
             border: 1px solid var(--border);
             border-radius: 0.9rem;
             padding: 0.75rem;
             display: flex;
             align-items: center;
             gap: 0.65rem;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
+
         .metric-icon {
-            height: 32px; width: 32px;
+            height: 32px;
+            width: 32px;
             border-radius: 0.75rem;
-            display: grid; place-items: center;
+            display: grid;
+            place-items: center;
             background: #eef2ff;
             color: var(--accent);
             font-weight: 700;
         }
-        .metric > div span { color: var(--muted); font-size: 0.78rem; display: block; }
-        .metric > div strong { font-size: 1.05rem; }
+
+        .metric>div span {
+            color: var(--muted);
+            font-size: 0.78rem;
+            display: block;
+        }
+
+        .metric>div strong {
+            font-size: 1.05rem;
+        }
+
         .card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -90,15 +133,24 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 20px 40px -30px rgba(15,23,42,0.35);
+            box-shadow: 0 20px 40px -30px rgba(15, 23, 42, 0.35);
             transition: transform .15s ease, box-shadow .2s ease;
         }
-        .card:hover { transform: translateY(-1px); box-shadow: 0 28px 52px -34px rgba(15,23,42,0.42); }
+
+        .card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 28px 52px -34px rgba(15, 23, 42, 0.42);
+        }
+
         .card h3 {
-            display: flex; align-items: center; gap: 0.6rem;
-            font-weight: 700; letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
             margin-bottom: 0.85rem;
         }
+
         .eyebrow {
             font-size: 0.85rem;
             text-transform: uppercase;
@@ -106,28 +158,41 @@
             color: #4b5563;
             font-weight: 700;
         }
+
         .input-field {
             width: 100%;
             border: 1px solid #e2e8f0;
             border-radius: 0.65rem;
             padding: 0.7rem 0.85rem;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255, 255, 255, 0.9);
             transition: border-color 0.2s, box-shadow 0.2s;
             font-size: 0.95rem;
         }
+
         .input-field:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(79,70,229,0.18);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
         }
-        .hint { font-size: 0.82rem; color: #6b7280; }
+
+        .hint {
+            font-size: 0.82rem;
+            color: #6b7280;
+        }
+
         .surface {
             background: #f8fafc;
             border: 1px dashed #e2e8f0;
             border-radius: 0.9rem;
             padding: 0.9rem;
         }
-        .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
         .chip {
             background: #eef2ff;
             color: #312e81;
@@ -136,6 +201,7 @@
             font-weight: 600;
             font-size: 0.85rem;
         }
+
         .btn {
             position: relative;
             padding: 0.78rem 1rem;
@@ -145,16 +211,25 @@
             border: 1px solid #dfe3ee;
             background: linear-gradient(120deg, #111827, #0f172a);
             color: white;
-            box-shadow: 0 12px 30px -16px rgba(15, 23, 42, 0.45), 0 2px 4px rgba(0,0,0,0.08);
+            box-shadow: 0 12px 30px -16px rgba(15, 23, 42, 0.45), 0 2px 4px rgba(0, 0, 0, 0.08);
             transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
             overflow: hidden;
         }
+
         .btn.secondary {
             background: white;
             color: var(--ink);
         }
-        .btn:hover { transform: translateY(-1px); box-shadow: 0 20px 40px -25px rgba(15,23,42,0.35); }
-        .btn:active { transform: translateY(0); }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 20px 40px -25px rgba(15, 23, 42, 0.35);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
         .loader {
             border: 3px solid #e5e7eb;
             border-top: 3px solid var(--accent);
@@ -164,7 +239,33 @@
             animation: spin 0.8s linear infinite;
             display: none;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+
         .judgement-container {
             margin-top: 0.85rem;
             padding: 1rem;
@@ -172,19 +273,22 @@
             border: 1px solid #e2e8f0;
             border-radius: 0.75rem;
         }
+
         .viewer {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 1.1rem;
             margin-top: 1rem;
         }
+
         .viewer-card {
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 1rem;
             padding: 1rem;
-            box-shadow: 0 18px 36px -28px rgba(15,23,42,0.35);
+            box-shadow: 0 18px 36px -28px rgba(15, 23, 42, 0.35);
         }
+
         .pdf-viewer {
             width: 100%;
             height: 75vh;
@@ -192,7 +296,12 @@
             border-radius: 0.9rem;
             background-color: #f1f5f9;
         }
-        .file-tag { font-size: 0.8rem; color: #475569; }
+
+        .file-tag {
+            font-size: 0.8rem;
+            color: #475569;
+        }
+
         .pill {
             padding: 0.45rem 0.75rem;
             background: #0f172a;
@@ -202,14 +311,28 @@
             font-weight: 700;
             letter-spacing: 0.02em;
         }
+
         .main-grid {
             display: grid;
             grid-template-columns: 1.1fr 1fr 0.9fr;
             gap: 1.1rem;
             margin-top: 1.15rem;
         }
-        .title-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-        .chat-pane { height: 100%; display: flex; flex-direction: column; gap: 0.75rem; }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .chat-pane {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
         .chat-history {
             flex: 1;
             overflow-y: auto;
@@ -219,7 +342,13 @@
             border-radius: 0.85rem;
             min-height: 0;
         }
-        .chat-history-entry { display: flex; flex-direction: column; margin-bottom: 0.75rem; }
+
+        .chat-history-entry {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.75rem;
+        }
+
         .chat-bubble-user {
             background: #111827;
             color: #fff;
@@ -228,8 +357,9 @@
             margin-bottom: 0.55rem;
             max-width: 85%;
             align-self: flex-end;
-            box-shadow: 0 8px 18px -12px rgba(15,23,42,0.35);
+            box-shadow: 0 8px 18px -12px rgba(15, 23, 42, 0.35);
         }
+
         .chat-bubble-llm {
             background: #eef2ff;
             color: #0f172a;
@@ -239,7 +369,13 @@
             max-width: 85%;
             align-self: flex-start;
         }
-        .chat-input { display: flex; flex-direction: column; gap: 0.6rem; }
+
+        .chat-input {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
         textarea {
             border: 1px solid #e2e8f0;
             border-radius: 0.85rem;
@@ -247,84 +383,133 @@
             resize: vertical;
             min-height: 80px;
             font-size: 0.98rem;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255, 255, 255, 0.95);
         }
-        textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,0.18); }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+        }
+
         .history-entry {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 0.8rem;
             padding: 0.8rem;
         }
-        .tab-switch { display: inline-flex; gap: 0.6rem; padding: 0.35rem; background: rgba(255,255,255,0.85); border: 1px solid var(--border); border-radius: 999px; box-shadow: 0 14px 30px -24px rgba(15,23,42,0.35);}
-        .tab-pill { padding: 0.6rem 1.1rem; border-radius: 999px; font-weight: 700; background: transparent; border: none; color: #475569; cursor: pointer; }
-        .tab-pill.active { background: #0f172a; color: white; box-shadow: 0 10px 24px -18px rgba(15,23,42,0.4); }
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
-        .clamp-two { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
-        @media (max-width: 1160px) { .main-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 1024px) { .hero { grid-template-columns: 1fr; } }
+
+        .tab-switch {
+            display: inline-flex;
+            gap: 0.6rem;
+            padding: 0.35rem;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            box-shadow: 0 14px 30px -24px rgba(15, 23, 42, 0.35);
+        }
+
+        .tab-pill {
+            padding: 0.6rem 1.1rem;
+            border-radius: 999px;
+            font-weight: 700;
+            background: transparent;
+            border: none;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .tab-pill.active {
+            background: #0f172a;
+            color: white;
+            box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.4);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .clamp-two {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (max-width: 1160px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
+
 <body>
     <div class="topbar">
         <div class="mx-auto max-w-[1600px] px-5 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="h-10 w-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-semibold text-lg shadow-sm">P</div>
-                <div class="text-base font-semibold text-slate-800 tracking-tight">PPTPilot</div>
-                <span class="text-slate-400">/</span>
-                <div class="text-base text-slate-600" id="topBarContext">Arena & Chat</div>
+                <div
+                    class="h-10 w-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-semibold text-lg shadow-sm">
+                    P</div>
+                <div>
+                    <div id="appTitle" class="text-base font-semibold text-slate-800 tracking-tight leading-tight">
+                        PPTArena</div>
+                    <div class="text-xs text-slate-500 font-medium">Evaluate and edit decks</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="tab-switch">
+                    <button class="tab-pill" data-tab-target="evaluation">Evaluation</button>
+                    <button class="tab-pill" data-tab-target="chat">Chat</button>
+                </div>
+
+                <div class="relative">
+                    <details class="group relative">
+                        <summary
+                            class="flex items-center gap-2 cursor-pointer list-none font-semibold text-slate-600 text-sm hover:text-slate-900 transition-colors px-3 py-2 rounded-lg hover:bg-slate-100">
+                            <span>API Keys</span>
+                            <svg class="w-4 h-4 transition group-open:rotate-180" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </summary>
+                        <div
+                            class="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50 group-open:animate-fadeIn origin-top-right">
+                            <label for="api_key_openai" class="font-semibold text-slate-800 block mb-1 text-xs">OpenAI
+                                API Key</label>
+                            <input type="password" id="api_key_openai" class="input-field mb-3 text-sm py-1.5"
+                                placeholder="sk-...">
+
+                            <label for="api_key_gemini" class="font-semibold text-slate-800 block mb-1 text-xs">Gemini
+                                API Key</label>
+                            <input type="password" id="api_key_gemini" class="input-field text-sm py-1.5"
+                                placeholder="AIza...">
+
+                            <p class="hint mt-2 text-xs text-slate-500">Keys are stored locally in your browser.</p>
+                        </div>
+                    </details>
+                </div>
             </div>
         </div>
     </div>
 
     <main class="page">
-        <section class="hero mb-4">
-            <div>
-                <h1 id="heroTitle">Evaluate and edit decks without leaving the page.</h1>
-                <p class="mt-2" id="heroSubtitle">Switch between Evaluation and Chat to judge, iterate, and download PowerPoints in one view.</p>
-                <div class="chips mt-4">
-                    <span class="chip">Ground Truth vs Prediction</span>
-                    <span class="chip">Loop-friendly</span>
-                    <span class="chip">Desktop notifications</span>
-                </div>
-            </div>
-            <div class="hero-metrics">
-                <div class="metric" id="metricPair">
-                    <div class="metric-icon">A</div>
-                    <div>
-                        <span>Active pair</span>
-                        <strong id="activePairLabel">{{ selected_pair.name }}</strong>
-                    </div>
-                </div>
-                <div class="metric" id="metricLoop">
-                    <div class="metric-icon" style="background:#ecfeff;color:#0891b2;">⟳</div>
-                    <div>
-                        <span>Loop cap</span>
-                        <strong><span id="loopIterationsPreview">3</span> iterations</strong>
-                    </div>
-                </div>
-                <div class="metric" id="metricEngine">
-                    <div class="metric-icon" style="background:#fef9c3;color:#ca8a04;">⚡</div>
-                    <div>
-                        <span>LLM engine</span>
-                        <strong id="enginePreview">GPT-5</strong>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- Hero section removed as requested -->
 
-        <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
-            <div class="tab-switch">
-                <button class="tab-pill" data-tab-target="evaluation">Evaluation</button>
-                <button class="tab-pill" data-tab-target="chat">Chat</button>
-            </div>
-            <div class="card" style="padding:0.9rem 1rem; min-width:240px;">
-                <label for="api_key_shared" class="font-semibold text-slate-800 block mb-1">Shared API key</label>
-                <input type="password" id="api_key_shared" class="input-field" placeholder="Used by both tabs">
-                <p class="hint mt-1">Stored locally in your browser.</p>
-            </div>
-        </div>
+
 
         <div id="evaluationTab" class="tab-panel active">
             <section id="controls" class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
@@ -332,21 +517,25 @@
                     <h3><span class="pill">1</span> Select test case</h3>
                     <div class="flex-grow flex flex-col gap-4">
                         <div>
-                            <label for="evaluationPairSelector" class="font-semibold text-slate-800 block mb-1">Test case</label>
+                            <label for="evaluationPairSelector" class="font-semibold text-slate-800 block mb-1">Test
+                                case</label>
                             <select id="evaluationPairSelector" class="input-field">
                                 {% for pair in evaluation_pairs %}
-                                    <option value="{{ pair.name }}" {% if pair.name == selected_pair.name %}selected{% endif %}>{{ pair.name }}</option>
+                                <option value="{{ pair.name }}" {% if pair.name==selected_pair.name %}selected{% endif
+                                    %}>{{ pair.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="surface space-y-3">
                             <div>
                                 <p class="font-semibold text-slate-800 text-sm">Prompt</p>
-                                <p class="text-slate-600 text-sm leading-relaxed" id="promptDisplay">{{ selected_pair.prompt }}</p>
+                                <p class="text-slate-600 text-sm leading-relaxed" id="promptDisplay">{{
+                                    selected_pair.prompt }}</p>
                             </div>
                             <div>
                                 <p class="font-semibold text-slate-800 text-sm">Style target</p>
-                                <p class="text-slate-600 text-sm leading-relaxed clamp-two" id="styleDisplay" title="{{ selected_pair.style_target }}">{{ selected_pair.style_target }}</p>
+                                <p class="text-slate-600 text-sm leading-relaxed clamp-two" id="styleDisplay"
+                                    title="{{ selected_pair.style_target }}">{{ selected_pair.style_target }}</p>
                             </div>
                         </div>
                     </div>
@@ -356,9 +545,11 @@
                     <h3><span class="pill">2</span> Generate prediction</h3>
                     <form id="evalForm" class="flex-grow flex flex-col gap-4">
                         <input type="hidden" id="eval_prompt" name="prompt" value="{{ selected_pair.prompt }}">
-                        <input type="hidden" id="eval_original_filepath" name="original_filepath" value="{{ selected_pair.original }}">
+                        <input type="hidden" id="eval_original_filepath" name="original_filepath"
+                            value="{{ selected_pair.original }}">
                         <div>
-                            <label for="eval_llm_engine" class="font-semibold text-slate-800 block mb-1">LLM engine</label>
+                            <label for="eval_llm_engine" class="font-semibold text-slate-800 block mb-1">LLM
+                                engine</label>
                             <select id="eval_llm_engine" name="llm_engine" class="input-field">
                                 <optgroup label="Google Gemini">
                                     <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
@@ -372,14 +563,18 @@
                         </div>
                         <div class="flex items-center gap-3 text-sm text-slate-700">
                             <input type="checkbox" id="eval_force_python_pptx" class="h-4 w-4">
-                            <label for="eval_force_python_pptx" class="select-none font-semibold">Use python-pptx only</label>
+                            <label for="eval_force_python_pptx" class="select-none font-semibold">Use python-pptx
+                                only</label>
                         </div>
                         <div>
-                            <label for="eval_loop_iterations" class="font-semibold text-slate-800 block mb-1">Max iterations</label>
-                            <input type="number" id="eval_loop_iterations" name="loop_iterations" class="input-field" min="1" max="10" value="3">
+                            <label for="eval_loop_iterations" class="font-semibold text-slate-800 block mb-1">Max
+                                iterations</label>
+                            <input type="number" id="eval_loop_iterations" name="loop_iterations" class="input-field"
+                                min="1" max="10" value="3">
                             <p class="hint mt-1">Used when running Loop for iterative refinement.</p>
                         </div>
-                        <div id="generationTimeDisplay" class="text-xs text-slate-600 font-semibold" style="display:none;"></div>
+                        <div id="generationTimeDisplay" class="text-xs text-slate-600 font-semibold"
+                            style="display:none;"></div>
                         <div class="flex-grow"></div>
                         <div class="grid grid-cols-1 gap-3">
                             <button type="submit" class="btn">Generate prediction</button>
@@ -391,7 +586,9 @@
                 <div class="card">
                     <h3><span class="pill">3</span> LLM judge</h3>
                     <div class="flex-grow flex flex-col">
-                        <p class="text-sm text-slate-600 mb-4">The judge compares <strong>Ground Truth</strong> vs <strong>Prediction</strong> with the original as baseline.</p>
+                        <p class="text-sm text-slate-600 mb-4">The judge compares <strong>Ground Truth</strong> vs
+                            <strong>Prediction</strong> with the original as baseline.
+                        </p>
                         <label for="judge_model" class="font-semibold text-slate-800 block mb-2">Judge model</label>
                         <select id="judge_model" class="input-field mb-4">
                             <optgroup label="Google Gemini">
@@ -402,7 +599,8 @@
                                 <option value="gpt-5-2025-08-07" selected>GPT-5 (2025-08-07)</option>
                             </optgroup>
                         </select>
-                        <div id="judgeTimeDisplay" class="text-xs text-slate-600 font-semibold mb-2" style="display:none;"></div>
+                        <div id="judgeTimeDisplay" class="text-xs text-slate-600 font-semibold mb-2"
+                            style="display:none;"></div>
                         <div id="judgementDisplay" class="judgement-container" style="display:none;"></div>
                     </div>
                     <button id="judgeButton" class="btn secondary mt-4">Call LLM Judge</button>
@@ -423,35 +621,47 @@
             <section class="viewer">
                 <div class="viewer-card">
                     <h2 class="text-lg font-semibold mb-1 text-slate-900">Ground Truth</h2>
-                    <p class="file-tag mb-3 truncate" title="{{ selected_pair.ground_truth }}">{{ selected_pair.ground_truth.split('/')[-1] }}</p>
+                    <p class="file-tag mb-3 truncate" title="{{ selected_pair.ground_truth }}">{{
+                        selected_pair.ground_truth.split('/')[-1] }}</p>
                     {% if test_pdf_name %}
-                        <iframe id="testPdfViewer" src="{{ url_for('view_pdf', pdf_path=test_pdf_name) }}" class="pdf-viewer"></iframe>
+                    <iframe id="testPdfViewer" src="{{ url_for('view_pdf', pdf_path=test_pdf_name) }}"
+                        class="pdf-viewer"></iframe>
                     {% else %}
-                        <div class="pdf-viewer flex items-center justify-center text-slate-500">PDF not available.</div>
+                    <div class="pdf-viewer flex items-center justify-center text-slate-500">PDF not available.</div>
                     {% endif %}
                 </div>
                 <div class="viewer-card">
                     <div class="flex items-center justify-between mb-1">
                         <h2 class="text-lg font-semibold text-slate-900">
                             {% if is_prediction %}
-                                Prediction
+                            Prediction
                             {% else %}
-                                Original
+                            Original
                             {% endif %}
                         </h2>
-                        <span class="badge">Side-by-side view</span>
+                        <div class="flex items-center gap-2">
+                            <label for="manualPredictionUpload"
+                                class="text-xs font-semibold text-indigo-600 cursor-pointer hover:text-indigo-800 transition-colors">
+                                Upload Prediction
+                                <input type="file" id="manualPredictionUpload" accept=".pptx" class="hidden">
+                            </label>
+                            <span class="badge">Side-by-side view</span>
+                        </div>
                     </div>
-                    <p class="file-tag mb-3 truncate" id="predictionFilenameDisplay" title="{{ prediction_pptx_name or '' }}">
+                    <p class="file-tag mb-3 truncate" id="predictionFilenameDisplay"
+                        title="{{ prediction_pptx_name or '' }}">
                         {% if is_prediction %}
-                            {{ prediction_pptx_name or 'No prediction generated yet' }}
+                        {{ prediction_pptx_name or 'No prediction generated yet' }}
                         {% else %}
-                            {{ selected_pair.original.split('/')[-1] }}
+                        {{ selected_pair.original.split('/')[-1] }}
                         {% endif %}
                     </p>
                     {% if prediction_pdf_name %}
-                        <iframe id="predictionPdfViewer" src="{{ url_for('view_pdf', pdf_path=prediction_pdf_name) }}" class="pdf-viewer"></iframe>
+                    <iframe id="predictionPdfViewer" src="{{ url_for('view_pdf', pdf_path=prediction_pdf_name) }}"
+                        class="pdf-viewer"></iframe>
                     {% else %}
-                        <div id="predictionPdfViewer" class="pdf-viewer flex items-center justify-center text-slate-500">No prediction generated yet.</div>
+                    <div id="predictionPdfViewer" class="pdf-viewer flex items-center justify-center text-slate-500">No
+                        prediction generated yet.</div>
                     {% endif %}
                 </div>
             </section>
@@ -473,13 +683,16 @@
                                     <p class="font-semibold text-slate-900">Upload PPTX</p>
                                     <p class="text-sm text-slate-600">Drop in your starting deck to begin editing.</p>
                                 </div>
-                                <label for="chat_ppt_file" class="btn secondary" style="padding:0.65rem 0.9rem;">Choose file<input type="file" id="chat_ppt_file" name="file" accept=".pptx" required class="sr-only"></label>
+                                <label for="chat_ppt_file" class="btn secondary" style="padding:0.65rem 0.9rem;">Choose
+                                    file<input type="file" id="chat_ppt_file" name="file" accept=".pptx" required
+                                        class="sr-only"></label>
                             </div>
                             <p class="text-xs text-slate-500 mt-2">Shared API key above powers this tab.</p>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
-                                <label for="chat_llm_engine" class="font-medium text-slate-800 block mb-1">LLM model</label>
+                                <label for="chat_llm_engine" class="font-medium text-slate-800 block mb-1">LLM
+                                    model</label>
                                 <select id="chat_llm_engine" name="llm_engine" class="input-field">
                                     <optgroup label="Google Gemini">
                                         <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
@@ -506,7 +719,8 @@
                             <p class="eyebrow">Preview</p>
                             <h2 class="text-xl font-semibold">Current file</h2>
                         </div>
-                        <a id="chatModifiedPptxDownload" href="#" target="_blank" class="text-indigo-600 font-semibold text-sm">Download latest</a>
+                        <a id="chatModifiedPptxDownload" href="#" target="_blank"
+                            class="text-indigo-600 font-semibold text-sm">Download latest</a>
                     </div>
                     <section id="chatPreviewSection" class="flex flex-col gap-2" style="display:none;">
                         <iframe id="chatModifiedPptIframe" class="pdf-viewer" style="height:520px;"></iframe>
@@ -530,44 +744,28 @@
                     </div>
                     <div class="chat-history" id="chatHistory"></div>
                     <form id="chatForm" class="chat-input">
-                        <textarea id="chat_prompt" rows="3" placeholder="Explain the change you want..." class="w-full"></textarea>
+                        <textarea id="chat_prompt" rows="3" placeholder="Explain the change you want..."
+                            class="w-full"></textarea>
                         <button type="submit" class="btn w-full">Send instruction</button>
                     </form>
-                    <p class="text-xs text-slate-500">Upload a deck to start a session. Shared API key above powers edits.</p>
+                    <p class="text-xs text-slate-500">Upload a deck to start a session. Shared API key above powers
+                        edits.</p>
                 </aside>
             </section>
         </div>
     </main>
 
     <script id="evaluationPairsData" type="application/json">{{ evaluation_pairs | tojson | safe }}</script>
+
+    <script id="defaultTabData" type="application/json">{{ (active_tab or 'evaluation') | tojson | safe }}</script>
     <script>
-        const defaultTab = {{ (active_tab or 'evaluation') | tojson }};
+        const defaultTab = JSON.parse(document.getElementById('defaultTabData').textContent);
         const tabButtons = document.querySelectorAll('[data-tab-target]');
         const tabPanels = {
             evaluation: document.getElementById('evaluationTab'),
             chat: document.getElementById('chatTab'),
         };
-        const topBarContext = document.getElementById('topBarContext');
-        const heroTitleEl = document.getElementById('heroTitle');
-        const heroSubtitleEl = document.getElementById('heroSubtitle');
-        const copyByTab = {
-            evaluation: {
-                topbar: 'Evaluation',
-                title: 'PPT ARENA: Evaluations on Benchmark.',
-                subtitle: 'Judge ground truth vs predictions side-by-side and call the LLM judge.'
-            },
-            chat: {
-                topbar: 'Chat editor',
-                title: 'Chat-based PowerPoint editing with PPTPilot.',
-                subtitle: 'Upload once, keep the session alive, and iterate on slides with natural language prompts.'
-            }
-        };
-        function updateTabCopy(name) {
-            const copy = copyByTab[name] || copyByTab.evaluation;
-            if (heroTitleEl) heroTitleEl.textContent = copy.title;
-            if (heroSubtitleEl) heroSubtitleEl.textContent = copy.subtitle;
-            if (topBarContext) topBarContext.textContent = copy.topbar;
-        }
+
         function activateTab(name) {
             const target = name === 'chat' ? 'chat' : 'evaluation';
             tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.tabTarget === target));
@@ -576,7 +774,7 @@
                 el.classList.toggle('active', key === target);
                 el.style.display = key === target ? 'block' : 'none';
             });
-            updateTabCopy(target);
+
             const metricPair = document.getElementById('metricPair');
             const metricLoop = document.getElementById('metricLoop');
             const chipLoop = document.getElementById('loopIterationsPreview');
@@ -586,17 +784,37 @@
             const url = new URL(window.location.href);
             url.searchParams.set('tab', target);
             window.history.replaceState({}, '', url);
+
+            const appTitle = document.getElementById('appTitle');
+            if (appTitle) {
+                appTitle.textContent = target === 'chat' ? 'PPTPilot' : 'PPTArena';
+            }
         }
         tabButtons.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tabTarget)));
         activateTab(defaultTab);
     </script>
+    <script id="pageStateData" type="application/json">
+    {
+        "predictionPptxName": {{ (prediction_pptx_name or "") | tojson | safe }},
+        "selectedPairName": {{ selected_pair.name | tojson | safe }}
+    }
+    </script>
     <script>
         // Shared references
-        const apiKeySharedInput = document.getElementById('api_key_shared');
-        const savedKey = localStorage.getItem('pptpilot_api_key');
-        if (savedKey && apiKeySharedInput) apiKeySharedInput.value = savedKey;
-        if (apiKeySharedInput) {
-            apiKeySharedInput.addEventListener('input', () => localStorage.setItem('pptpilot_api_key', apiKeySharedInput.value));
+        const apiKeyOpenAIInput = document.getElementById('api_key_openai');
+        const apiKeyGeminiInput = document.getElementById('api_key_gemini');
+
+        const savedOpenAIKey = localStorage.getItem('pptpilot_openai_api_key');
+        const savedGeminiKey = localStorage.getItem('pptpilot_gemini_api_key');
+
+        if (savedOpenAIKey && apiKeyOpenAIInput) apiKeyOpenAIInput.value = savedOpenAIKey;
+        if (savedGeminiKey && apiKeyGeminiInput) apiKeyGeminiInput.value = savedGeminiKey;
+
+        if (apiKeyOpenAIInput) {
+            apiKeyOpenAIInput.addEventListener('input', () => localStorage.setItem('pptpilot_openai_api_key', apiKeyOpenAIInput.value));
+        }
+        if (apiKeyGeminiInput) {
+            apiKeyGeminiInput.addEventListener('input', () => localStorage.setItem('pptpilot_gemini_api_key', apiKeyGeminiInput.value));
         }
 
         // Evaluation tab elements
@@ -623,8 +841,9 @@
         const llmEngineSelect = document.getElementById('eval_llm_engine');
 
         const evaluationPairs = JSON.parse(document.getElementById('evaluationPairsData').textContent || '[]');
-        let currentPredictionPptxName = {{ (prediction_pptx_name or "") | tojson }};
-        let selectedPairName = {{ selected_pair.name | tojson }};
+        const pageState = JSON.parse(document.getElementById('pageStateData').textContent);
+        let currentPredictionPptxName = pageState.predictionPptxName;
+        let selectedPairName = pageState.selectedPairName;
         let currentGenerationTime = null;
         let currentLLMEngine = null;
 
@@ -701,7 +920,7 @@
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
                 oscillator.start(audioContext.currentTime);
                 oscillator.stop(audioContext.currentTime + 0.3);
-            } catch (_) {}
+            } catch (_) { }
         }
 
         function showNotification(title, body, isSuccess = true) {
@@ -723,7 +942,7 @@
             }
         }
 
-        pairSelector.addEventListener('change', function() {
+        pairSelector.addEventListener('change', function () {
             const newPairName = this.value;
             updateActivePairLabel(newPairName);
             const currentUrl = new URL(window.location.href);
@@ -732,8 +951,8 @@
             currentUrl.searchParams.delete('generation_time');
             window.location.href = currentUrl.toString();
         });
-        
-        evalForm.addEventListener('submit', function(event) {
+
+        evalForm.addEventListener('submit', function (event) {
             event.preventDefault();
             submitPrediction({ loopMode: false });
         });
@@ -747,10 +966,11 @@
             generationTimeDisplay.style.display = 'none';
 
             const formData = new FormData();
-            const reqId = `eval-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+            const reqId = `eval-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
             formData.append('prompt', evalPromptInput.value);
             formData.append('llm_engine', llmEngineSelect.value);
-            formData.append('api_key', apiKeySharedInput ? apiKeySharedInput.value : '');
+            formData.append('openai_api_key', apiKeyOpenAIInput ? apiKeyOpenAIInput.value : '');
+            formData.append('gemini_api_key', apiKeyGeminiInput ? apiKeyGeminiInput.value : '');
             formData.append('force_python_pptx', forcePythonCheckbox && forcePythonCheckbox.checked ? 'on' : 'off');
             formData.append('loop_mode', loopMode ? 'on' : 'off');
             if (loopIterationsInput && loopIterationsInput.value) formData.append('loop_iterations', loopIterationsInput.value);
@@ -834,20 +1054,22 @@
             }
         }
 
-        judgeButton.addEventListener('click', async function() {
+        judgeButton.addEventListener('click', async function () {
             if (evalLoader) evalLoader.style.display = 'block';
             judgementDisplay.style.display = 'none';
             judgeTimeDisplay.style.display = 'none';
             evalMessageArea.innerHTML = '';
-            
+
             try {
                 const response = await fetch('/judge_arena', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         prediction_pptx_name: currentPredictionPptxName,
                         pair_name: selectedPairName,
-                        judge_model: judgeModelSelect ? judgeModelSelect.value : undefined
+                        judge_model: judgeModelSelect ? judgeModelSelect.value : undefined,
+                        openai_api_key: apiKeyOpenAIInput ? apiKeyOpenAIInput.value : '',
+                        gemini_api_key: apiKeyGeminiInput ? apiKeyGeminiInput.value : ''
                     })
                 });
 
@@ -897,13 +1119,13 @@
                     instruction_following_reason: judgement.instruction_following_reason || '',
                     visual_quality_reason: judgement.visual_quality_reason || ''
                 };
-                
+
                 const response = await fetch('/save_evaluation_result', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(resultData)
                 });
-                
+
                 if (!response.ok) console.error('Failed to save results to CSV');
             } catch (error) {
                 console.error('Error saving results to CSV:', error);
@@ -969,7 +1191,7 @@
                 const msgs = data.messages || [];
                 msgs.forEach(m => appendEvalProgress(m));
                 progressIndex = data.next_index || progressIndex;
-            } catch (_) {}
+            } catch (_) { }
         }
 
         function startProgressPolling(requestId) {
@@ -977,7 +1199,7 @@
             progressIndex = 0;
             appendEvalProgress('Starting live progress...');
             progressInterval = setInterval(() => pollProgress(requestId), 800);
-            setTimeout(() => { if (progressInterval) { clearInterval(progressInterval); appendEvalProgress('Progress ended.'); }}, 120000);
+            setTimeout(() => { if (progressInterval) { clearInterval(progressInterval); appendEvalProgress('Progress ended.'); } }, 120000);
         }
 
         const savedPythonToggle = localStorage.getItem('pptpilot_force_python');
@@ -995,137 +1217,203 @@
                 updateLoopPreview();
             });
         }
+
+        // Manual Prediction Upload Logic
+        const manualUploadInput = document.getElementById('manualPredictionUpload');
+        if (manualUploadInput) {
+            manualUploadInput.addEventListener('change', async function (e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                if (evalLoader) evalLoader.style.display = 'block';
+                displayEvalMessage('Uploading manual prediction...', 'info');
+
+                try {
+                    const response = await fetch('/upload_only', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Update state
+                        const savedFilename = data.preview_url.split('/').pop();
+                        currentPredictionPptxName = savedFilename;
+
+                        // Update UI
+                        const pdfViewer = document.getElementById('predictionPdfViewer');
+                        const filenameDisplay = document.getElementById('predictionFilenameDisplay');
+
+                        if (pdfViewer) {
+                            if (data.pdf_preview_url) {
+                                if (pdfViewer.tagName === 'IFRAME') {
+                                    pdfViewer.src = data.pdf_preview_url;
+                                } else {
+                                    // Replace div with iframe
+                                    const iframe = document.createElement('iframe');
+                                    iframe.id = 'predictionPdfViewer';
+                                    iframe.className = 'pdf-viewer';
+                                    iframe.src = data.pdf_preview_url;
+                                    pdfViewer.replaceWith(iframe);
+                                }
+                            } else {
+                                displayEvalMessage('Upload successful, but PDF preview failed.', 'warning');
+                            }
+                        }
+
+                        if (filenameDisplay) {
+                            filenameDisplay.textContent = file.name;
+                            filenameDisplay.title = file.name;
+                        }
+
+                        displayEvalMessage('Prediction uploaded successfully. Ready to judge.', 'success');
+                        showNotification('Upload Complete', 'Manual prediction loaded.', true);
+                    } else {
+                        throw new Error(data.error || 'Upload failed');
+                    }
+                } catch (error) {
+                    displayEvalMessage(`Upload error: ${error.message}`, 'error');
+                    showNotification('Upload Failed', error.message, false);
+                } finally {
+                    if (evalLoader) evalLoader.style.display = 'none';
+                    manualUploadInput.value = '';
+                }
+            });
+        }
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-    // Helper functions for Microsoft Live viewer with fallbacks
-    function toAbsoluteUrl(u) {
-      try { return new URL(u, window.location.origin).href; } catch { return u; }
-    }
-
-    function buildOfficeViewerUrl(fileUrl) {
-      const u = encodeURIComponent(fileUrl);
-      return `https://view.officeapps.live.com/op/embed.aspx?src=${u}`;
-    }
-
-    function buildGoogleViewerUrl(fileUrl) {
-      const u = encodeURIComponent(fileUrl);
-      return `https://docs.google.com/gview?url=${u}&embedded=true`;
-    }
-
-    function setIframeWithFallback(iframe, fileUrl) {
-      iframe.src = buildOfficeViewerUrl(fileUrl);
-      const fallbackTimer = setTimeout(() => {
-        iframe.src = buildGoogleViewerUrl(fileUrl);
-      }, 3500);
-      iframe.addEventListener('load', () => clearTimeout(fallbackTimer), { once: true });
-    }
-
-    function joinUrl(base, path) {
-      return new URL(path, base).href;
-    }
-
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      console.warn('Office preview cannot load files from localhost. Use a public URL via ngrok/Cloudflare Tunnel or deploy to staging.');
-      setTimeout(() => {
-        if (typeof displayChatMessage === 'function') {
-            displayChatMessage('Office preview cannot load files from localhost. Use ngrok/Cloudflare Tunnel or deploy to staging for full functionality.', 'error');
+        // Helper functions for Microsoft Live viewer with fallbacks
+        function toAbsoluteUrl(u) {
+            try { return new URL(u, window.location.origin).href; } catch { return u; }
         }
-      }, 1000);
-    }
+
+        function buildOfficeViewerUrl(fileUrl) {
+            const u = encodeURIComponent(fileUrl);
+            return `https://view.officeapps.live.com/op/embed.aspx?src=${u}`;
+        }
+
+        function buildGoogleViewerUrl(fileUrl) {
+            const u = encodeURIComponent(fileUrl);
+            return `https://docs.google.com/gview?url=${u}&embedded=true`;
+        }
+
+        function setIframeWithFallback(iframe, fileUrl) {
+            iframe.src = buildOfficeViewerUrl(fileUrl);
+            const fallbackTimer = setTimeout(() => {
+                iframe.src = buildGoogleViewerUrl(fileUrl);
+            }, 3500);
+            iframe.addEventListener('load', () => clearTimeout(fallbackTimer), { once: true });
+        }
+
+        function joinUrl(base, path) {
+            return new URL(path, base).href;
+        }
+
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            console.warn('Office preview cannot load files from localhost. Use a public URL via ngrok/Cloudflare Tunnel or deploy to staging.');
+            setTimeout(() => {
+                if (typeof displayChatMessage === 'function') {
+                    displayChatMessage('Office preview cannot load files from localhost. Use ngrok/Cloudflare Tunnel or deploy to staging for full functionality.', 'error');
+                }
+            }, 1000);
+        }
     </script>
     <script>
-    // Chat tab logic
-    const chatPptForm = document.getElementById('chatPptForm');
-    const chatForm = document.getElementById('chatForm');
-    const chatLoader = document.getElementById('chatLoader');
-    const chatMessageArea = document.getElementById('chatMessageArea');
-    const chatHistory = document.getElementById('chatHistory');
-    const chatModifiedPptIframe = document.getElementById('chatModifiedPptIframe');
-    const chatModifiedPptxDownload = document.getElementById('chatModifiedPptxDownload');
-    const chatEditHistoryContainer = document.getElementById('chatEditHistoryContainer');
-    const chatFileInput = document.getElementById('chat_ppt_file');
-    const chatLLMSelect = document.getElementById('chat_llm_engine');
-    const chatPreviewSection = document.getElementById('chatPreviewSection');
-    const BACKEND_URL = window.location.origin;
-    let chatProgressInterval = null;
-    let chatProgressIndex = 0;
-    let currentSessionId = null;
-    let chatHistoryData = [];
-    let editHistoryData = [];
+        // Chat tab logic
+        const chatPptForm = document.getElementById('chatPptForm');
+        const chatForm = document.getElementById('chatForm');
+        const chatLoader = document.getElementById('chatLoader');
+        const chatMessageArea = document.getElementById('chatMessageArea');
+        const chatHistory = document.getElementById('chatHistory');
+        const chatModifiedPptIframe = document.getElementById('chatModifiedPptIframe');
+        const chatModifiedPptxDownload = document.getElementById('chatModifiedPptxDownload');
+        const chatEditHistoryContainer = document.getElementById('chatEditHistoryContainer');
+        const chatFileInput = document.getElementById('chat_ppt_file');
+        const chatLLMSelect = document.getElementById('chat_llm_engine');
+        const chatPreviewSection = document.getElementById('chatPreviewSection');
+        const BACKEND_URL = window.location.origin;
+        let chatProgressInterval = null;
+        let chatProgressIndex = 0;
+        let currentSessionId = null;
+        let chatHistoryData = [];
+        let editHistoryData = [];
 
-    function displayChatMessage(message, type) {
-        const div = document.createElement('div');
-        div.className = `p-3 rounded-md text-sm border ${type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`;
-        div.textContent = message;
-        chatMessageArea.innerHTML = '';
-        chatMessageArea.appendChild(div);
-    }
-
-    function appendChatProgress(message) {
-        const row = document.createElement('div');
-        row.className = 'text-xs text-slate-600';
-        row.textContent = message;
-        chatMessageArea.appendChild(row);
-        chatMessageArea.scrollTop = chatMessageArea.scrollHeight;
-    }
-
-    async function pollChatProgress(requestId) {
-        try {
-            const res = await fetch(`/progress?request_id=${encodeURIComponent(requestId)}&since=${chatProgressIndex}`);
-            const data = await res.json();
-            const msgs = data.messages || [];
-            msgs.forEach(m => appendChatProgress(m));
-            chatProgressIndex = data.next_index || chatProgressIndex;
-        } catch (_) {}
-    }
-
-    function startChatProgressPolling(requestId) {
-        if (chatProgressInterval) clearInterval(chatProgressInterval);
-        chatProgressIndex = 0;
-        appendChatProgress('Starting live progress...');
-        chatProgressInterval = setInterval(() => pollChatProgress(requestId), 800);
-        setTimeout(() => { if (chatProgressInterval) { clearInterval(chatProgressInterval); appendChatProgress('Progress ended.'); }}, 120000);
-    }
-
-    function renderChatHistory() {
-        chatHistory.innerHTML = '';
-        chatHistoryData.forEach(entry => {
-            const entryDiv = document.createElement('div');
-            entryDiv.className = 'chat-history-entry';
-            const userBubble = document.createElement('div');
-            userBubble.className = 'chat-bubble-user';
-            userBubble.textContent = entry.prompt;
-            entryDiv.appendChild(userBubble);
-            const llmBubble = document.createElement('div');
-            llmBubble.className = 'chat-bubble-llm';
-            llmBubble.textContent = entry.response || 'No response.';
-            entryDiv.appendChild(llmBubble);
-            if (entry.downloadUrl) {
-                const link = document.createElement('a');
-                link.href = entry.downloadUrl;
-                link.target = '_blank';
-                link.rel = 'noopener';
-                link.className = 'text-blue-600 underline mt-1';
-                link.textContent = 'Download this version';
-                entryDiv.appendChild(link);
-            }
-            chatHistory.appendChild(entryDiv);
-        });
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-
-    function renderEditHistory() {
-        chatEditHistoryContainer.innerHTML = '';
-        if (editHistoryData.length === 0) {
-            chatEditHistoryContainer.innerHTML = '<div class="text-gray-500">No previous edits yet.</div>';
-            return;
+        function displayChatMessage(message, type) {
+            const div = document.createElement('div');
+            div.className = `p-3 rounded-md text-sm border ${type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+            div.textContent = message;
+            chatMessageArea.innerHTML = '';
+            chatMessageArea.appendChild(div);
         }
-        editHistoryData.forEach((edit, idx) => {
-            const entryDiv = document.createElement('div');
-            entryDiv.className = 'history-entry';
-            entryDiv.innerHTML = `
+
+        function appendChatProgress(message) {
+            const row = document.createElement('div');
+            row.className = 'text-xs text-slate-600';
+            row.textContent = message;
+            chatMessageArea.appendChild(row);
+            chatMessageArea.scrollTop = chatMessageArea.scrollHeight;
+        }
+
+        async function pollChatProgress(requestId) {
+            try {
+                const res = await fetch(`/progress?request_id=${encodeURIComponent(requestId)}&since=${chatProgressIndex}`);
+                const data = await res.json();
+                const msgs = data.messages || [];
+                msgs.forEach(m => appendChatProgress(m));
+                chatProgressIndex = data.next_index || chatProgressIndex;
+            } catch (_) { }
+        }
+
+        function startChatProgressPolling(requestId) {
+            if (chatProgressInterval) clearInterval(chatProgressInterval);
+            chatProgressIndex = 0;
+            appendChatProgress('Starting live progress...');
+            chatProgressInterval = setInterval(() => pollChatProgress(requestId), 800);
+            setTimeout(() => { if (chatProgressInterval) { clearInterval(chatProgressInterval); appendChatProgress('Progress ended.'); } }, 120000);
+        }
+
+        function renderChatHistory() {
+            chatHistory.innerHTML = '';
+            chatHistoryData.forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'chat-history-entry';
+                const userBubble = document.createElement('div');
+                userBubble.className = 'chat-bubble-user';
+                userBubble.textContent = entry.prompt;
+                entryDiv.appendChild(userBubble);
+                const llmBubble = document.createElement('div');
+                llmBubble.className = 'chat-bubble-llm';
+                llmBubble.textContent = entry.response || 'No response.';
+                entryDiv.appendChild(llmBubble);
+                if (entry.downloadUrl) {
+                    const link = document.createElement('a');
+                    link.href = entry.downloadUrl;
+                    link.target = '_blank';
+                    link.rel = 'noopener';
+                    link.className = 'text-blue-600 underline mt-1';
+                    link.textContent = 'Download this version';
+                    entryDiv.appendChild(link);
+                }
+                chatHistory.appendChild(entryDiv);
+            });
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function renderEditHistory() {
+            chatEditHistoryContainer.innerHTML = '';
+            if (editHistoryData.length === 0) {
+                chatEditHistoryContainer.innerHTML = '<div class="text-gray-500">No previous edits yet.</div>';
+                return;
+            }
+            editHistoryData.forEach((edit, idx) => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'history-entry';
+                entryDiv.innerHTML = `
                 <div class="font-semibold mb-1">Edit #${idx + 1}</div>
                 <div class="mb-1 text-sm text-gray-700"><span class="font-medium">Prompt:</span> ${edit.prompt}</div>
                 <div class="mb-1 text-sm text-gray-700"><span class="font-medium">LLM Response:</span> ${edit.response || 'No response.'}</div>
@@ -1134,148 +1422,150 @@
                     <a href="${edit.previewUrl}" target="_blank" rel="noopener" class="text-blue-600 underline">Preview</a>
                 </div>
             `;
-            chatEditHistoryContainer.appendChild(entryDiv);
-        });
-    }
-
-    if (apiKeySharedInput && savedKey) apiKeySharedInput.value = savedKey;
-
-    chatLLMSelect?.addEventListener('change', () => updateEnginePreview('chat'));
-
-    chatFileInput.addEventListener('change', async () => {
-        const file = chatFileInput.files[0];
-        if (!file) return;
-        const formData = new FormData();
-        formData.append('file', file);
-        try {
-            const backend = BACKEND_URL.replace(/\/+$/, '');
-            const response = await fetch(`${BACKEND_URL}/upload_only`, { method: 'POST', body: formData });
-            if (response.ok) {
-                const data = await response.json();
-                const pdfUrl = data.pdf_preview_url ? joinUrl(backend, data.pdf_preview_url) : null;
-                const publicUrl = data.public_preview_url ? joinUrl(backend, data.public_preview_url) : toAbsoluteUrl(data.preview_url);
-                if (pdfUrl) {
-                    chatModifiedPptIframe.src = pdfUrl;
-                } else if (publicUrl) {
-                    setIframeWithFallback(chatModifiedPptIframe, publicUrl);
-                }
-                chatPreviewSection.style.display = 'flex';
-                chatModifiedPptxDownload.href = data.preview_url ? joinUrl(backend, data.preview_url) : '#';
-            }
-        } catch (err) {
-            console.error('Preview upload failed', err);
-        }
-    });
-
-    chatForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        if (chatLoader) chatLoader.style.display = 'block';
-        const prompt = document.getElementById('chat_prompt').value;
-        
-        if (!currentSessionId && !chatFileInput.files[0]) {
-            displayChatMessage('Please upload a PPTX file first before sending instructions.', 'error');
-            if (chatLoader) chatLoader.style.display = 'none';
-            return;
-        }
-        
-        const formData = new FormData(chatPptForm);
-        formData.append('prompt', prompt);
-        formData.append('api_key', apiKeySharedInput ? apiKeySharedInput.value : '');
-
-        let endpoint = '';
-        if (currentSessionId) {
-            endpoint = `${BACKEND_URL}/api/edit`;
-            formData.append('session_id', currentSessionId);
-            formData.delete('file');
-        } else {
-            endpoint = `${BACKEND_URL}/process_ppt`;
+                chatEditHistoryContainer.appendChild(entryDiv);
+            });
         }
 
-        try {
-            const backend = BACKEND_URL.replace(/\/+$/, '');
-            const response = await fetch(endpoint, { method: 'POST', body: formData });
-            if (chatLoader) chatLoader.style.display = 'none';
-            if (response.ok) {
-                const data = await response.json();
-                document.getElementById('chat_prompt').value = '';
 
-                if (data.session_id && !currentSessionId) {
-                    currentSessionId = data.session_id;
-                    chatFileInput.disabled = true;
-                    displayChatMessage(`Session started: ${currentSessionId}`, 'success');
-                } else {
-                    displayChatMessage(data.message || 'Processing successful!', 'success');
-                }
 
-                if (data.request_id) startChatProgressPolling(data.request_id);
+        chatLLMSelect?.addEventListener('change', () => updateEnginePreview('chat'));
 
-                if (data.modified_pptx_url) {
+        chatFileInput.addEventListener('change', async () => {
+            const file = chatFileInput.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const backend = BACKEND_URL.replace(/\/+$/, '');
+                const response = await fetch(`${BACKEND_URL}/upload_only`, { method: 'POST', body: formData });
+                if (response.ok) {
+                    const data = await response.json();
                     const pdfUrl = data.pdf_preview_url ? joinUrl(backend, data.pdf_preview_url) : null;
-                    const publicUrl = data.public_preview_url || toAbsoluteUrl(`${backend}${data.modified_pptx_url}`);
+                    const publicUrl = data.public_preview_url ? joinUrl(backend, data.public_preview_url) : toAbsoluteUrl(data.preview_url);
                     if (pdfUrl) {
                         chatModifiedPptIframe.src = pdfUrl;
-                    } else {
+                    } else if (publicUrl) {
                         setIframeWithFallback(chatModifiedPptIframe, publicUrl);
                     }
                     chatPreviewSection.style.display = 'flex';
-                    chatModifiedPptxDownload.href = `${backend}${data.modified_pptx_download_url}`;
+                    chatModifiedPptxDownload.href = data.preview_url ? joinUrl(backend, data.preview_url) : '#';
                 }
-
-                chatHistoryData.push({
-                    prompt: prompt,
-                    response: data.summary || data.message || (data.reason_for_no_modification ? `No modifications: ${data.reason_for_no_modification}` : 'Success'),
-                    downloadUrl: data.modified_pptx_download_url ? `${backend}${data.modified_pptx_download_url}` : null
-                });
-                renderChatHistory();
-
-                if (data.session_id) {
-                    editHistoryData = [];
-                    for (let i = 1; i < chatHistoryData.length; i++) {
-                        const editNum = i;
-                        const promptText = chatHistoryData[i-1].prompt;
-                        const responseText = chatHistoryData[i-1].response;
-                        const downloadUrl = joinUrl(backend, `/download_original/${currentSessionId}/history_${editNum}.pptx`);
-                        const previewUrl = buildOfficeViewerUrl(downloadUrl);
-                        editHistoryData.push({
-                            prompt: promptText, response: responseText, downloadUrl, previewUrl
-                        });
-                    }
-                    renderEditHistory();
-                }
-            } else {
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('text/html')) {
-                    const htmlText = await response.text();
-                    displayChatMessage(`Server error: Received HTML instead of JSON. Check server logs.`, 'error');
-                    console.error('Server returned HTML:', htmlText.substring(0, 200));
-                } else {
-                    try {
-                        const errorData = await response.json();
-                        displayChatMessage(`Error: ${errorData.error || 'Failed to process the presentation.'}`, 'error');
-                    } catch (jsonError) {
-                        displayChatMessage(`Server error: Invalid JSON response`, 'error');
-                        console.error('JSON parse error:', jsonError);
-                    }
-                }
+            } catch (err) {
+                console.error('Preview upload failed', err);
             }
-        } catch (error) {
-            if (chatLoader) chatLoader.style.display = 'none';
-            displayChatMessage(`Network error: ${error.message}`, 'error');
-            console.error('Network error details:', error);
-        }
-    });
+        });
 
-    window.onload = () => {
-        chatHistoryData = [];
-        editHistoryData = [];
-        renderChatHistory();
-        renderEditHistory();
-        chatModifiedPptIframe.src = '';
-        chatModifiedPptxDownload.href = '#';
-        chatPreviewSection.style.display = 'none';
-        chatFileInput.disabled = false;
-        currentSessionId = null;
-    };
+        chatForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (chatLoader) chatLoader.style.display = 'block';
+            const prompt = document.getElementById('chat_prompt').value;
+
+            if (!currentSessionId && !chatFileInput.files[0]) {
+                displayChatMessage('Please upload a PPTX file first before sending instructions.', 'error');
+                if (chatLoader) chatLoader.style.display = 'none';
+                return;
+            }
+
+            const formData = new FormData(chatPptForm);
+            formData.append('prompt', prompt);
+            formData.append('openai_api_key', apiKeyOpenAIInput ? apiKeyOpenAIInput.value : '');
+            formData.append('gemini_api_key', apiKeyGeminiInput ? apiKeyGeminiInput.value : '');
+
+            let endpoint = '';
+            if (currentSessionId) {
+                endpoint = `${BACKEND_URL}/api/edit`;
+                formData.append('session_id', currentSessionId);
+                formData.delete('file');
+            } else {
+                endpoint = `${BACKEND_URL}/process_ppt`;
+            }
+
+            try {
+                const backend = BACKEND_URL.replace(/\/+$/, '');
+                const response = await fetch(endpoint, { method: 'POST', body: formData });
+                if (chatLoader) chatLoader.style.display = 'none';
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('chat_prompt').value = '';
+
+                    if (data.session_id && !currentSessionId) {
+                        currentSessionId = data.session_id;
+                        chatFileInput.disabled = true;
+                        displayChatMessage(`Session started: ${currentSessionId}`, 'success');
+                    } else {
+                        displayChatMessage(data.message || 'Processing successful!', 'success');
+                    }
+
+                    if (data.request_id) startChatProgressPolling(data.request_id);
+
+                    if (data.modified_pptx_url) {
+                        const pdfUrl = data.pdf_preview_url ? joinUrl(backend, data.pdf_preview_url) : null;
+                        const publicUrl = data.public_preview_url || toAbsoluteUrl(`${backend}${data.modified_pptx_url}`);
+                        if (pdfUrl) {
+                            chatModifiedPptIframe.src = pdfUrl;
+                        } else {
+                            setIframeWithFallback(chatModifiedPptIframe, publicUrl);
+                        }
+                        chatPreviewSection.style.display = 'flex';
+                        chatModifiedPptxDownload.href = `${backend}${data.modified_pptx_download_url}`;
+                    }
+
+                    chatHistoryData.push({
+                        prompt: prompt,
+                        response: data.summary || data.message || (data.reason_for_no_modification ? `No modifications: ${data.reason_for_no_modification}` : 'Success'),
+                        downloadUrl: data.modified_pptx_download_url ? `${backend}${data.modified_pptx_download_url}` : null
+                    });
+                    renderChatHistory();
+
+                    if (data.session_id) {
+                        editHistoryData = [];
+                        for (let i = 1; i < chatHistoryData.length; i++) {
+                            const editNum = i;
+                            const promptText = chatHistoryData[i - 1].prompt;
+                            const responseText = chatHistoryData[i - 1].response;
+                            const downloadUrl = joinUrl(backend, `/download_original/${currentSessionId}/history_${editNum}.pptx`);
+                            const previewUrl = buildOfficeViewerUrl(downloadUrl);
+                            editHistoryData.push({
+                                prompt: promptText, response: responseText, downloadUrl, previewUrl
+                            });
+                        }
+                        renderEditHistory();
+                    }
+                } else {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('text/html')) {
+                        const htmlText = await response.text();
+                        displayChatMessage(`Server error: Received HTML instead of JSON. Check server logs.`, 'error');
+                        console.error('Server returned HTML:', htmlText.substring(0, 200));
+                    } else {
+                        try {
+                            const errorData = await response.json();
+                            displayChatMessage(`Error: ${errorData.error || 'Failed to process the presentation.'}`, 'error');
+                        } catch (jsonError) {
+                            displayChatMessage(`Server error: Invalid JSON response`, 'error');
+                            console.error('JSON parse error:', jsonError);
+                        }
+                    }
+                }
+            } catch (error) {
+                if (chatLoader) chatLoader.style.display = 'none';
+                displayChatMessage(`Network error: ${error.message}`, 'error');
+                console.error('Network error details:', error);
+            }
+        });
+
+        window.onload = () => {
+            chatHistoryData = [];
+            editHistoryData = [];
+            renderChatHistory();
+            renderEditHistory();
+            chatModifiedPptIframe.src = '';
+            chatModifiedPptxDownload.href = '#';
+            chatPreviewSection.style.display = 'none';
+            chatFileInput.disabled = false;
+            currentSessionId = null;
+        };
     </script>
 </body>
+
 </html>

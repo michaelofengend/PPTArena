@@ -79,11 +79,11 @@ def load_api_keys():
                         if line and not line.startswith('#') and '=' in line:
                             key, value = line.split('=', 1)
                             if key.strip().upper() == "OPENAI_API_KEY":
-                                API_KEYS["openai_api_key"] = value.strip()
+                                API_KEYS["openai"] = value.strip()
                             elif key.strip().upper() == "OPENAI_ORG_ID":
                                 API_KEYS["openai_org_id"] = value.strip()
                             elif key.strip().upper() == "GEMINI_API_KEY":
-                                API_KEYS["gemini_api_key"] = value.strip()
+                                API_KEYS["gemini"] = value.strip()
             else:
                 _log(f"Warning: {CREDENTIALS_FILE} not found. API calls will likely fail.")
         except Exception as e:
@@ -93,7 +93,7 @@ def load_api_keys():
 
 def _create_openai_client(api_key: Optional[str] = None):
     keys = load_api_keys()
-    resolved_key = api_key or keys.get("openai_api_key")
+    resolved_key = api_key or keys.get("openai")
     if not resolved_key:
         return None
     org_id = keys.get("openai_org_id")

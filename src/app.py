@@ -273,7 +273,10 @@ def process_eval_prediction():
         prompt_text = request.form.get('prompt', '')
         selected_model_id = request.form.get('llm_engine')
         use_pre_analysis = request.form.get('use_pre_analysis', 'on') == 'on'
-        api_key = request.form.get('api_key')
+        api_keys = {
+            "openai": request.form.get('openai_api_key'),
+            "gemini": request.form.get('gemini_api_key')
+        }
         force_python_pptx = request.form.get('force_python_pptx') == 'on'
         loop_mode = request.form.get('loop_mode') == 'on'
         loop_iterations_raw = request.form.get('loop_iterations')
@@ -300,7 +303,7 @@ def process_eval_prediction():
             selected_model_id=selected_model_id,
             use_pre_analysis=use_pre_analysis,
             request_id=request_id,
-            api_key=api_key,
+            api_keys=api_keys,
             force_python_pptx=force_python_pptx,
             loop_mode=loop_mode,
             loop_max_iterations=loop_iterations,
@@ -398,7 +401,10 @@ def judge_edit_route():
         original_slide_xml = data.get('original_slide_xml')
         modified_slide_xml = data.get('modified_slide_xml')
         judge_model = data.get('model_id', 'gemini-3-pro-preview') # Default to a powerful model
-        api_key = data.get('api_key')
+        api_keys = {
+            "openai": data.get('openai_api_key'),
+            "gemini": data.get('gemini_api_key')
+        }
         request_id = data.get('request_id', 'judging')
 
         # Basic validation
@@ -414,7 +420,7 @@ def judge_edit_route():
             modified_slide_xml=modified_slide_xml,
             judge_model=judge_model,
             request_id=request_id,
-            api_key=api_key
+            api_keys=api_keys
         )
 
         return jsonify(judge_result)
@@ -447,7 +453,10 @@ def process_ppt_route():
     prompt_text = data.get('prompt', '')
     selected_model_id = data.get('llm_engine')
     use_pre_analysis = data.get('use_pre_analysis', 'on') == 'on'
-    api_key = data.get('api_key')
+    api_keys = {
+        "openai": data.get('openai_api_key'),
+        "gemini": data.get('gemini_api_key')
+    }
     force_python_pptx = data.get('force_python_pptx') == 'on'
     
     if not all([prompt_text, selected_model_id]):
@@ -474,7 +483,7 @@ def process_ppt_route():
         selected_model_id=selected_model_id,
         use_pre_analysis=use_pre_analysis,
         request_id=request_id,
-        api_key=api_key,
+        api_keys=api_keys,
         session_id=session_id,
         force_python_pptx=force_python_pptx
     )
@@ -636,13 +645,24 @@ def judge_arena_route():
             original_slide_xml=gt_xml,
             modified_slide_xml=pred_xml,
             judge_model=judge_model,
-            evaluation_mode='arena'
+            evaluation_mode='arena',
+            api_keys={
+                "openai": data.get('openai_api_key'),
+                "gemini": data.get('gemini_api_key')
+            }
         )
+
+        if not judge_result:
+             return jsonify({'error': 'Judge returned no result.'}), 500
+             
+        if judge_result.get('error'):
+             return jsonify(judge_result), 500
+
         # Ensure frontend receives expected keys
+        judge_result.setdefault('instruction_following_score', 'N/A')
+        judge_result.setdefault('visual_quality_score', 'N/A')
         judge_result.setdefault('instruction_following_reason', '')
-        if 'visual_quality_score' not in judge_result and 'visual_quality_score' in judge_result:
-            judge_result['visual_quality_score'] = judge_result.get('visual_quality_score')
-        judge_result.setdefault('visual_quality_reason', judge_result.get('visual_quality_reason', ''))
+        judge_result.setdefault('visual_quality_reason', '')
         
         judge_time = round(time.time() - judge_start_time, 2)
         judge_result['judge_time_seconds'] = judge_time
@@ -665,7 +685,10 @@ def edit_existing_ppt_route():
     prompt_text = data.get('prompt')
     selected_model_id = data.get('llm_engine')
     use_pre_analysis = data.get('use_pre_analysis', 'on') == 'on'
-    api_key = data.get('api_key')
+    api_keys = {
+        "openai": data.get('openai_api_key'),
+        "gemini": data.get('gemini_api_key')
+    }
     force_python_pptx = data.get('force_python_pptx') == 'on'
     
     if not all([session_id, prompt_text, selected_model_id]):
@@ -691,7 +714,7 @@ def edit_existing_ppt_route():
         selected_model_id=selected_model_id,
         use_pre_analysis=use_pre_analysis,
         request_id=request_id,
-        api_key=api_key,
+        api_keys=api_keys,
         session_id=session_id, # Pass session_id to logic
         force_python_pptx=force_python_pptx
     )

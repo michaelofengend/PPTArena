@@ -9,6 +9,7 @@ from pathlib import Path
 import base64
 from typing import Optional, List
 
+
 # Import from new modules
 from llm.utils import (
     load_api_keys,
@@ -19,22 +20,26 @@ from llm.utils import (
     extract_json_from_llm_response,
     _configure_gemini_client,
     _build_gemini_generation_config,
-    _log_token_info
+    _log_token_info,
+    _is_insufficient_quota_error
 )
 from llm.prompt import (
-    build_xml_editing_prompt,
+    _construct_llm_input_prompt,
     build_planning_prompt,
-    build_judge_prompt
+    get_relevant_xml_files_heuristic
 )
-from ppt import (
-    pptx_to_json,
-    diff_pptx_json,
-    format_diff_for_judge,
-    export_slides_to_images,
-    convert_pptx_to_base64_images
+from llm.judge import call_llm_judge
+from utils.image_utils import (
+    _pil_from_b64,
+    _resize_for_metric,
+    _to_gray_np,
+    _compute_ssim,
+    _dct_8x8_hash,
+    _hamming_distance64
 )
 
-# --- Main LLM Interaction Functions ---
+# Configuration
+CREDENTIALS_FILE = "credentials.env"
 
 def call_openai_api(
     user_prompt,
@@ -47,91 +52,158 @@ def call_openai_api(
     edit_history=None,
     edit_plan=None,
 ):
-    """
-    Handles calls to the OpenAI API (Chat Completions).
-    Supports text-only and multimodal (image) inputs.
-    """
-    client = _create_openai_client(api_key)
-    if not client:
-        _log("Error: OpenAI client could not be created.", request_id)
-        return None
+    # Always use the credentials.env OpenAI key, ignore any provided api_key from frontend
+    keys = load_api_keys()
+    api_key = keys.get("openai") or keys.get("openai_api_key")
+    _log("Using OPENAI_API_KEY from credentials.env for OpenAI call", request_id)
+    response_data = {"text_response": "", "model_used": model_id, "inference_time_seconds": None}
 
-    # Construct the system and user messages
-    messages = build_xml_editing_prompt(
-        user_prompt,
-        ppt_json_data,
-        xml_file_paths,
-        image_inputs,
-        edit_history,
-        edit_plan
-    )
+    if not api_key:
+        response_data["text_response"] = f"Error: OpenAI API key not found in {CREDENTIALS_FILE}"
+        return response_data
 
     try:
-        start_time = time.time()
-        
-        # Check for O1/O3 models which don't support system messages or temperature
-        is_reasoning_model = any(x in model_id for x in ["o1", "o3"])
-        
-        if is_reasoning_model:
-            # For reasoning models, combine system prompt into user message
-            # and remove system message from list
-            system_content = next((m["content"] for m in messages if m["role"] == "system"), "")
-            user_content = next((m["content"] for m in messages if m["role"] == "user"), "")
-            
-            # If user content is a list (multimodal), prepend system text to the first text part
-            if isinstance(user_content, list):
-                if user_content and user_content[0]["type"] == "text":
-                    user_content[0]["text"] = f"Instructions:\n{system_content}\n\nUser Request:\n{user_content[0]['text']}"
-                else:
-                    user_content.insert(0, {"type": "text", "text": f"Instructions:\n{system_content}"})
-            else:
-                user_content = f"Instructions:\n{system_content}\n\nUser Request:\n{user_content}"
-            
-            # Reconstruct messages list with only user message
-            messages = [{"role": "user", "content": user_content}]
-            
-            response = client.chat.completions.create(
+        client = _create_openai_client(api_key)
+        if client is None:
+            response_data["text_response"] = "Error: Failed to initialize OpenAI client (missing API key?)."
+            return response_data
+
+        # Build the common text prompt
+        num_slides_with_images = len(image_inputs) if image_inputs else 0
+        text_prompt_content = _construct_llm_input_prompt(
+            user_prompt,
+            ppt_json_data,
+            xml_file_paths,
+            bool(image_inputs),
+            num_slides_with_images=num_slides_with_images,
+            edit_history=edit_history,
+            request_id=request_id,
+            edit_plan=edit_plan,
+        )
+        # Token count (OpenAI) - delegated to _log_token_info
+        _log_token_info(model_id, text_prompt_content, -1, log_type="openai", request_id=request_id)
+        # Soft token limit hint to logs for troubleshooting
+        try:
+            approx_chars = len(text_prompt_content)
+            _log(f"Approx prompt chars: {approx_chars}", request_id)
+        except Exception:
+            pass
+
+        # If GPT-5 family, use the Responses API and explicitly embed base64 images
+        if "gpt-5" in model_id.lower():
+            _log(f"Calling OpenAI Responses API ({model_id})", request_id)
+            content_items = [{"type": "input_text", "text": text_prompt_content}]
+            if image_inputs:
+                for img_data in image_inputs:
+                    try:
+                        # Handle both dict with path and direct base64 if needed, assuming dict from provided code
+                        if "path" in img_data:
+                            with open(img_data["path"], "rb") as f_img:
+                                encoded = base64.b64encode(f_img.read()).decode("utf-8")
+                            mime = img_data.get("mime_type", "image/png")
+                        else:
+                            # Fallback if img_data is different structure
+                            encoded = "" 
+                            mime = "image/png"
+                        
+                        if encoded:
+                            data_url = f"data:{mime};base64,{encoded}"
+                            content_items.append({
+                                "type": "input_image",
+                                "image_url": data_url,
+                            })
+                    except Exception as e_img:
+                        _log(f"Error base64-encoding image {img_data.get('path')}: {e_img}", request_id)
+            llm_start_time = time.time()
+            resp = client.responses.create(
                 model=model_id,
-                messages=messages,
-                # reasoning_effort="high" # Optional, if supported
+                input=[{"role": "user", "content": content_items}],
             )
-        elif "gpt-5" in model_id.lower():
-             # Hypothetical GPT-5 handling (same as standard for now)
-            response = client.chat.completions.create(
-                model=model_id,
-                messages=messages,
-                temperature=0.0,
-                max_tokens=16384, 
-            )
+            llm_end_time = time.time()
+            response_data["inference_time_seconds"] = round(llm_end_time - llm_start_time, 3)
+            # Robustly extract text from Responses API
+            text_out = getattr(resp, "output_text", None)
+            if not text_out:
+                try:
+                    # New SDKs often expose a .output list → each has .content list items with .text
+                    parts = []
+                    output_items = getattr(resp, "output", []) or []
+                    for out in output_items:
+                        for c in getattr(out, "content", []) or []:
+                            t = getattr(c, "text", None)
+                            if t:
+                                parts.append(str(t))
+                    text_out = "\n".join(parts) if parts else None
+                except Exception:
+                    text_out = None
+            if not text_out:
+                try:
+                    # Fallback to dict conversion if available
+                    if hasattr(resp, "to_dict"):
+                        text_out = json.dumps(resp.to_dict())
+                    else:
+                        text_out = str(resp)
+                except Exception:
+                    text_out = str(resp)
+            response_data["text_response"] = text_out
+            # Log a brief summary of the output for debugging
+            _log(f"OpenAI Responses output length: {len(text_out or '')}", request_id)
+            if not text_out:
+                try:
+                    _log(f"OpenAI Responses raw (truncated): {str(resp)[:300]}...", request_id)
+                except Exception:
+                    pass
+            _log(f"OpenAI Responses API call successful (took {response_data['inference_time_seconds']:.3f}s)", request_id)
         else:
-            # Standard GPT-4o / GPT-4 Turbo handling
-            response = client.chat.completions.create(
+            # Chat Completions path (GPT-4/4o family etc.)
+            message_content_parts = [{"type": "text", "text": text_prompt_content}]
+            if image_inputs and model_id in ["gpt-4o", "gpt-4-turbo", "gpt-4-vision-preview"]:
+                _log(f"Preparing {len(image_inputs)} image(s) for OpenAI API ({model_id})", request_id)
+                for img_data in image_inputs:
+                    try:
+                        with open(img_data["path"], "rb") as image_file:
+                            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+                        data_url = f"data:{img_data['mime_type']};base64,{encoded_string}"
+                        message_content_parts.append({
+                            "type": "image_url",
+                            "image_url": {"url": data_url, "detail": "low"}
+                        })
+                    except Exception as e_img:
+                        _log(f"Error processing image {img_data['path']} for OpenAI: {e_img}", request_id)
+                        message_content_parts.append({"type": "text", "text": f"[Error processing image: {Path(img_data['path']).name}]"})
+            elif image_inputs:
+                _log(f"Warning: Images provided but model {model_id} may not be vision-capable for OpenAI. Sending text only.", request_id)
+
+            payload_content = message_content_parts if (image_inputs and model_id in ["gpt-4o", "gpt-4-turbo", "gpt-4-vision-preview"]) else text_prompt_content
+            _log(f"Calling OpenAI Chat Completions ({model_id}) (multimodal: {bool(image_inputs and 'gpt-4' in model_id)})", request_id)
+            llm_start_time = time.time()
+            chat_completion = client.chat.completions.create(
+                messages=[{"role": "user", "content": payload_content}],
                 model=model_id,
-                messages=messages,
-                temperature=0.0,
-                max_tokens=4096,
             )
-
-        duration = time.time() - start_time
-        
-        # Extract response text
-        response_text = response.choices[0].message.content
-        
-        # Log usage
-        input_tokens = response.usage.prompt_tokens
-        output_tokens = response.usage.completion_tokens
-        _log_token_info(model_id, input_tokens, output_tokens, duration, request_id)
-
-        return {
-            "response_text": response_text,
-            "input_tokens": input_tokens,
-            "output_tokens": output_tokens,
-            "duration": duration
-        }
-
-    except Exception as e:
-        _log(f"Error calling OpenAI API: {e}", request_id)
-        return None
+            llm_end_time = time.time()
+            response_data["inference_time_seconds"] = round(llm_end_time - llm_start_time, 3)
+            response_data["text_response"] = chat_completion.choices[0].message.content
+            _log(f"OpenAI Chat call successful (took {response_data['inference_time_seconds']:.3f}s, output length {len(response_data['text_response'] or '')})", request_id)
+    except openai.APIConnectionError as e:
+        _log(f"OpenAI API Connection Error: {e}", request_id)
+        response_data["text_response"] = f"OpenAI API Connection Error: {e}"
+    except openai.RateLimitError as e:
+        _log(f"OpenAI API Rate Limit Error: {e}", request_id)
+        response_data["text_response"] = f"OpenAI API Rate Limit Error: {e}"
+    except openai.AuthenticationError as e:
+        _log(f"OpenAI API Authentication Error: {e}", request_id)
+        response_data["text_response"] = f"OpenAI API Authentication Error: {e} (Check your API key)"
+    except openai.BadRequestError as e: 
+        _log(f"OpenAI API BadRequestError: {e}", request_id)
+        response_data["text_response"] = f"OpenAI API BadRequestError: {e}. The prompt or image data might be too long or invalid."
+    except openai.APIError as e: 
+        _log(f"OpenAI API Error: {e}", request_id)
+        response_data["text_response"] = f"OpenAI API Error: {e}"
+    except Exception as e: 
+        _log(f"Unexpected OpenAI error: {e}", request_id)
+        response_data["text_response"] = f"An unexpected error occurred with OpenAI API: {e}"
+    return response_data
 
 
 def call_gemini_api(
@@ -145,127 +217,166 @@ def call_gemini_api(
     edit_history=None,
     edit_plan=None,
 ):
-    """
-    Handles calls to the Google Gemini API.
-    """
-    if not _configure_gemini_client(api_key):
-        _log("Error: Gemini client could not be configured.", request_id)
-        return None
+    if not api_key:
+        keys = load_api_keys()
+        api_key = keys.get("gemini") or keys.get("gemini_api_key")
+    response_data = {"text_response": "", "model_used": model_id, "inference_time_seconds": None}
 
-    # Construct the prompt parts
-    # Note: build_xml_editing_prompt returns OpenAI-style messages.
-    # We need to adapt this for Gemini or use a Gemini-specific builder.
-    # For simplicity, we'll reuse the logic but extract the content.
-    
-    messages = build_xml_editing_prompt(
-        user_prompt,
-        ppt_json_data,
-        xml_file_paths,
-        image_inputs,
-        edit_history,
-        edit_plan
-    )
-    
-    system_instruction = next((m["content"] for m in messages if m["role"] == "system"), "")
-    user_message_content = next((m["content"] for m in messages if m["role"] == "user"), "")
-
-    model = genai.GenerativeModel(
-        model_name=model_id,
-        system_instruction=system_instruction,
-        generation_config=_build_gemini_generation_config(model_id)
-    )
-
-    prompt_parts_for_api = []
-    
-    # Handle multimodal input
-    if isinstance(user_message_content, list):
-        for part in user_message_content:
-            if part["type"] == "text":
-                prompt_parts_for_api.append(part["text"])
-            elif part["type"] == "image_url":
-                # Extract base64 data
-                base64_data = part["image_url"]["url"].split(",")[1]
-                image_data = base64.b64decode(base64_data)
-                prompt_parts_for_api.append({
-                    "mime_type": "image/png",
-                    "data": image_data
-                })
-    else:
-        prompt_parts_for_api.append(user_message_content)
+    if not api_key:
+        response_data["text_response"] = f"Error: Gemini API key not found in {CREDENTIALS_FILE}"
+        return response_data
 
     try:
-        start_time = time.time()
+        _configure_gemini_client(model_id, api_key)
         
-        # Safety settings
+        # --- MODIFIED: Stricter safety settings ---
         safety_settings = {
-            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
             HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
             HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
             HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
         }
 
-        response = model.generate_content(
-            prompt_parts_for_api,
-            safety_settings=safety_settings,
-            request_options={"timeout": 600}
-        )
-        
-        duration = time.time() - start_time
-        
-        response_text = response.text
-        
-        # Usage metadata (if available)
-        input_tokens = response.usage_metadata.prompt_token_count if hasattr(response, 'usage_metadata') else 0
-        output_tokens = response.usage_metadata.candidates_token_count if hasattr(response, 'usage_metadata') else 0
-        
-        _log_token_info(model_id, input_tokens, output_tokens, duration, request_id)
+        # --- MODIFIED: Add request options for timeout ---
+        request_options = {"timeout": 600} # 10 minutes
 
-        return {
-            "response_text": response_text,
-            "input_tokens": input_tokens,
-            "output_tokens": output_tokens,
-            "duration": duration
-        }
+        # Configure generation defaults (thinking level, media resolution for images, etc.)
+        generation_config = _build_gemini_generation_config(
+            model_id,
+            use_high_res_media=bool(image_inputs),
+        )
+        model_kwargs = {"model_name": model_id, "safety_settings": safety_settings}
+        if generation_config:
+            model_kwargs["generation_config"] = generation_config
+        model = genai.GenerativeModel(**model_kwargs)
+
+        prompt_parts_for_api = []
+        num_slides_with_images = len(image_inputs) if image_inputs else 0
+        
+        text_prompt_content = _construct_llm_input_prompt(
+            user_prompt,
+            ppt_json_data,
+            xml_file_paths,
+            bool(image_inputs),
+            num_slides_with_images=num_slides_with_images,
+            edit_history=edit_history,
+            request_id=request_id,
+            edit_plan=edit_plan,
+        )
+        # Token count (Gemini)
+        _log_token_info(model_id, text_prompt_content, -1, log_type="gemini_approx", request_id=request_id)
+        
+        # --- Vision Model Handling ---
+        if 'vision' in model_id or 'pro' in model_id or 'o' in model_id or 'flash' in model_id:
+            _log(f"Calling Gemini API ({model_id}) (with images)", request_id)
+            
+            prompt_parts_for_api.append(text_prompt_content)
+            if image_inputs:
+                _log(f"Preparing {len(image_inputs)} image(s) for Gemini API ({model_id})", request_id)
+                for img_data in image_inputs:
+                    try:
+                        _log(f"  - Processing image for slide: {Path(img_data['path']).name}", request_id)
+                        img = Image.open(img_data['path'])
+                        prompt_parts_for_api.append(img)
+                    except Exception as e_img:
+                        _log(f"Error processing image {img_data['path']} for Gemini: {e_img}", request_id)
+                        prompt_parts_for_api.append(f"[Error processing image: {Path(img_data['path']).name}]")
+        # --- Text-Only Model Handling ---
+        else:
+            _log(f"Calling Gemini API ({model_id}) (text only)", request_id)
+            prompt_parts_for_api.append(text_prompt_content)
+        
+        llm_start_time = time.time()
+        response = model.generate_content(prompt_parts_for_api, request_options=request_options)
+        llm_end_time = time.time()
+        response_data["inference_time_seconds"] = round(llm_end_time - llm_start_time, 3)
+
+        response_data["text_response"] = response.text
+        _log(f"Gemini API Call Successful (took {response_data['inference_time_seconds']:.3f}s)", request_id)
 
     except Exception as e:
-        _log(f"Error calling Gemini API: {e}", request_id)
-        return None
+        # --- MODIFIED: More specific error message ---
+        response_data["text_response"] = f"An error occurred with Gemini API: {e}\n\nNo 'MODIFIED_XML_FILE:' blocks found in LLM response."
+        _log(f"Error in call_gemini_api: {e}", request_id)
 
+    return response_data
 
 def plan_xml_edits_with_router(
-    user_prompt,
-    ppt_json_data,
-    xml_file_paths,
-    api_key=None,
-    request_id=None
-):
+    user_prompt: str,
+    ppt_json_data: dict,
+    all_xml_file_paths: list,
+    request_id: Optional[str] = None,
+    model_id: str = "gpt-5.1-2025-11-13",
+    api_keys=None # Added for compatibility with existing calls
+) -> dict:
     """
-    Uses a fast LLM to plan which XML files need editing.
+    Calls a lightweight OpenAI model to produce a structured plan for XML editing.
+    Output schema mirrors the previous Gemini planner.
     """
-    _log("Planning XML edits...", request_id)
-    
-    messages = build_planning_prompt(user_prompt, ppt_json_data, xml_file_paths)
-    
+    _log("Planning XML edits with GPT router...", request_id)
+
+    keys = load_api_keys()
+    api_key = keys.get("openai") or keys.get("openai_api_key")
+    if not api_key:
+        return {"error": "OPENAI_API_KEY missing."}
+
     client = _create_openai_client(api_key)
-    if not client:
-        return None
+    if client is None:
+        return {"error": "Failed to init OpenAI client."}
+
+    files_manifest = {
+        "slides": sorted([Path(p).as_posix() for p in all_xml_file_paths if "ppt/slides/slide" in Path(p).as_posix()]),
+        "layouts": sorted([Path(p).as_posix() for p in all_xml_file_paths if "ppt/slideLayouts/" in Path(p).as_posix()]),
+        "masters": sorted([Path(p).as_posix() for p in all_xml_file_paths if "ppt/slideMasters/" in Path(p).as_posix()]),
+        "theme": sorted([Path(p).as_posix() for p in all_xml_file_paths if "ppt/theme/" in Path(p).as_posix()]),
+        "other": sorted([Path(p).as_posix() for p in all_xml_file_paths if "ppt/" in Path(p).as_posix() and p.endswith(".xml")])
+    }
+
+    system_prompt = (
+        "You are an expert PowerPoint XML planner. Given a user instruction, a JSON summary of the presentation, "
+        "and a manifest of available XML files, produce a concise JSON planning object indicating which XML files "
+        "should be edited and what types of changes are needed. Do NOT output XML."
+    )
+    prompt = f"""
+--- User Instruction ---
+{user_prompt}
+
+--- Presentation JSON Summary (truncated ok) ---
+```json
+{json.dumps(ppt_json_data, indent=2)[:120000]}
+```
+
+--- XML Files Manifest ---
+```json
+{json.dumps(files_manifest, indent=2)}
+```
+
+--- Output Requirements ---
+Return a single JSON object with:
+- targets: array of objects {{file: string, reason: string, operations: string[]}}
+- global: array of file paths for global resources (themes/masters/layouts) if relevant
+- notes: short rationale
+"""
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini", # Use a cheaper/faster model for planning
-            messages=messages,
-            temperature=0.0,
-            response_format={"type": "json_object"}
+        # User's code used client.responses.create here too
+        response = client.responses.create(
+            model=model_id,
+            input=[
+                {"role": "system", "content": [{"type": "input_text", "text": system_prompt.strip()}]},
+                {"role": "user", "content": [{"type": "input_text", "text": prompt.strip()}]},
+            ],
         )
-        
-        plan_json = extract_json_from_llm_response(response.choices[0].message.content)
-        _log(f"Edit Plan: {json.dumps(plan_json, indent=2)}", request_id)
-        return plan_json
-        
+        plan_text = _extract_text_from_openai_response(response).strip()
+        plan = extract_json_from_llm_response(plan_text)
+        return plan
     except Exception as e:
-        _log(f"Error planning edits: {e}", request_id)
-        return None
+        _log(f"Planning Error: {e}", request_id)
+        return {"error": str(e)}
 
+# Temporary alias
+def plan_xml_edits_with_gemini(*args, **kwargs):
+    return plan_xml_edits_with_router(*args, **kwargs)
 
 def get_llm_response(
     user_prompt,
@@ -275,145 +386,529 @@ def get_llm_response(
     image_inputs=None,
     use_pre_analysis=True,
     request_id=None,
-    api_key=None,
+    api_keys=None, # Added for compatibility
     edit_history=None,
 ):
     """
-    Main entry point for getting LLM response.
-    Orchestrates planning (optional) and execution.
+    Orchestrates the two-call process to get the LLM's response.
     """
-    
-    edit_plan = None
-    if use_pre_analysis:
-        edit_plan = plan_xml_edits_with_router(
-            user_prompt,
-            ppt_json_data,
-            xml_file_paths,
-            api_key=api_key,
-            request_id=request_id
-        )
+    _log(f"LLM Handler (get_llm_response) Called for: {engine_or_model_id}", request_id)
 
-    if _is_openai_model(engine_or_model_id):
-        return call_openai_api(
+    relevant_xml_paths = xml_file_paths
+    edit_plan = None
+
+    if use_pre_analysis:
+        # --- NEW STAGE 1: LLM Planning for XML targets ---
+        plan = plan_xml_edits_with_router(
+            user_prompt=user_prompt,
+            ppt_json_data=ppt_json_data,
+            all_xml_file_paths=xml_file_paths,
+            request_id=request_id,
+            model_id="gpt-5.1-2025-11-13",
+        )
+        if plan and not plan.get("error"):
+            edit_plan = plan
+            candidate_files = set()
+            for t in plan.get("targets", []) or []:
+                f = t.get("file")
+                if isinstance(f, str):
+                    candidate_files.add(f)
+            for g in plan.get("global", []) or []:
+                if isinstance(g, str):
+                    candidate_files.add(g)
+            # Filter to only existing paths from the provided list
+            provided = {Path(p).as_posix() for p in xml_file_paths}
+            relevant_xml_paths = [p for p in candidate_files if p in provided]
+            if relevant_xml_paths:
+                _log(f"Planning selected {len(relevant_xml_paths)} XML files.", request_id)
+            else:
+                _log("Planning returned no matching files; falling back to heuristic.", request_id)
+        else:
+            _log("Planning failed; falling back to heuristic pre-analysis.", request_id)
+
+        if not relevant_xml_paths:
+            # Legacy heuristic fallback
+            relevant_xml_paths = get_relevant_xml_files_heuristic(
+                user_prompt,
+                ppt_json_data,
+                xml_file_paths,
+            )
+            if not relevant_xml_paths:
+                return {
+                    "text_response": "No changes needed (as determined by pre-analysis).",
+                    "model_used": "preanalysis",
+                    "inference_time_seconds": 0,
+                    "relevant_files": []
+                }
+            if len(relevant_xml_paths) == len(xml_file_paths):
+                _log("First-pass check returned all files (or failed); proceeding with full context.", request_id)
+            else:
+                _log(f"Proceeding with {len(relevant_xml_paths)} files identified by heuristic.", request_id)
+    else:
+        _log("Skipping pre-analysis step as requested.", request_id)
+
+    # --- STAGE 2: CALL MAIN LLM WITH REFINED FILE LIST ---
+    llm_response_data = {}
+    if "gemini" in engine_or_model_id.lower() or "google" in engine_or_model_id.lower():
+        llm_response_data = call_gemini_api(
             user_prompt,
             ppt_json_data,
-            xml_file_paths,
-            model_id=engine_or_model_id,
-            image_inputs=image_inputs,
+            relevant_xml_paths,
+            engine_or_model_id,
+            image_inputs,
             request_id=request_id,
-            api_key=api_key,
+            api_key=api_keys.get("gemini") if api_keys else None,
             edit_history=edit_history,
-            edit_plan=edit_plan
+            edit_plan=edit_plan,
+        )
+    elif any(s in engine_or_model_id.lower() for s in ["gpt", "openai", "o3", "o1", "o4", "gpt-5"]):
+        llm_response_data = call_openai_api(
+            user_prompt,
+            ppt_json_data,
+            relevant_xml_paths,
+            engine_or_model_id,
+            image_inputs,
+            request_id=request_id,
+            api_key=api_keys.get("openai") if api_keys else None,
+            edit_history=edit_history,
+            edit_plan=edit_plan,
         )
     else:
-        return call_gemini_api(
-            user_prompt,
-            ppt_json_data,
-            xml_file_paths,
-            model_id=engine_or_model_id,
-            image_inputs=image_inputs,
-            request_id=request_id,
-            api_key=api_key,
-            edit_history=edit_history,
-            edit_plan=edit_plan
+        llm_response_data = {"text_response": f"Error: Unknown model provider for '{engine_or_model_id}'. Please use 'gemini' or 'gpt' in the model name.", "model_used": "N/A", "inference_time_seconds": None}
+
+    llm_response_data["relevant_files"] = relevant_xml_paths
+    if edit_plan:
+        llm_response_data["planning_plan"] = edit_plan
+        llm_response_data["planning_model"] = "gpt-5.1-2025-11-13"
+    return llm_response_data
+
+def parse_llm_response_for_xml_changes(llm_text_response):
+    # Import from utils to avoid duplication, or keep here if it's considered a handler logic
+    from llm.utils import parse_llm_response_for_xml_changes as _parse
+    return _parse(llm_text_response)
+
+def call_llm_router(
+    user_prompt: str,
+    ppt_json_data: dict,
+    api_key: Optional[str] = None,
+    request_id: Optional[str] = None
+) -> str:
+    """
+    Uses a lightweight OpenAI model to decide which editing strategy to use.
+    """
+    ROUTER_MODEL_ID = "gpt-5.1-2025-11-13"
+    _log("Calling LLM Router to decide editing strategy...", request_id)
+
+    keys = load_api_keys()
+    router_api_key = keys.get("openai") or keys.get("openai_api_key")
+
+    if not router_api_key:
+        _log("Router Error: OpenAI API key not found. Defaulting to XML_EDIT.", request_id)
+        return "XML_EDIT"
+
+    client = _create_openai_client(router_api_key)
+    if client is None:
+        _log("Router Error: Failed to initialize OpenAI client. Defaulting to XML_EDIT.", request_id)
+        return "XML_EDIT"
+
+    system_prompt = """
+You are a decision-making engine. Your task is to choose the best strategy for editing a PowerPoint presentation based on the user's request.
+You have two choices:
+1.  `XML_EDIT`: Best for complex, single-slide edits like creating SmartArt, charts, or intricate formatting changes that require direct XML manipulation.
+2.  `PYTHON_PPTX_EDIT`: Best for simple, repetitive, multi-slide tasks like text replacement, translation, or applying a consistent style change across the entire deck.
+
+Analyze the user's prompt and the presentation structure. Respond with ONLY the string `XML_EDIT` or `PYTHON_PPTX_EDIT`. Do not provide any explanation.
+"""
+
+    prompt = f"""
+--- User Prompt ---
+{user_prompt}
+
+--- Presentation Summary (high-level) ---
+{json.dumps({"slide_count": len(ppt_json_data.get("slides", [])), "slide_titles": [s.get("title", "Untitled") for s in ppt_json_data.get("slides", [])]}, indent=2)}
+
+--- Your Decision ---
+"""
+
+    try:
+        response = client.responses.create(
+            model=ROUTER_MODEL_ID,
+            input=[
+                {"role": "system", "content": [{"type": "input_text", "text": system_prompt.strip()}]},
+                {"role": "user", "content": [{"type": "input_text", "text": prompt.strip()}]},
+            ],
+        )
+        decision = _extract_text_from_openai_response(response).strip().upper()
+        if "PYTHON_PPTX_EDIT" in decision:
+            _log("LLM Router decision: PYTHON_PPTX_EDIT", request_id)
+            return "PYTHON_PPTX_EDIT"
+        if "XML_EDIT" in decision:
+            _log("LLM Router decision: XML_EDIT", request_id)
+            return "XML_EDIT"
+        _log(f"Router Warning: Unexpected response '{decision}'. Defaulting to XML_EDIT.", request_id)
+        return "XML_EDIT"
+    except Exception as e:
+        _log(f"Router Error: An exception occurred - {e}. Defaulting to XML_EDIT.", request_id)
+        return "XML_EDIT"
+
+def generate_content_for_python_pptx(
+    user_prompt: str,
+    ppt_json_data: dict,
+    api_key: Optional[str] = None,
+    request_id: Optional[str] = None,
+    model_id: str = "gpt-5.1-2025-11-13"
+) -> dict:
+    """
+    Generates a structured JSON object of content needed for a python-pptx script.
+    """
+    _log("Calling LLM to generate content for python-pptx script...", request_id)
+    effective_model_id = model_id or "gpt-5.1-2025-11-13"
+    use_openai = _is_openai_model(effective_model_id)
+
+    def _call_gemini_content():
+        gemini_model_id = effective_model_id if not use_openai else "gemini-3-pro-preview"
+        keys = load_api_keys()
+        gemini_key = api_key or keys.get("gemini") or keys.get("gemini_api_key")
+
+        if not gemini_key:
+            return {"error": "API key not found."}
+
+        _configure_gemini_client(gemini_model_id, gemini_key)
+        base_generation_config = {"response_mime_type": "application/json"}
+        generation_config = _build_gemini_generation_config(gemini_model_id, base_generation_config)
+        model_kwargs = {"model_name": gemini_model_id}
+        if generation_config:
+            model_kwargs["generation_config"] = generation_config
+        model = genai.GenerativeModel(**model_kwargs)
+
+        response = model.generate_content([system_prompt, prompt])
+        response_text = response.text.strip()
+        return extract_json_from_llm_response(response_text)
+
+    system_prompt = """
+You are a content generation specialist. Your task is to analyze a user's request to edit a PowerPoint presentation and extract or generate ONLY the data and content needed to perform the edit.
+
+**CRITICAL RULE: You MUST NOT generate any code (Python, XML, etc.). Your ONLY output must be a single, valid JSON object.**
+
+The JSON object should contain the necessary information for a separate coding step. For example:
+- For a translation request, you will provide a mapping of original text to translated text.
+- For a data update request, you will provide the new data points.
+- For a summarization request, you will provide the summarized text for each slide.
+
+Analyze the user's prompt and the provided JSON summary of the presentation, and generate the content required.
+"""
+
+    prompt = f"""
+--- User Prompt ---
+{user_prompt}
+
+--- Full Presentation JSON Summary ---
+{json.dumps(ppt_json_data, indent=2)}
+
+--- Required Content (JSON Output Only) ---
+"""
+
+    try:
+        if use_openai:
+            keys = load_api_keys()
+            openai_key = keys.get("openai") or keys.get("openai_api_key")
+            if not openai_key:
+                return {"error": f"OpenAI API key not found in {CREDENTIALS_FILE}"}
+
+            client = _create_openai_client(openai_key)
+            if client is None:
+                return {"error": "Failed to initialize OpenAI client."}
+            try:
+                response = client.responses.create(
+                    model=effective_model_id,
+                    input=[
+                        {"role": "system", "content": [{"type": "input_text", "text": system_prompt.strip()}]},
+                        {"role": "user", "content": [{"type": "input_text", "text": prompt.strip()}]},
+                    ],
+                )
+                response_text = _extract_text_from_openai_response(response).strip()
+                return extract_json_from_llm_response(response_text)
+            except Exception as oe:
+                if _is_insufficient_quota_error(oe):
+                    _log("OpenAI quota exceeded for python-pptx content generation; falling back to Gemini.", request_id)
+                    return _call_gemini_content()
+                raise
+
+        return _call_gemini_content()
+
+    except Exception as e:
+        _log(f"Content Generation Error: {e}", request_id)
+        return {"error": f"Failed to generate content: {str(e)}"}
+
+def generate_python_pptx_code(
+    user_prompt: str,
+    ppt_json_data: dict,
+    generated_content: dict,
+    api_key: Optional[str] = None,
+    request_id: Optional[str] = None,
+    model_id: str = "gpt-5.1-2025-11-13"
+) -> str:
+    """
+    Generates a python-pptx script to modify a presentation.
+    """
+    _log("Calling LLM to generate python-pptx code...", request_id)
+    effective_model_id = model_id or "gpt-5.1-2025-11-13"
+    use_openai = _is_openai_model(effective_model_id)
+
+    def _call_gemini_code():
+        gemini_model_id = effective_model_id if not use_openai else "gemini-3-pro-preview"
+        keys = load_api_keys()
+        gemini_key = api_key or keys.get("gemini") or keys.get("gemini_api_key")
+
+        if not gemini_key:
+            return "print('Error: API key not found.')"
+
+        _configure_gemini_client(gemini_model_id, gemini_key)
+        generation_config = _build_gemini_generation_config(gemini_model_id)
+        model_kwargs = {"model_name": gemini_model_id}
+        if generation_config:
+            model_kwargs["generation_config"] = generation_config
+        model = genai.GenerativeModel(**model_kwargs)
+
+        response = model.generate_content([system_prompt, prompt])
+        return response.text.strip()
+
+    system_prompt = """
+You are an expert Python programmer specializing in the `python-pptx` library. Your task is to write a complete, executable Python script that will modify a PowerPoint presentation.
+
+**CRITICAL RULES:**
+1.  **DO NOT** write anything other than the Python code. No explanations, no comments before or after the code block.
+2.  The script MUST be self-contained and import all necessary libraries (`sys`, `json`, `pptx`).
+3.  The script will be executed from the command line with two arguments: the path to the `.pptx` file and the path to a JSON file containing the content.
+4.  You MUST include the boilerplate `if __name__ == "__main__":` to parse these arguments.
+5.  The core logic should be in a function called `apply_edits(pptx_path, content_path)`.
+6.  The `content` loaded from the JSON file will be the data you need to apply the edits. Use it as the source of truth for the changes.
+7.  After modifying the presentation object, you MUST save it back to the **original `pptx_path`**.
+
+Below is the context you need to write the script.
+"""
+
+    prompt = f"""
+--- User's Original Prompt ---
+{user_prompt}
+
+--- Presentation Structure (for context) ---
+{json.dumps(ppt_json_data, indent=2)}
+
+--- Pre-Generated Content (to be used by your script) ---
+{json.dumps(generated_content, indent=2)}
+
+--- Your Python Script (Code Only) ---
+"""
+
+    try:
+        if use_openai:
+            keys = load_api_keys()
+            openai_key = keys.get("openai") or keys.get("openai_api_key")
+            if not openai_key:
+                return "print('Error: OpenAI API key not found.')"
+
+            client = _create_openai_client(openai_key)
+            if client is None:
+                return "print('Error: Failed to initialize OpenAI client.')"
+            try:
+                response = client.responses.create(
+                    model=effective_model_id,
+                    input=[
+                        {"role": "system", "content": [{"type": "input_text", "text": system_prompt.strip()}]},
+                        {"role": "user", "content": [{"type": "input_text", "text": prompt.strip()}]},
+                    ],
+                )
+                code = _extract_text_from_openai_response(response).strip()
+            except Exception as oe:
+                if _is_insufficient_quota_error(oe):
+                    _log("OpenAI quota exceeded for python-pptx code generation; falling back to Gemini.", request_id)
+                    code = _call_gemini_code()
+                else:
+                    raise
+        else:
+            code = _call_gemini_code()
+
+        if code.startswith("```python"):
+            code = code[9:]
+        if code.endswith("```"):
+            code = code[:-3]
+
+        _log("Successfully generated python-pptx code.", request_id)
+        return code.strip()
+
+    except Exception as e:
+        _log(f"Code Generation Error: {e}", request_id)
+        return f"print('Error during code generation: {str(e)}')"
+
+def generate_transformation_instructions(
+    judge_model: str,
+    original_ppt_json: dict,
+    ground_truth_ppt_json: dict,
+    original_slide_images_b64: Optional[List[str]] = None,
+    ground_truth_slide_images_b64: Optional[List[str]] = None,
+    request_id: Optional[str] = None,
+    api_key: Optional[str] = None,
+    temperature: float = 0.2,
+) -> dict:
+    """
+    Generate detailed instructions via two separate LLM calls.
+    """
+    if not api_key:
+        keys = load_api_keys()
+        api_key = keys.get("gemini") or keys.get("gemini_api_key")
+    if not api_key:
+        return {"error": f"API key not found in {CREDENTIALS_FILE}"}
+
+    try:
+        _configure_gemini_client(judge_model, api_key)
+
+        def _truncate_json_for_prompt(d):
+            try:
+                s = json.dumps(d, indent=2)
+                return s if len(s) <= 150000 else s[:75000] + "\n...TRUNCATED...\n" + s[-75000:]
+            except Exception:
+                return str(d)[:150000]
+
+        # --- Call 1: JSON-only overview generation ---
+        overview_base_config = {
+            "response_mime_type": "application/json",
+            "temperature": temperature,
+            "top_p": 0.9,
+            "top_k": 1,
+        }
+        overview_generation_config = _build_gemini_generation_config(judge_model, overview_base_config)
+        overview_kwargs = {
+            "model_name": judge_model,
+            "safety_settings": {
+                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+            },
+        }
+        if overview_generation_config:
+            overview_kwargs["generation_config"] = overview_generation_config
+        json_model = genai.GenerativeModel(**overview_kwargs)
+
+        system_prompt_json = (
+            "You are an expert technical writer for presentation editing workflows. "
+            "Given ONLY the Original deck and the Ground Truth deck, produce actionable, specific instructions to convert "
+            "Original into Ground Truth. Focus on content and structure inferred from JSON; do not reference any predictions."
         )
 
+        json_payload = f"""
+--- ORIGINAL (JSON summary) ---
+```json
+{_truncate_json_for_prompt(original_ppt_json)}
+```
 
-def parse_llm_response_for_xml_changes(llm_response_text):
-    """
-    Parses the LLM response to extract XML changes.
-    Expected format:
-    ```xml:path/to/file.xml
-    <content>...</content>
-    ```
-    or JSON format.
-    """
-    changes = {}
-    
-    # Try to parse as JSON first (if the model decided to output JSON)
-    try:
-        json_data = extract_json_from_llm_response(llm_response_text)
-        if json_data and isinstance(json_data, dict):
-            # Normalize keys if needed, but assume they are paths
-            return json_data
-    except:
-        pass
+--- GROUND TRUTH (JSON summary) ---
+```json
+{_truncate_json_for_prompt(ground_truth_ppt_json)}
+```
+"""
 
-    # Regex for fenced code blocks with filename
-    # Matches ```xml:path/to/file.xml ... ```
-    pattern = r"```(?:xml|json)?:?([^\n]+)\n(.*?)```"
-    matches = re.finditer(pattern, llm_response_text, re.DOTALL)
-    
-    for match in matches:
-        filename = match.group(1).strip()
-        content = match.group(2)
-        
-        # Clean up filename if it has extra chars
-        filename = filename.split(':')[-1].strip()
-        
-        changes[filename] = content.strip()
-        
-    return changes
-
-
-def call_llm_judge(
-    ground_truth_pptx,
-    prediction_pptx,
-    instruction,
-    model_id="gpt-4o",
-    api_key=None,
-    request_id=None
-):
-    """
-    Evaluates the prediction against the ground truth using an LLM judge.
-    """
-    _log("Starting LLM Judge evaluation...", request_id)
-    
-    # 1. Convert to JSON for structural comparison
-    try:
-        gt_json = pptx_to_json(ground_truth_pptx)
-        pred_json = pptx_to_json(prediction_pptx)
-        
-        diff_result = diff_pptx_json(gt_json, pred_json)
-        diff_text = format_diff_for_judge(diff_result, instruction)
-        
-    except Exception as e:
-        _log(f"Error during JSON diff: {e}", request_id)
-        diff_text = "Error generating structural diff."
-
-    # 2. Convert to images for visual comparison
-    try:
-        gt_images = convert_pptx_to_base64_images(ground_truth_pptx)
-        pred_images = convert_pptx_to_base64_images(prediction_pptx)
-    except Exception as e:
-        _log(f"Error generating images for judge: {e}", request_id)
-        gt_images = []
-        pred_images = []
-
-    # 3. Construct Judge Prompt
-    messages = build_judge_prompt(
-        instruction,
-        diff_text,
-        gt_images,
-        pred_images
-    )
-    
-    # 4. Call LLM
-    client = _create_openai_client(api_key)
-    if not client:
-        return None
-        
-    try:
-        response = client.chat.completions.create(
-            model=model_id,
-            messages=messages,
-            temperature=0.0,
-            max_tokens=2000
+        overview_spec = (
+            "Return a single JSON object with keys: overview_instructions (multi-sentence, stepwise where helpful), "
+            "and notes (optional)."
         )
-        
-        judge_output = response.choices[0].message.content
-        return judge_output
-        
+
+        overview_resp = json_model.generate_content([system_prompt_json, json_payload, overview_spec])
+        overview_text = (overview_resp.text or "").strip()
+        try:
+            overview_obj = extract_json_from_llm_response(overview_text)
+        except Exception:
+            overview_obj = {"overview_instructions": overview_text}
+
+        overview_instructions = str(overview_obj.get("overview_instructions", "")).strip()
+        notes_text = str(overview_obj.get("notes", "")).strip()
+
+        # --- Call 2: Images-only visual instructions (batch by 5 slide pairs) ---
+        def _norm_b64(s):
+            try:
+                return s.split(",")[-1]
+            except Exception:
+                return s
+
+        ori_imgs = [i for i in (original_slide_images_b64 or []) if i]
+        gt_imgs = [i for i in (ground_truth_slide_images_b64 or []) if i]
+        max_pairs = min(len(ori_imgs), len(gt_imgs))
+
+        visual_base_config = {
+            "response_mime_type": "application/json",
+            "temperature": temperature,
+            "top_p": 0.9,
+            "top_k": 1,
+        }
+        visual_generation_config = _build_gemini_generation_config(
+            judge_model,
+            visual_base_config,
+            use_high_res_media=True,
+        )
+        visual_kwargs = {
+            "model_name": judge_model,
+            "safety_settings": {
+                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+            },
+        }
+        if visual_generation_config:
+            visual_kwargs["generation_config"] = visual_generation_config
+        visual_model = genai.GenerativeModel(**visual_kwargs)
+
+        system_prompt_visual = (
+            "You are a meticulous presentation visual editor. Using ONLY images of the Original (before) and Ground Truth (after) slides, "
+            "write imperative, detailed instructions describing the visual/layout/style changes required to transform the Original into the Ground Truth."
+        )
+
+        visual_spec = (
+            "Return JSON with a single key visual_instructions (multi-sentence, concrete, slide-number aware when identifiable)."
+        )
+
+        batch_size = 5
+        visual_chunks = []
+        if max_pairs > 0:
+            indices = list(range(max_pairs))
+            batches = [indices[i:i+batch_size] for i in range(0, len(indices), batch_size)]
+            # If last batch is very small (<3) and there is a previous batch, merge it
+            if len(batches) >= 2 and len(batches[-1]) < 3:
+                batches[-2].extend(batches[-1])
+                batches = batches[:-1]
+
+            for batch in batches:
+                parts = [system_prompt_visual]
+                parts.append(f"Batch slide indices (1-based): {', '.join(str(i+1) for i in batch)}")
+                parts.append("ORIGINAL_SLIDES")
+                for i in batch:
+                    b64 = _norm_b64(ori_imgs[i])
+                    parts.append(f"ORIGINAL_SLIDE_{i+1}")
+                    parts.append({"inline_data": {"mime_type": "image/png", "data": b64}})
+                parts.append("GROUND_TRUTH_SLIDES")
+                for i in batch:
+                    b64 = _norm_b64(gt_imgs[i])
+                    parts.append(f"GROUND_TRUTH_SLIDE_{i+1}")
+                    parts.append({"inline_data": {"mime_type": "image/png", "data": b64}})
+                parts.append(visual_spec)
+
+                vresp = visual_model.generate_content(parts)
+                vtext = (vresp.text or "").strip()
+                try:
+                    vobj = extract_json_from_llm_response(vtext)
+                    vchunk = str(vobj.get("visual_instructions", "")).strip()
+                except Exception:
+                    vchunk = vtext
+                if vchunk:
+                    visual_chunks.append(vchunk)
+
+        visual_instructions = "\n".join(visual_chunks).strip()
+
+        return {
+            "overview_instructions": overview_instructions,
+            "visual_instructions": visual_instructions,
+            "notes": notes_text,
+        }
     except Exception as e:
-        _log(f"Error calling LLM Judge: {e}", request_id)
-        return None
+        return {"error": f"Instruction generation error: {e}"}

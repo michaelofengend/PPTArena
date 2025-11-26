@@ -49,14 +49,14 @@ def log_processing_details(row: dict) -> None:
     """Log summary rows to console; real CSV logging lives in app.py."""
     print("[Orchestrator-LOG]", row)
 
-def decide_editing_strategy(user_prompt: str, ppt_json_data: dict, api_key: str, request_id: str) -> str:
+def decide_editing_strategy(user_prompt: str, ppt_json_data: dict, api_keys: dict, request_id: str) -> str:
     """
     Uses a preliminary LLM call to decide which editing path to take.
 
     Args:
         user_prompt: The user's instruction.
         ppt_json_data: The JSON representation of the presentation.
-        api_key: The API key to use for the LLM call.
+        api_keys: The API keys dictionary to use for the LLM call.
         request_id: The ID for the current request for logging.
 
     Returns:
@@ -80,7 +80,7 @@ def decide_editing_strategy(user_prompt: str, ppt_json_data: dict, api_key: str,
     # I'll assume XML_EDIT for now to avoid breaking things if I can't find the router logic.
     return "XML_EDIT"
 
-def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json_data: dict, selected_model_id: str, api_key: str):
+def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json_data: dict, selected_model_id: str, api_keys: dict):
     """
     Manages the two-step LLM chain for python-pptx editing.
     1. Generate content.
@@ -188,7 +188,7 @@ def _execute_xml_edit(
     selected_model_id: str,
     use_pre_analysis: bool,
     request_id: str,
-    api_key: str,
+    api_keys: dict,
     session_id: str = None,
     edit_history=None,
     image_inputs=None,          # <-- added – was referenced but missing
@@ -238,7 +238,7 @@ def _execute_xml_edit(
             image_inputs=image_inputs_for_llm,
             use_pre_analysis=use_pre_analysis,
             request_id=request_id,
-            api_key=api_key,
+            api_keys=api_keys,
             edit_history=edit_history,
         )
         actual_model_used = llm_result.get("model_used", selected_model_id)
@@ -423,7 +423,7 @@ def _process_single_iteration(
     use_pre_analysis: bool = True,
     image_inputs=None,
     request_id: str = "",
-    api_key: str = None,
+    api_keys: dict = None,
     session_id: str = None,
     edit_history=None,
     force_python_pptx: bool = False,
@@ -444,12 +444,12 @@ def _process_single_iteration(
             user_prompt=prompt_text,
             ppt_json_data=ppt_json_data,
             selected_model_id=selected_model_id,
-            api_key=api_key,
+            api_keys=api_keys,
         )
 
     progress.append(request_id, "Routing: deciding editing strategy")
     # For OpenAI models, force using credentials.env key inside the handler
-    strategy = decide_editing_strategy(prompt_text, ppt_json_data, api_key, request_id)
+    strategy = decide_editing_strategy(prompt_text, ppt_json_data, api_keys, request_id)
     print(f"[Orchestrator] Strategy chosen → {strategy}")
     progress.append(request_id, f"Router decision: {strategy}")
 
@@ -459,7 +459,7 @@ def _process_single_iteration(
             user_prompt=prompt_text,
             ppt_json_data=ppt_json_data,
             selected_model_id=selected_model_id,
-            api_key=api_key,
+            api_keys=api_keys,
         )
 
     # Fallback / default: XML path
@@ -469,7 +469,7 @@ def _process_single_iteration(
         selected_model_id=selected_model_id,
         use_pre_analysis=use_pre_analysis,
         request_id=request_id,
-        api_key=api_key,
+        api_keys=api_keys,
         session_id=session_id,
         edit_history=edit_history,
         image_inputs=image_inputs,
@@ -483,7 +483,7 @@ def process_presentation_hybrid(
     use_pre_analysis: bool = True,
     image_inputs=None,
     request_id: str = "",
-    api_key: str = None,
+    api_keys: dict = None,
     session_id: str = None,
     edit_history=None,
     force_python_pptx: bool = False,
@@ -503,7 +503,7 @@ def process_presentation_hybrid(
             use_pre_analysis=use_pre_analysis,
             image_inputs=image_inputs,
             request_id=request_id,
-            api_key=api_key,
+            api_keys=api_keys,
             session_id=session_id,
             edit_history=edit_history,
             force_python_pptx=force_python_pptx,
@@ -525,7 +525,7 @@ def process_presentation_hybrid(
             use_pre_analysis=use_pre_analysis,
             image_inputs=image_inputs,
             request_id=request_id,
-            api_key=api_key,
+            api_keys=api_keys,
             session_id=session_id,
             edit_history=edit_history,
             force_python_pptx=force_python_pptx,
