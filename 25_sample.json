@@ -1,0 +1,315 @@
+[
+  {
+    "name": "Case 47: Change Line Graph to Bar Graph",
+    "prompt": "Change the line chart on the slide to a clustered column chart.",
+    "style_target": "The line chart must be converted into a clustered column chart. The underlying chart data, including categories and values, must be preserved. The chart's position and size should be approximately maintained, and it should not have a legend, consistent with the original. All other elements on the slide must remain unmodified.",
+    "original": "Original/ChangeLineGraphtoBar_TestA.pptx",
+    "ground_truth": "GroundTruth/ChangeLineGraphtoBar_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "Removed exact position and size specifications, focusing instead on the semantic requirements of preserving the chart's data, general location, and lack of a legend.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 7: Update Quarter Two Data (B)",
+    "prompt": "Please replace all instances of 'Q2' with 'Second Quarter' throughout the presentation. Also, on slide 9, change the title font size to 32pt. Finally, on slides 6, 7, and 9, please un-bold the text below the charts.",
+    "style_target": "- All instances of \"Q2\" throughout the presentation must be replaced with \"Second Quarter\". The casing of the replacement should be contextually appropriate (e.g., \"Second Quarter\" in a title, \"second quarter\" mid-sentence).\n- On slide 9, the main title's font size must be changed to 32pt.\n- On slides 6 and 9, the text boxes serving as x-axis labels for the charts must not be bold.\n- On slide 7, the text box containing \"YOY Activity Variance\" must not be bold.\n- All other content, formatting, and slide elements must be preserved.",
+    "original": "Original/QuarterTwoTestB_7302020.pptx",
+    "ground_truth": "GroundTruth/QuarterTwoGroundTruthB.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target states the required changes as a set of semantic rules rather than a prescriptive list of exact text outputs, allowing for minor variations while still enforcing the core intent of the prompt.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 27: Correct Images",
+    "prompt": "Make all three picture placeholders the same size, align them horizontally, and position each one directly above its corresponding text label.",
+    "style_target": "The three picture placeholders must be resized to a uniform size (identical width and height). They must be arranged in a single horizontal row, with their top or vertical centers aligned. Each picture placeholder must be positioned directly above its corresponding text label, with their horizontal centers approximately aligned (e.g., the image placeholder for 'shark' is above the 'shark' text). The title and the three text labels should remain unchanged in their content and approximate positions. The final layout should be visually balanced with no overlapping elements.",
+    "original": "Original/FixImagePorportions_TestA.pptx",
+    "ground_truth": "GroundTruth/FixImagePorportions_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target now focuses on the semantic requirements of uniform size, horizontal alignment, and correct pairing with text labels, rather than prescribing exact dimensions and coordinates.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 30: Convert Text Data to a Line Chart",
+    "prompt": "On slide 8, convert the text data showing uninsured rates into a line chart with markers. Also, create a custom legend for the chart on the right.",
+    "style_target": "On slide 8, the text box containing the uninsured rate data must be removed and replaced with a line chart with markers.\n- **Chart Type:** The chart must be a line chart that includes markers for data points.\n- **Data Accuracy:** The chart must accurately represent the data from the original text box.\n  - The horizontal axis must represent the years: 2013, 2014, 2015, 2016, 2017.\n  - Three distinct data series must be plotted for \"NHOPI\", \"Asian\", and \"White\", with their corresponding percentage values for each year.\n- **Visual Clarity:**\n  - Each data series must be visually distinct from the others (e.g., using different colors and/or marker styles).\n  - The vertical axis should represent percentages, with a scale that is appropriate for the data (e.g., 0% to 20%).\n  - The chart should be clean and easily readable.\n- **Custom Legend:**\n  - A custom-built legend must be created and positioned to the right of the chart.\n  - This legend must clearly and accurately associate each series name (\"NHOPI\", \"Asian\", \"White\") with its corresponding line and marker style.\n  - The default, automatically generated chart legend must be removed or hidden.\n- **Overall Layout:** The chart and its custom legend should be the main focus of the slide, well-proportioned, and with no overlapping elements.",
+    "original": "Original/LineGraph_TestA.pptx",
+    "ground_truth": "GroundTruth/LineGraph_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic requirements of accurate data representation, correct chart type, and a clear, functional custom legend, while removing prescriptive details like exact positions, colors, and marker shapes.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 42: Organize Research Poster",
+    "prompt": "Please reorganize this research poster into a clean four-column layout. The first column should be 'Abstract', the second 'Materials', the third 'Results/Data Analysis', and the fourth 'Conclusion'. Arrange all the related text, charts, and images under their correct headings.",
+    "style_target": "The slide is reorganized into a clean four-column layout below the main header section.\n\n**Overall Layout:**\n- The main slide title ('ACADEMIC RESEARCH POSTER TEMPLATE'), subtitle, and the 'CONTRIBUTORS' list must remain at the top of the slide, substantially unchanged in their positions.\n- The rest of the slide content is arranged into four distinct vertical columns.\n- The columns are ordered from left to right, headed by: 'Abstract', 'Materials', 'Results/Data Analysis', and 'Conclusion'.\n- Elements within each column should be logically grouped and aligned (e.g., left-aligned as a group).\n- The final layout must be clean, with no overlapping elements and adequate spacing.\n- All original text, charts, and tables must be present, with their content and styling (font, color, etc.) preserved. Extraneous decorative elements like standalone lines may be removed to create a cleaner layout.\n\n**Column Content Requirements:**\n- **Column 1 ('Abstract'):** Must contain the 'Abstract' heading and the text boxes containing general information about the template ('This editable template...' and 'How to use this template...').\n- **Column 2 ('Materials'):** Must contain the 'Materials' heading and the text boxes with guidance on 'Text' and 'Images'.\n- **Column 3 ('Results/Data Analysis'):** Must contain the 'Results/Data Analysis' heading and all data visualization elements: the text box about 'Charts', the column chart, the doughnut chart, the table, and the associated caption.\n- **Column 4 ('Conclusion'):** Must contain the 'Conclusion' heading, the text box about 'Printing', and the 'Callout Box' group (title, text, and background shape).\n\nThe vertical arrangement of items within each column can vary as long as the grouping is logical and readable.",
+    "original": "Original/OrganizeResearchPoster_TestA.pptx",
+    "ground_truth": "GroundTruth/OrganizeResearchPoster_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The style_target was refined to describe the required four-column structure and content grouping semantically, removing all absolute positioning to allow for flexible yet correct layouts.",
+    "edit_type": "Alignment, Distribution & Z-order"
+  },
+  {
+    "name": "Case 67: WCAG Accessibility & Master Cleanup",
+    "prompt": "Improve this presentation's accessibility for screen readers. Ensure every slide has a unique title, the reading order is logical, and all text uses the theme's default font.",
+    "style_target": "- **Unique Slide Titles:** Each slide must have a unique, machine-readable title for screen readers. This is typically done by adding a text box with a descriptive title and placing it off the visible slide area. The titles must be distinct for each slide.\n- **Logical Reading Order:** The reading order of elements on each slide must be logical for a screen reader. The sequence should generally follow a natural flow, such as the slide's main title first, followed by content read from top-to-bottom and left-to-right.\n- **Theme Font Consistency:** All text throughout the presentation must use the theme's default font. Any direct font family overrides (e.g., 'DM Sans', 'Arial') must be removed, while preserving all other text formatting like size, color, and weight (bold/italic).\n- **Visual Preservation:** The visual layout, content, and positioning of on-screen elements must not be altered. The only acceptable visual change is the font family reverting to the theme's default.",
+    "original": "Original/AccessibilityMasterCleanup_TestA.pptx",
+    "ground_truth": "GroundTruth/AccessibilityMasterCleanup_GroundTruthA.pptx",
+    "source_url": "https://storage.googleapis.com/sc_templates/smartart_infographic/Table%20SmartArt%20Infographic.pptx",
+    "license_note": "SlidesCarnival templates are free for any use with attribution to SlidesCarnival.",
+    "category": [
+      "Structure",
+      "Styling"
+    ],
+    "enhancement_notes": "The criteria were updated to focus on the semantic goals (e.g., \"logical reading order,\" \"unique title\") rather than prescribing exact implementation details like off-screen coordinates or specific title text.",
+    "edit_type": "Accessibility & Semantics"
+  },
+  {
+    "name": "Case 87: Merge Near-Duplicate Slides",
+    "prompt": "Please remove any duplicate slides from this presentation. If you find a duplicate, keep the first instance and delete the subsequent ones.",
+    "style_target": "The final presentation must be free of duplicate slides. The slide that is a duplicate of the original slide 10 must be removed, while the original slide 10 is kept, fulfilling the 'keep the first instance' instruction. The total slide count must be reduced from 21 to 20. The content of all remaining slides must be unchanged, and their original relative order must be preserved.",
+    "original": "Original/DeleteDuplicate_TestA.pptx",
+    "ground_truth": "GroundTruth/DeleteDuplicate_GroundTruthA.pptx",
+    "category": [
+      "Structure"
+    ],
+    "enhancement_notes": "The style_target now focuses on the semantic outcome (removing the correct duplicate and preserving order) rather than prescribing the exact slide numbers to be deleted and renumbered.",
+    "edit_type": "Slide/Section Management & Footers"
+  },
+  {
+    "name": "Case 89: Fill in Animal Research poster",
+    "prompt": "I have two research posters, one for a toucan and one for a snake, but they are filled with placeholder text. Please research these animals and replace all the 'Lorem Ipsum' text with relevant, factual information. Make sure the information fits the context of each section on the posters and adjust font sizes for readability. Also, update the source citations at the bottom of each poster.",
+    "style_target": "**General Requirements (Applicable to both slides):**\n- All 'Lorem Ipsum' placeholder text must be replaced with factually accurate and contextually relevant information about the animal featured on each poster (Toucan on Slide 1, Snake on Slide 2).\n- The information provided in each text box must be relevant to its corresponding section title (e.g., text under \"THE EYES\" should be about toucan eyes).\n- Font sizes for body text are adjusted across the posters to ensure legibility and prevent text from overflowing its designated containers.\n- A clear visual hierarchy between headings and body text is maintained.\n- Paragraph alignment is adjusted for better readability, avoiding centered alignment for multi-line paragraphs.\n- The placeholder source citation text at the bottom of each poster is replaced with a generic citation format (e.g., numbered references).\n\n**Slide 1 (Toucan Poster):**\n- The text labels in the 'TOUCAN DIET' section are updated from generic terms ('PLANTS', 'FRUITS') to more accurate descriptions of a toucan's diet (e.g., 'INSECTS & EGGS', 'FRUIT & SEEDS').\n\n**Slide 2 (Snake Poster):**\n- All generic section titles (e.g., 'POINT 01', 'POINT 02') are replaced with specific, meaningful titles relevant to the study of snakes (e.g., 'LOCOMOTION', 'SENSORY', 'Morphology').\n- Placeholder numerical data in the 'RESULTS' section is replaced with factual statistics about snakes. The text should be formatted to fit the space, which may include line breaks.\n- Redundant placeholder elements are removed to improve the layout, specifically the placeholder picture and the now-unnecessary title boxes ('POINT 01', 'POINT 02') within the 'RESULTS' section.",
+    "original": "Original/AnimalResearchPoster.pptx",
+    "ground_truth": "GroundTruth/AnimalResearchPoster_final_updated.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic goals of replacing all placeholder content with factual, context-relevant information and improving overall readability, rather than prescribing exact font sizes, text strings, or alignments.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 92: Avatar Circle Crop",
+    "prompt": "Make all the team photos circular. They should all be the same size, 1.5 inches wide and tall, and be vertically aligned.",
+    "style_target": "All three rectangular team photos must be transformed into circles. As specified in the prompt, each circular photo must be 1.5 inches wide and 1.5 inches tall. The three resulting photos must be vertically aligned with each other. Each photo must remain clearly and correctly paired with its corresponding name text box. The subject within each photo should be reasonably centered in the circular crop. The content and formatting of the text boxes and title should not be altered.",
+    "original": "Original/AvatarCircleCrop_TestA.pptx",
+    "ground_truth": "GroundTruth/AvatarCircleCrop_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target removes the specific vertical position ('top=2.5in') and the prescriptive method for creating a circle, focusing instead on the required final state (circular, specific size, aligned, and correctly associated with names).",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 97: LaTeX to Office Math (OMML)",
+    "prompt": "On slides 2 and 3, convert all text representations of mathematical equations, like 'x^{n} + y^{n} = z^{n}' and '\\frac{1}{2}', into properly formatted, editable math objects.",
+    "style_target": "On slide 2, the text representing Fermat's equation (`x^{n} + y^{n} = z^{n}, n > 2`) must be converted into a single, editable math object. The mathematical notation, including superscripts, must be accurately rendered.\n\nOn slide 3, all four text strings representing mathematical equations or symbols (`a^{2} + b^{2} = c^{2}`, `3^{2} + 4^{2} = 5^{2}`, `\\frac{1}{2}`, and `\\alpha^{2}`) must each be converted into their own separate, editable math object. The rendering must be mathematically correct, accurately representing superscripts, stacked fractions, and Greek letters as specified in the original text.\n\nFor both slides, the surrounding non-mathematical text and the original paragraph structure (including indentation levels) must be preserved. The resulting math objects should be visually consistent in size with the surrounding text. No other content on any slide should be altered.",
+    "original": "Original/LaTeXtoOMML_TestA.pptx",
+    "ground_truth": "GroundTruth/LaTeXtoOMML_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The new style_target focuses on the semantic requirements of accurate mathematical rendering and preservation of document structure, removing prescriptive details like specific font names.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 6: Update Quarter Two Data (A)",
+    "prompt": "Throughout the presentation, change all instances of 'Q2' to 'Second Quarter'.",
+    "style_target": "1. Across all slides, every shape containing the exact text 'Q2' must be updated to 'Second Quarter'. This applies to shapes on slides 5, 6, 7, 12, and 17.\n2. The original font styling (font family, size, color, and weight/bolding) must be preserved for each instance of the replaced text.\n3. The shapes containing the new 'Second Quarter' text must be appropriately resized to ensure the text is fully visible and does not wrap or overflow.\n4. The resized shapes must be positioned to avoid overlapping with other elements, maintaining a clean and balanced layout. The original visual grouping and association with other elements on the slide must be kept intact.\n5. No other text, shapes, or slide properties should be altered.",
+    "original": "Original/QuarterTwoTestA___2302222_Presentation_Stats_SA_Q1_Q2_Q3_of_202223.pptx",
+    "ground_truth": "GroundTruth/QuarterTwoGroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The style target was updated to remove exact dimensions and positions for resized shapes, instead focusing on the semantic requirements that the new text must fit legibly and not overlap other elements.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 21: Title Case Titles",
+    "prompt": "Please go through the presentation and change all the slide titles to use Title Case capitalization.",
+    "style_target": "All slide titles must be correctly formatted in Title Case. Correct Title Case involves capitalizing the first letter of major words, while minor words (articles, prepositions, conjunctions) remain lowercase unless they begin or end the title. Existing acronyms (e.g., 'DSI') must retain their all-caps format. Beyond this capitalization change in the titles, no other elements, text, or formatting on any slide should be altered.",
+    "original": "Original/FixTitleCase_TestA.pptx",
+    "ground_truth": "GroundTruth/FixTitleCase_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The refined criteria define the rules for Title Case semantically rather than using specific examples, and consolidates the \"do not change anything else\" constraint into a single, clear statement.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 28: Fix Slide Order and Agenda",
+    "prompt": "The agenda on slide 2 is all mixed up and the slides are in the wrong order. Please fix the presentation so it flows logically and the agenda list matches the new slide order.",
+    "style_target": "The presentation's slides must be reordered to follow a logical presentation structure. The 'Agenda' slide must be first. The 'Conclusion' and 'Q&A' slides must be last, in that order. The remaining content slides must be ordered logically between the introduction and conclusion. On the 'Agenda' slide, the bulleted list must be reordered to match the new sequence of the subsequent slides. Slide numbers in the footers must be updated to reflect each slide's new position. No other changes to content or formatting should be made.",
+    "original": "Original/FixAgendaAndOrder_TestA.pptx",
+    "ground_truth": "GroundTruth/FixAgendaAndOrder_GroundTruthA.pptx",
+    "category": [
+      "Structure"
+    ],
+    "enhancement_notes": "The new target defines the required \"logical flow\" using structural rules (e.g., agenda first, conclusion last) instead of prescriptively listing the exact final slide and text order.",
+    "edit_type": "Slide/Section Management & Footers"
+  },
+  {
+    "name": "Case 34: Lambda Replacement",
+    "prompt": "Replace every instance of the word 'Lambda' with the Greek symbol \u03bb. Also, throughout the entire presentation, consolidate fragmented text runs into single words or phrases where the formatting is the same.",
+    "style_target": "Every instance of the case-sensitive word 'Lambda' is replaced with the Greek symbol '\u03bb'. The symbol '\u03bb' must inherit the formatting (font, size, color, style) of the word it replaces. Additionally, throughout the entire presentation, adjacent text runs with identical formatting are consolidated into single, coherent runs. This structural change must preserve the original visual appearance and styling of all text.",
+    "original": "Original/1ea18Lamda_TestA.pptx",
+    "ground_truth": "GroundTruth/1ea18LamdaReplacement_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "Removed the overly specific example of font properties for the symbol replacement, focusing instead on the general rule of inheriting the original style.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 35: Structural Fix",
+    "prompt": "On slide 1, shorten the main title to 'INTRODUCTION TO SPECTROSCOPY' and reduce the font size of the subtitle text to 14pt. On slide 20, change the font size of the text 'LET'S SEE...' to 16pt. Also, please clean up the text structure throughout the entire presentation to make it easier to edit.",
+    "style_target": "Throughout the presentation, the text structure is improved for easier editing. Fragmented text runs (e.g., text split into individual letters) are consolidated into coherent phrases or sentences, while preserving the original formatting attributes like font, color, and style within each segment. On slide 1, the main title text is updated to 'INTRODUCTION TO SPECTROSCOPY', and the font size of the subtitle text is reduced to 14pt. On slide 20, the font size of the text beginning 'LET'S SEE...' is changed to 16pt. The overall layout and visual hierarchy of each slide should be preserved without other significant changes.",
+    "original": "Original/1ea18StructuralFix_TestA copy.pptx",
+    "ground_truth": "GroundTruth/1ea18StructuralFix_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic goal of making text 'easier to edit' by consolidating runs and relaxes the overly strict constraint on unchanged element positions to allow for minor layout shifts.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 40: Hindu Center Titles",
+    "prompt": "Horizontally center the main titles on slides 1, 2, 5, 7, and 9.",
+    "style_target": "- On slides 1, 2, 5, 7, and 9, the main title element must be horizontally centered on the slide.\n- For title placeholders that span most of the slide width (e.g., slides 1 and 2), this is achieved by setting the text alignment to center.\n- For title shapes that are narrower than the slide (e.g., slides 5, 7, and 9), this is achieved by moving the entire shape to the horizontal center.\n- The vertical position of the affected titles must be preserved.\n- No other properties of the titles (font, size, text content) or any other slide elements should be changed.",
+    "original": "Original/HinduCenterTitles_TestA.pptx",
+    "ground_truth": "GroundTruth/HinduCenterTitles_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target removes exact coordinates and instead describes the two valid semantic methods for centering a title, focusing on the visual outcome rather than a specific implementation.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 44: Match Flag to Text",
+    "prompt": "The list of regions and the flags at the bottom are mismatched. Please rearrange the slide by placing each flag next to its corresponding description from the list. Delete any duplicate flags.",
+    "style_target": "1. Each of the four unique flags (Kenya, Nigeria, Egypt, and Zambia) is correctly and unambiguously paired with its corresponding text description.\n2. The duplicate Zambian flag is deleted, leaving only four flags on the slide.\n3. The original bulleted list of regions is removed from the main content area, which now serves primarily to hold the new flag-text pairings. The \"Regional Liaisons\" heading may be retained.\n4. The four flag-and-text pairs are arranged in a clear, organized layout with reasonable spacing and alignment.\n5. There are no overlapping elements, and all text is fully readable.\n6. The slide title and the two small images in the header area are preserved without alteration.",
+    "original": "Original/MatchFlagtoText_TestA.pptx",
+    "ground_truth": "GroundTruth/MatchFlagtoText_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined criteria focus on the correct semantic pairing of flags and text and the removal of the duplicate, while allowing for flexible layouts instead of prescribing exact positions, row counts, or text styling.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 46: Convert Text & Arrows to SmartArt",
+    "prompt": "Please clean up this diagram. Convert the text boxes and arrows into a more organized, structured diagram centered around the person icon.",
+    "style_target": "The collection of text boxes, arrows, and other shapes that form the messy diagram must be converted into a single, cohesive, and structured diagram (such as a SmartArt graphic or a well-organized group of shapes). The person icon must be the central element of this new diagram. All text from the original stakeholder text boxes (\"Content Consumers\", \"IT and the Implementation Team\", \"Current Users...\", etc.) must be preserved within the nodes of the new diagram. The layout should be clean and organized, with nodes arranged logically around the central icon and connected by clear, consistent connectors. All original shapes that made up the messy diagram should be removed. The main slide title (\"Who\u2019s Involved?\") must be preserved and should not be incorporated into the diagram. The extraneous \"YOU\" text box should be removed.",
+    "original": "Original/ConvertText&Arrows2SmartArt_TestA.pptx",
+    "ground_truth": "GroundTruth/ConvertText&Arrows2SmartArt_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic goal of creating a structured diagram around a central element, preserving key text, and removing clutter, rather than listing every specific shape to be removed or preserved.",
+    "edit_type": "SmartArt & Diagrams"
+  },
+  {
+    "name": "Case 50: Normalize Date Format",
+    "prompt": "Go through the presentation and standardize all the date formats to 'Month Day, Year', for example 'March 22, 2022'. Make sure to handle different formats like '28 March 2022', '02/26/2022', and '18 of March 2022'.",
+    "style_target": "All identifiable dates within the presentation text must be reformatted to a consistent 'Month Day, YYYY' format. This applies to various common date representations, including numerical (e.g., '02/26/2022'), mixed text-and-number (e.g., '28 March 2022'), and verbose formats (e.g., '18 of March 2022'). The original font styling (size, color, bold, italic, etc.) and casing of the original text must be preserved within the reformatted date. For any dates where the year is ambiguous or absent, it should be inferred from the context of the slide. Only the date format should be changed; all other text, shape properties, and slide layouts must remain unaltered.",
+    "original": "Original/NormalizeDate_Test.pptx",
+    "ground_truth": "GroundTruth/NormalizeDate_GroundTruth.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target describes the types of date formats to be handled semantically (numerical, mixed, verbose) rather than listing an exhaustive set of specific patterns, making it more generalizable.",
+    "edit_type": "Tables"
+  },
+  {
+    "name": "Case 53: Fill Table from Data",
+    "prompt": "Take the financial data from the text box and use it to fill in the empty table below it. Then, delete the original text box.",
+    "style_target": "The empty 4x2 table must be populated with the financial data parsed from the text box located below it. After the data is transferred, the source text box must be deleted. The financial data should be correctly organized into a two-column format, with descriptive labels in the first column and their corresponding values in the second. The final cell contents must accurately reflect the source data:\n- Row 1: 'Revenue', '30% AMI Rents'\n- Row 2: 'Annual Actualized Income', '$387,030'\n- Row 3: 'Annual Operating Expenses', '($420,300)'\n- Row 4: 'Annual Net Revenue', '($33,270)'\nThe table's original styling (borders, fonts, fills) should be preserved. The final table should be reasonably positioned on the slide, avoiding any overlap with other elements. All other slide elements must remain unchanged.",
+    "original": "Original/FillTablefromData_TestA.pptx",
+    "ground_truth": "GroundTruth/FillTablefromData_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "Removed the exact coordinates for the table's final position, focusing instead on the correctness of the data transfer, the deletion of the source object, and a reasonable final layout.",
+    "edit_type": "Tables"
+  },
+  {
+    "name": "Case 54: Match Slide Deck Theme",
+    "prompt": "Apply the layout from slide 2 to all subsequent slides (3 through 9). Make sure the existing text and images are adjusted to fit the new layout.",
+    "style_target": "- **Scope:** The transformation applies only to slides 3 through 9. Slides 1 and 2 must remain unchanged.\n- **Layout:** Slides 3-9 must be updated to use the 'Title and Content' layout, matching the layout of slide 2.\n- **Content Preservation and Mapping:**\n    - All original text and images from slides 3-9 must be preserved.\n    - Original text formatting (bold, bullets, indentation, etc.) must be maintained.\n    - For each slide, the existing title text must be placed in the new layout's title placeholder.\n    - The existing body content must be placed in the new layout's content placeholder.\n- **Special Case (Slide 5):** Slide 5 originally lacks a title. A new, relevant title must be created based on its content (e.g., \"Rootmotion vs. controlled movement\") and placed in the title placeholder.\n- **Visual Composition:**\n    - Images on the modified slides must be repositioned to create a visually clean and balanced layout.\n    - There must be no overlap between text and images, or between different images.\n    - All content must be legible and contained within the slide boundaries.",
+    "original": "Original/MatchSlideDeck_TestA.pptx",
+    "ground_truth": "GroundTruth/MatchSlideDeck_GroundTruthA.pptx",
+    "category": [
+      "Styling"
+    ],
+    "enhancement_notes": "The style_target was refined to focus on the semantic requirements of applying a specific layout, mapping content correctly, and ensuring a balanced, non-overlapping visual composition, rather than specifying exact positions or actions.",
+    "edit_type": "Theme & Background"
+  },
+  {
+    "name": "Case 57: Add Water Mark",
+    "prompt": "Add a 'DRAFT' watermark to every slide in the presentation.",
+    "style_target": "A text box containing the word \"DRAFT\" must be added to every slide. The watermark should be visually prominent, using a very large, bold font. It should be approximately centered on each slide. The text color must be light (e.g., light gray or semi-transparent) so it functions as a background element and does not obscure the primary slide content. The watermark must appear on top of all other slide elements and its appearance should be consistent across all slides. No original slide content should be altered or removed.",
+    "original": "Original/AddWaterMark_Test.pptx",
+    "ground_truth": "GroundTruth/AddWaterMark_GroundTruth.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The style target was revised to focus on the semantic properties of a watermark (large, centered, light-colored, non-obstructive) rather than specifying exact dimensions, font sizes, and color codes, allowing for more visual flexibility.",
+    "edit_type": "Shapes & Drawing"
+  },
+  {
+    "name": "Case 12: Stock Photo Cleanup ",
+    "prompt": "Clean up the images into a sleek panel layout. Add a visible caption onto each picture.",
+    "style_target": "A new text box must be added to each slide containing a concise description of the image. The descriptions must be: ]Slide 1: 'Black and white image of deer' Slide 2: 'Giraffes in the wild' [cite: 6] Slide 3: 'Football on grass' [cite: 7] The added text boxes should be positioned legibly on the slide (e.g., in the bottom margin) and should not obscure the main image. The layout of the slide should be sleek, with the images in diagonal or horizontal stack",
+    "original": "MatchStockPhotos_Test.pptx",
+    "ground_truth": "MatchStockPhotosGroundTruth.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "This test case requires the addition of new text elements based on visual analysis of the slide content.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 16: Curate Multi-Panel Photo Layout",
+    "prompt": "This presentation needs a professional photo layout. On slide 2, straighten the three photos labeled WATERFALL, STAIRCASE, and CHESS and arrange them as a clean horizontal row inside the pink panel. Remove their rotations, resize them so they are nearly the same square size, and align their top edges to exactly the same vertical position so they read as a unified triptych. Each photo should sit directly above its corresponding label. Keep the title, pink background rectangle, blue frame decorations, and caption text boxes otherwise unchanged. The slide background should use a solid fill.",
+    "style_target": "**Slide 2 modifications:**\n- The slide background must be changed from type BACKGROUND(5) to SOLID(1) fill.\n- Picture 26 (labeled WATERFALL): Must be moved from position (427pt, 145pt) to (75pt, 135pt), resized from 256pt × 256pt to 230pt × 230pt, and rotation must be changed from 344 degrees to 0 degrees.\n- Picture 4 (labeled STAIRCASE): Must be moved from position (650pt, -6pt) to (354pt, 135pt), resized from 310pt × 310pt to 230pt × 230pt, and rotation must remain at 0 degrees.\n- Picture 18 (labeled CHESS): Must be moved from position (211pt, 269pt) to (633pt, 135pt), resized from 144pt × 144pt to 232pt × 232pt, and rotation must be changed from 41.7 degrees to 0 degrees.\n- Critical requirement: All three photos must have their top positions aligned at exactly 135pt (with tolerance of ±1pt).\n- Critical requirement: All three photos must have similar dimensions, approximately 230pt × 230pt (with tolerance of ±5pt).\n- All other elements must remain unchanged: Rectangle 27 (background colored rectangle), TextBox 2 ('WATERFALL'), TextBox 5 ('STAIRCASE'), TextBox 16 ('CHESS'), Rectangle 21–24 (vertical decorative lines), and TextBox 28 ('Motion & Stills').",
+    "original": "Original/OrderPhotosTest.pptx",
+    "ground_truth": "GroundTruth/OrderPhotosGroundTruth.pptx",
+    "category": [
+      "Layout",
+      "Content"
+    ],
+    "enhancement_notes": "Replaces a trivial title change with a realistic single-slide layout normalization task that requires precise alignment of a three-photo triptych.",
+    "edit_type": "Alignment, Distribution & Z-order"
+  },
+  {
+    "name": "Case 17: Build Ensemble Category Boards",
+    "prompt": "Transform this presentation into a polished ensemble category board with two coordinated slides.\n\nOn slide 1, keep the four animal photos (cheetah running on black, tiger close-up, lion portrait, and kitten chasing a butterfly) and remove the extra sand/texture photos and any leftover black background blocks. Arrange the four animal photos into a dynamic, asymmetrical collage: a long cheetah strip across the upper left, a tall tiger close-up forming a right-hand column, the lion portrait in the lower left, and the kitten photo in the lower right. Separate the photos with clean white gaps so that they never touch and a strong diagonal division is visible across the slide. Use a solid white slide background.\n\nOn slide 2, convert the landscape and texture photos into a gallery-style board. Use a solid dark (charcoal) slide background and add a large centered frame made from one or two nested white-outline rectangles, leaving an even margin to the slide edges. Inside this frame, place the four landscape/texture photos (pebbles, raked sand with spheres, dunes, canyon) in a neat 2×2 grid. Each photo should sit inside a dark card with a thin white outline around it, with even spacing between cards and from the frame edges to create a balanced gallery layout.",
+    "style_target": "**Slide 1 modifications (animal ensemble mosaic):**\n- Change the slide background to SOLID(1) white instead of a picture or patterned background.\n- Remove any sand/texture pictures and stray black rectangles that previously sat behind the animals.\n- The final slide must contain exactly four animal photos: \n  • a cheetah running on a black background,\n  • a close-up tiger face,\n  • a lion portrait,\n  • a kitten chasing a butterfly.\n- Reposition and resize the animal photos to create a dynamic collage:\n  • The cheetah image forms a wide, horizontal strip along the top-left portion of the slide, touching the left edge and extending most of the way across the slide.\n  • The tiger close-up forms a tall vertical panel on the right, aligned to the right edge and spanning from near the top of the slide down toward the bottom.\n  • The lion portrait occupies the lower-left quadrant beneath the cheetah, aligned to the left edge.\n  • The kitten photo sits in the lower-right area beneath the tiger panel, filling the remaining bottom-right space.\n- Ensure there are clean white gaps between all four photos so they do not touch or overlap. The composition should create a strong diagonal division (a white band/gap) from the top-left toward the bottom-right of the slide.\n- All photos must be fully within the slide boundaries.\n\n**Slide 2 modifications (landscape gallery board):**\n- Change the slide background to SOLID(1) with a dark charcoal color.\n- Add a large centered rectangular frame made from one or two nested rectangles that only have a white outline (no fill), leaving an even margin from the slide edges. This double-outline effect should visually separate the gallery from the background.\n- Inside this framed area, create a 2×2 grid of four \"gallery cards\" for the photos:\n  • Each card is a dark rectangle with a thin white outline that serves as the photo mat.\n  • The cards must be evenly spaced horizontally and vertically, with consistent gaps between them and from the inner frame edges.\n- Place each of the four landscape/texture photos inside its own card:\n  • Pebbles/rocks photo (top-left card)\n  • Raked sand with three spheres (top-right card)\n  • Sand dunes (bottom-left card)\n  • Canyon walls (bottom-right card)\n- Photos must be cropped and scaled to fill most of their card area while maintaining padding to the white outline (no photo should touch the card border directly).\n- No animal photos or other extra shapes should remain on this slide. The final result should read as a clean, professional gallery of four images on a dark background with uniform framing.",
+    "original": "Original/EnsembleCategoryTest.pptx",
+    "ground_truth": "GroundTruth/EnsembleCategoryGroundTruth.pptx",
+    "category": [
+      "Layout",
+      "Styling"
+    ],
+    "enhancement_notes": "Replaces a simple title tweak with a coordinated two-slide visual styling task: a dynamic animal ensemble mosaic with diagonal separation on slide 1, and a framed gallery-style board with evenly spaced, matted landscape photos on slide 2.",
+    "edit_type": "Shapes & Drawing"
+  }
+]

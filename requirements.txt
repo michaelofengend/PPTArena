@@ -1,0 +1,17 @@
+Flask>=2.0
+python-pptx==0.6.23
+Werkzeug>=2.0
+openai>=1.0   # For OpenAI API calls
+google-generativeai>=0.5 # For Gemini API calls
+requests
+pandas
+tqdm
+Pillow==10.4.0
+opencv-python==4.9.0.80
+numpy
+flask-cors>=4.0
+gunicorn
+python-dotenv
+scikit-learn
+matplotlib
+seaborn

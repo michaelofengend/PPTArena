@@ -1,0 +1,1250 @@
+[
+  {
+    "name": "Case 1: Translate to English But Keep French",
+    "prompt": "Please translate this presentation from Kazakh to English. However, it's very important that you do not translate any of the French text. Leave all French words and sentences exactly as they are.",
+    "style_target": "Translate all Kazakh text to English, while preserving all French text without any changes. The specific Kazakh text to be translated is as follows:\n- Slide 4: The text after the equals sign.\n- Slide 5: The first paragraph.\n- Slide 6: The numbered list.\n- Slides 8 & 9: The text in the right column of each table.\n- Slide 10: The text in the right-hand text box.\n- Slide 12: The text in the right-hand text box and the Kazakh word in the title.\n- Slide 17: The title and the main text box.\nAll original text formatting (font, size, style, color) must be preserved for both the translated English text and the untouched French text. The overall layout and structure of each slide should be preserved, with elements remaining in their approximate original positions. All content must be readable and free of overlaps. No elements should be added or deleted.",
+    "original": "Original/TranslateToEnglishButKeepallFrenchTestA_Bonjour mes amis!.pptx",
+    "ground_truth": "GroundTruth/TranslatetoEnglishButKeepallFrenchGroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The style target was refined to remove the strict requirement for identical element positions and sizes, instead focusing on preserving the overall layout, readability, and avoiding overlaps.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 2: Fix Misspellings",
+    "prompt": "Proofread the entire presentation and correct any spelling errors you find.",
+    "style_target": "All identified spelling errors throughout the presentation must be corrected. Specifically, the following words should be fixed:\n- Slide 1: 'Buisneses' corrected to 'Businesses'.\n- Slide 2: 'suceses' to 'successes', 'porgrams' to 'programs', 'saftey' to 'safety'.\n- Slide 3: 'hazaards' to 'hazards', 'sustainablity' to 'sustainability', 'enerjize' to 'energize'.\n- Slide 6: 'valuble' to 'valuable', 'encuraged' to 'encouraged', 'communicat' to 'communicate'.\n- Slide 7: 'onhoing' to 'ongoing', 'sourcea' to 'sources', 'ilneses' to 'illnesses'.\n- Slide 8: 'Cusromize' to 'Customize', 'preswntation' to 'presentation'.\nThe original text formatting (font, color, size, bolding, etc.) of the corrected words and surrounding text must be maintained. The overall layout, including the position and size of all elements on each slide, should remain substantially unchanged.",
+    "original": "Original/FixMisspellingsTestA_activities_ss_week_presentation.pptx",
+    "ground_truth": "GroundTruth/FixMisspellingsGroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The criteria now focus on the semantic goal of correcting spelling while preserving the overall look and feel, rather than demanding exact, pixel-perfect preservation of layout and formatting.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 3: Add Footer Text Box",
+    "prompt": "On slide 5, add a source citation at the bottom that says 'Source: www.VerifyMe.com'.",
+    "style_target": "On slide 5, a new text box is added containing the exact text 'Source: www.VerifyMe.com'. This text box should be positioned in the footer area, near the bottom of the slide, below the main content and the horizontal line. The text should be easily readable, with a font size appropriate for a source citation, and should not overlap with any other elements. The alignment of the text (left, right, or center) can vary. All other elements on the slide must remain unchanged in their position and styling.",
+    "original": "Original/AddFooterSourceTestA_Q1-2025-Earnings-Call-update.pptx",
+    "ground_truth": "GroundTruth/AddFooterSourceGroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "Removed exact position, size, and alignment requirements to allow for any reasonable placement of the source citation in the footer area.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 4: Increase Font Size on Slide 8",
+    "prompt": "On slide 8, increase the font size of all text by 2 points, but do not change the main title.",
+    "style_target": "- On slide 8, the font size of all text must be increased by exactly 2 points.\n- EXCEPTION: The font size of the main title placeholder (\"Title 1\") must remain unchanged.\n- The font size increase must be applied consistently to all text runs within the targeted text boxes (e.g., original 24pt text becomes 26pt, original 20pt text becomes 22pt).\n- The overall layout, including the position and size of all shapes, must be preserved.\n- No other text properties (font name, color, bold, italic, alignment, etc.) should be modified for any text on the slide.\n- All text must remain readable and contained within its original text box after the size increase.",
+    "original": "Original/FontSizePlus2Slide8TestA.pptx",
+    "ground_truth": "GroundTruth/FontSizePlus2Slide8GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The style_target now specifies the semantic rule (+2 font size) and its exception (the title), rather than prescriptively listing the exact final font size for every individual text box.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 5: Change Body Text Font to Arial",
+    "prompt": "Throughout the presentation, change the font for all body text to Arial.",
+    "style_target": "Throughout the presentation, the font for all body text must be changed to 'Arial'. Body text is defined as any text that is not a main slide title. The main slide titles must retain their original font. The large 'Thank you' text on the final slide functions as a title-like element and should also be excluded from the font change. All other text properties, such as font size, color, and emphasis (bold, italics), must be preserved. The overall slide layout and readability must be maintained, with no elements overlapping or being pushed off-slide.",
+    "original": "Original/CalibriToTimesTestA.pptx",
+    "ground_truth": "GroundTruth/CalibriToTimesGroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The new criteria semantically define 'body text' and its exceptions, while replacing rigid layout constraints with a focus on overall readability and avoiding visual errors.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 6: Update Quarter Two Data (A)",
+    "prompt": "Throughout the presentation, change all instances of 'Q2' to 'Second Quarter'.",
+    "style_target": "1. Across all slides, every shape containing the exact text 'Q2' must be updated to 'Second Quarter'. This applies to shapes on slides 5, 6, 7, 12, and 17.\n2. The original font styling (font family, size, color, and weight/bolding) must be preserved for each instance of the replaced text.\n3. The shapes containing the new 'Second Quarter' text must be appropriately resized to ensure the text is fully visible and does not wrap or overflow.\n4. The resized shapes must be positioned to avoid overlapping with other elements, maintaining a clean and balanced layout. The original visual grouping and association with other elements on the slide must be kept intact.\n5. No other text, shapes, or slide properties should be altered.",
+    "original": "Original/QuarterTwoTestA___2302222_Presentation_Stats_SA_Q1_Q2_Q3_of_202223.pptx",
+    "ground_truth": "GroundTruth/QuarterTwoGroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The style target was updated to remove exact dimensions and positions for resized shapes, instead focusing on the semantic requirements that the new text must fit legibly and not overlap other elements.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 7: Update Quarter Two Data (B)",
+    "prompt": "Please replace all instances of 'Q2' with 'Second Quarter' throughout the presentation. Also, on slide 9, change the title font size to 32pt. Finally, on slides 6, 7, and 9, please un-bold the text below the charts.",
+    "style_target": "- All instances of \"Q2\" throughout the presentation must be replaced with \"Second Quarter\". The casing of the replacement should be contextually appropriate (e.g., \"Second Quarter\" in a title, \"second quarter\" mid-sentence).\n- On slide 9, the main title's font size must be changed to 32pt.\n- On slides 6 and 9, the text boxes serving as x-axis labels for the charts must not be bold.\n- On slide 7, the text box containing \"YOY Activity Variance\" must not be bold.\n- All other content, formatting, and slide elements must be preserved.",
+    "original": "Original/QuarterTwoTestB_7302020.pptx",
+    "ground_truth": "GroundTruth/QuarterTwoGroundTruthB.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target states the required changes as a set of semantic rules rather than a prescriptive list of exact text outputs, allowing for minor variations while still enforcing the core intent of the prompt.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 8: Summarize Paragraphs",
+    "prompt": "On slides 2 through 9, please summarize the large block of text on each slide into a single, concise paragraph.",
+    "style_target": "On slides 2 through 9, the large block of text is replaced with a concise, single-paragraph summary. The summary must accurately reflect the key points of the original text. The summarized paragraph should have consistent formatting, with any previous inline styling (like bolding or varied font sizes) removed. All other elements, including slide titles and all content on slide 1, must remain unchanged.",
+    "original": "Original/SummarizeParagraphsTestA_.pptx",
+    "ground_truth": "GroundTruth/SummarizeParagraphsGroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "Removed the specific placeholder name ('Content Placeholder 2') and the technical 'single text run' requirement, focusing instead on the semantic goal of replacing the main text block with a consistently formatted summary.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 9: Shorten Bullet Points",
+    "prompt": "On slides 4, 5, and 7 through 10, please shorten the paragraphs and bullet points to be more concise. Aim for around 10 words per point, but leave some of the longer points as they are if shortening them would lose important details. Make sure to preserve the core meaning.",
+    "style_target": "The text in the main content placeholders on slides 4, 5, and 7-10 must be edited for conciseness while preserving the core meaning of each point.\n\n**General Requirements:**\n- **Conciseness:** Most paragraphs and bullet points on the specified slides should be noticeably shorter than the original. Many should be around 10 words, per the prompt's guideline.\n- **Meaning Preservation:** The essential information from the original text must be retained in the shortened version.\n- **Selective Editing:** The model should demonstrate judgment by leaving some longer, more complex bullet points unedited to avoid losing important details (as seen on slides 8 and 9 of the ground truth).\n- **Formatting Preservation:** The original text formatting, including font properties, indentation levels, and bullet styles, must be maintained.\n- **Scope:** No changes should be made to slides other than 4, 5, 7, 8, 9, and 10. All other objects on the affected slides (like titles) must remain unchanged.\n\n**Slide-Specific Checks:**\n- **Slide 4:** Both paragraphs should be summarized to their core ideas about CDC funding and the one-year budget period.\n- **Slide 5:** The introductory sentence should be shortened, while the lists of domains and centers remain intact.\n- **Slide 7:** The bullet points should be rephrased to be more direct and concise.\n- **Slides 8 & 9:** At least one bullet point on each slide should be shortened, while the others may remain in their original, longer form.\n- **Slide 10:** The main bullet points describing the project and mini-grants should be shortened. The final point stating the funding amount should be unchanged.",
+    "original": "Original/ShortenBulletPointsTestB_Opioid-Addiction-Response-in-VA.pptx",
+    "ground_truth": "GroundTruth/ShortenBulletPointsGroundTruthB.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The style_target was changed from a prescriptive list of exact text replacements to a semantic description of the summarization task, allowing for variations in wording as long as conciseness and core meaning are preserved.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 10: Italicize Subheadings (A)",
+    "prompt": "Go through the entire presentation and italicize all the text in the main content boxes on each slide. Do not change the main slide titles.",
+    "style_target": "All text within the primary content containers (e.g., body placeholders, main text boxes) on every slide must be italicized. The main slide titles must remain unchanged. This is a style-only modification; all other text properties (font, size, color, bold/underline status) and the layout of all slide elements must be preserved. The italicization should apply to all text runs within the designated content boxes across the entire presentation.",
+    "original": "Original/ItalicizeSubheadingsTestA_Career_Banding_Job_Description_Training.pptx",
+    "ground_truth": "GroundTruth/ItalicizeSubheadingsGroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The target is now more semantic by referring to \"primary content containers\" instead of specific shape names and removes a contradictory, overly prescriptive exception for slide 62 that was not supported by the user's prompt.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 11: Italicize Subheadings (B)",
+    "prompt": "Apply an italic style to all text in this presentation, but do not change the main title slide (slide 1) or the blue module divider slides (slides 12, 16, and 20).",
+    "style_target": "All text across the presentation must be italicized, with the explicit exception of slides 1, 12, 16, and 20, which should remain completely unchanged. On the modified slides, other text formatting such as font, size, bolding, underlining, and color must be preserved. The overall layout, content, and positioning of elements on all slides should not be altered.",
+    "original": "Original/ItalicizeSubheadingsTestB_COVID19-Healthcare-Tabletop-Facilitator-PPT.pptx",
+    "ground_truth": "GroundTruth/ItalicizeSubheadingsGroundTruthB.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The criteria were updated to focus on the visual outcome (italicized text) and semantic preservation of style and layout, rather than specific property settings.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 12: Stock Photo Cleanup ",
+    "prompt": "Clean up the images into a sleek panel gallery layout. Add a visible caption onto each picture that describes each photo.",
+    "style_target": "A new text box must be added to each slide containing a concise description of the image. The descriptions must be: ]Slide 1: 'Black and white image of deer' Slide 2: 'Giraffes in the wild' [cite: 6] Slide 3: 'Football on grass' [cite: 7] The added text boxes should be positioned legibly on the slide (e.g., in the bottom margin) and should not obscure the main image. The layout of the slide should be sleek, with the images in diagonal or horizontal stack",
+    "original": "Original/MatchStockPhotos_Test.pptx",
+    "ground_truth": "GroundTruth/MatchStockPhotosGroundTruth.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "This test case requires the addition of new text elements based on visual analysis of the slide content.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 13: Italicize Subheadings (D)",
+    "prompt": "Throughout the presentation, make all subheadings and introductory paragraphs italic. This should also apply to the lists on slide 2 and all the text on the final 'Questions?' slide. Do not change the main slide titles.",
+    "style_target": "- Throughout the presentation, text that functions as a subheading or an introductory paragraph within a content placeholder should be made italic. This includes, but is not limited to, short introductory labels like \"Goal:\", \"Actions:\", \"Objective:\", \"Background:\", and \"Requirement:\".\n- On the title slide (Slide 1), the subtitle text (\"Department of Education...\") must be italicized.\n- On Slide 2, all text within the two main list placeholders and their corresponding date labels (\"January 22:\", \"January 23:\") must be italicized.\n- On the final slide (Slide 34), all text within the main content box (containing \"Questions?\" and contact information) must be italicized.\n- Main slide titles must not be italicized or otherwise altered.\n- Body text that is part of a list and does not function as a subheading or intro paragraph should not be italicized (with the explicit exception of Slide 2).\n- No other text formatting (font, size, color, bold, underline) or slide layouts should be changed.",
+    "original": "Original/ItalicizeSubheadingsTestD_teachout.pptx",
+    "ground_truth": "GroundTruth/ItalicizeSubheadingsGroundTruthD.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The style_target has been refined to focus on the semantic role of the text (e.g., \"subheading,\" \"introductory paragraph\") rather than listing every specific text run, while still honoring the explicit instructions for slides 2 and 34 from the prompt.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 14: Bold Title (A)",
+    "prompt": "Make the title on every slide bold, except for the main title slide (slide 1).",
+    "style_target": "The main title text on every slide, starting from slide 2, must be bold. The title on slide 1 must remain unchanged. For titles that are made bold, other formatting properties such as font, size, color, and italics must be preserved. All other slide content must remain unaltered.",
+    "original": "Original/BoldTitleTestA_Game_theory_4.pptx",
+    "ground_truth": "GroundTruth/Bolded_BoldTitleTestA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The criteria were refined to be more semantic by removing the hardcoded end slide number and the prescriptive instruction to \"locate the main title placeholder,\" focusing instead on the intended outcome for all titles.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 15: Bold Title (B)",
+    "prompt": "Make all the slide titles bold throughout the presentation.",
+    "style_target": "The primary title text on every slide must be made bold. For slide 1, the text 'CSE1300' is the primary title. All other text properties of the titles (font, size, color, italics) must be preserved. All non-title elements, such as subtitles and body content, must remain completely unchanged in their content, formatting, and position.",
+    "original": "Original/BoldTitleTestB_cse1300-ai.pptx",
+    "ground_truth": "GroundTruth/Bolded_BoldTitleTestB.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The criteria now focus on the semantic role of the text ('primary title') rather than a specific shape type ('title placeholder'), making it more generalizable.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 16: Curate Multi-Panel Photo Layout",
+    "prompt": "This presentation needs a professional photo layout. On slide 2, straighten the three photos labeled WATERFALL, STAIRCASE, and CHESS and arrange them as a clean horizontal row inside the pink panel. Remove their rotations, resize them so they are nearly the same square size, and align their top edges to exactly the same vertical position so they read as a unified triptych. Each photo should sit directly above its corresponding label. Keep the title, pink background rectangle, blue frame decorations, and caption text boxes otherwise unchanged. The slide background should use a solid fill.",
+    "style_target": "**Slide 2 modifications:**\n- The slide background must be changed from type BACKGROUND(5) to SOLID(1) fill.\n- Picture 26 (labeled WATERFALL): Must be moved from position (427pt, 145pt) to (75pt, 135pt), resized from 256pt × 256pt to 230pt × 230pt, and rotation must be changed from 344 degrees to 0 degrees.\n- Picture 4 (labeled STAIRCASE): Must be moved from position (650pt, -6pt) to (354pt, 135pt), resized from 310pt × 310pt to 230pt × 230pt, and rotation must remain at 0 degrees.\n- Picture 18 (labeled CHESS): Must be moved from position (211pt, 269pt) to (633pt, 135pt), resized from 144pt × 144pt to 232pt × 232pt, and rotation must be changed from 41.7 degrees to 0 degrees.\n- Critical requirement: All three photos must have their top positions aligned at exactly 135pt (with tolerance of ±1pt).\n- Critical requirement: All three photos must have similar dimensions, approximately 230pt × 230pt (with tolerance of ±5pt).\n- All other elements must remain unchanged: Rectangle 27 (background colored rectangle), TextBox 2 ('WATERFALL'), TextBox 5 ('STAIRCASE'), TextBox 16 ('CHESS'), Rectangle 21–24 (vertical decorative lines), and TextBox 28 ('Motion & Stills').",
+    "original": "Original/OrderPhotosTest.pptx",
+    "ground_truth": "GroundTruth/OrderPhotosGroundTruth.pptx",
+    "category": [
+      "Layout",
+      "Content"
+    ],
+    "enhancement_notes": "Replaces a trivial title change with a realistic single-slide layout normalization task that requires precise alignment of a three-photo triptych.",
+    "edit_type": "Alignment, Distribution & Z-order"
+  },
+  {
+    "name": "Case 17: Build Ensemble Category Boards",
+    "prompt": "Transform this presentation into a polished ensemble category board with two coordinated slides.\n\nOn slide 1, keep the four animal photos (cheetah running on black, tiger close-up, lion portrait, and kitten chasing a butterfly) and remove the extra sand/texture photos and any leftover black background blocks. Arrange the four animal photos into a dynamic, asymmetrical collage: a long cheetah strip across the upper left, a tall tiger close-up forming a right-hand column, the lion portrait in the lower left, and the kitten photo in the lower right. Separate the photos with clean white gaps so that they never touch and a strong diagonal division is visible across the slide. Use a solid white slide background.\n\nOn slide 2, convert the landscape and texture photos into a gallery-style board. Use a solid dark (charcoal) slide background and add a large centered frame made from one or two nested white-outline rectangles, leaving an even margin to the slide edges. Inside this frame, place the four landscape/texture photos (pebbles, raked sand with spheres, dunes, canyon) in a neat 2×2 grid. Each photo should sit inside a dark card with a thin white outline around it, with even spacing between cards and from the frame edges to create a balanced gallery layout.",
+    "style_target": "**Slide 1 modifications (animal ensemble mosaic):**\n- Change the slide background to SOLID(1) white instead of a picture or patterned background.\n- Remove any sand/texture pictures and stray black rectangles that previously sat behind the animals.\n- The final slide must contain exactly four animal photos: \n  • a cheetah running on a black background,\n  • a close-up tiger face,\n  • a lion portrait,\n  • a kitten chasing a butterfly.\n- Reposition and resize the animal photos to create a dynamic collage:\n  • The cheetah image forms a wide, horizontal strip along the top-left portion of the slide, touching the left edge and extending most of the way across the slide.\n  • The tiger close-up forms a tall vertical panel on the right, aligned to the right edge and spanning from near the top of the slide down toward the bottom.\n  • The lion portrait occupies the lower-left quadrant beneath the cheetah, aligned to the left edge.\n  • The kitten photo sits in the lower-right area beneath the tiger panel, filling the remaining bottom-right space.\n- Ensure there are clean white gaps between all four photos so they do not touch or overlap. The composition should create a strong diagonal division (a white band/gap) from the top-left toward the bottom-right of the slide.\n- All photos must be fully within the slide boundaries.\n\n**Slide 2 modifications (landscape gallery board):**\n- Change the slide background to SOLID(1) with a dark charcoal color.\n- Add a large centered rectangular frame made from one or two nested rectangles that only have a white outline (no fill), leaving an even margin from the slide edges. This double-outline effect should visually separate the gallery from the background.\n- Inside this framed area, create a 2×2 grid of four \"gallery cards\" for the photos:\n  • Each card is a dark rectangle with a thin white outline that serves as the photo mat.\n  • The cards must be evenly spaced horizontally and vertically, with consistent gaps between them and from the inner frame edges.\n- Place each of the four landscape/texture photos inside its own card:\n  • Pebbles/rocks photo (top-left card)\n  • Raked sand with three spheres (top-right card)\n  • Sand dunes (bottom-left card)\n  • Canyon walls (bottom-right card)\n- Photos must be cropped and scaled to fill most of their card area while maintaining padding to the white outline (no photo should touch the card border directly).\n- No animal photos or other extra shapes should remain on this slide. The final result should read as a clean, professional gallery of four images on a dark background with uniform framing.",
+    "original": "Original/EnsembleCategoryTest.pptx",
+    "ground_truth": "GroundTruth/EnsembleCategoryGroundTruth.pptx",
+    "category": [
+      "Layout",
+      "Styling"
+    ],
+    "enhancement_notes": "Replaces a simple title tweak with a coordinated two-slide visual styling task: a dynamic animal ensemble mosaic with diagonal separation on slide 1, and a framed gallery-style board with evenly spaced, matted landscape photos on slide 2.",
+    "edit_type": "Shapes & Drawing"
+  },  
+  {
+    "name": "Case 18: Shorten Text On Slides",
+    "prompt": "Summarize the text on all slides to make them more concise and easier to read. On the title slide, simplify the title and author information as well.",
+    "style_target": "The text content in the main placeholders of slides 2 through 12 must be summarized to be more concise and easier to read, while preserving the core meaning and key information of the original text. Long paragraphs should be broken down into shorter, digestible points, which can be presented as short sentences, separate paragraphs, or a bulleted list. On the title slide (slide 1), the main title should be a concise summary of the original, and the author/affiliation information should be simplified for clarity, removing inconsistent formatting like varied font sizes or bolding. On slide 3, any distracting formatting, such as the red text color, must be removed to improve readability. The 'Thank You' slide (slide 13) should remain unmodified. All other non-text elements like background images, layouts, and the titles on slides 2-12 should be preserved.",
+    "original": "Original/ShortenTextOnSlides_TestA.pptx",
+    "ground_truth": "GroundTruth/ShortenTextOnSlides_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The style_target now allows for more flexible summarization formats (like bullet points) and focuses on the semantic goal of simplifying the title slide content rather than prescribing the exact text.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 19: Translate Chinese",
+    "prompt": "Translate this entire presentation from Chinese to English, ensuring the new text fits neatly within the existing slide layouts.",
+    "style_target": "All Chinese text across all slides must be translated into fluent, contextually appropriate U.S. English. The original layout and visual structure of each slide should be preserved, with shapes and images maintaining their relative positions. Translated text must fit completely within its designated shape or textbox without overflowing; font sizes may be reduced to achieve this, but all text must remain legible. Original text styling (font color, bolding, alignment) should be maintained to preserve the slide's visual hierarchy. The Chinese date on the final slide must be translated and reformatted into a standard U.S. English date format (e.g., \"Wednesday, August 13th, 2025\" or \"August 13, 2025\").",
+    "original": "Original/TranslateChineseTestA.pptx",
+    "ground_truth": "GroundTruth/TranslateChineseGroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target removes prescriptive font sizes and un-prompted style changes (like alignment), focusing instead on the semantic goals of accurate translation and ensuring text fits legibly within the original layout.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 20: Remove Filler Words",
+    "prompt": "Please review the speaker notes for every slide. Make them more professional and concise by removing filler words, conversational phrases, and any redundant text. Also, remove any slide numbers that have been added to the end of the notes. If a note only contains a slide number, clear it completely. Ensure the core meaning of the notes is preserved.",
+    "style_target": "All changes must be confined to the speaker notes for each slide. The notes text must be edited for a professional and concise tone.\n- Conversational elements, such as filler words (e.g., \"a bit\", \"so\", \"I think\") and conversational phrasing, must be removed.\n- Redundant text should be eliminated to improve conciseness.\n- The language should be formal, which includes expanding contractions (e.g., \"it's\" to \"it is\").\n- The core meaning and intent of the original notes must be preserved.\n- All slide number indicators must be removed. If a note consists solely of a slide number, the note must be cleared entirely.\n- The final text must be grammatically correct and free of typos or awkward phrasing.\n- No content, formatting, or layout on the slides themselves may be altered.",
+    "original": "Original/RemoveFillerWords_TestA.pptx",
+    "ground_truth": "GroundTruth/RemoveFillerWords_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The style target was refined to use more semantic requirements like \"professional and concise tone\" and \"formal language\" instead of providing exhaustive lists of filler words and contractions to change.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 21: Title Case Titles",
+    "prompt": "Please go through the presentation and change all the slide titles to use Title Case capitalization.",
+    "style_target": "All slide titles must be correctly formatted in Title Case. Correct Title Case involves capitalizing the first letter of major words, while minor words (articles, prepositions, conjunctions) remain lowercase unless they begin or end the title. Existing acronyms (e.g., 'DSI') must retain their all-caps format. Beyond this capitalization change in the titles, no other elements, text, or formatting on any slide should be altered.",
+    "original": "Original/FixTitleCase_TestA.pptx",
+    "ground_truth": "GroundTruth/FixTitleCase_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The refined criteria define the rules for Title Case semantically rather than using specific examples, and consolidates the \"do not change anything else\" constraint into a single, clear statement.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 22: Center Align Title Placeholders",
+    "prompt": "On each slide, horizontally center the text in the main title placeholder.",
+    "style_target": "On all slides with a main title placeholder (slides 2, 3, 4, 5, 7, and 8), the text within that placeholder must be horizontally center-aligned. To ensure true visual centering, any extraneous leading whitespace in the title text must be removed (e.g., on slide 2, \"   Introduction\" becomes \"Introduction\"). The title placeholder shape itself should be positioned so that its text content appears approximately horizontally centered on the slide. Slides that do not use a standard title placeholder for their main heading (e.g., slides 1, 6, 9, 10) should remain unchanged. All other formatting, such as font properties, colors, and vertical positioning, must be preserved.",
+    "original": "Original/CenterAlignTitles_TestA.pptx",
+    "ground_truth": "GroundTruth/CenterAlignTitles_GroundTruth.pptx",
+    "category": [
+      "Layout"
+    ],
+    "enhancement_notes": "Removed exact horizontal positions for title placeholders, replacing them with a more general requirement for the title text to be visually centered on the slide.",
+    "edit_type": "Alignment, Distribution & Z-order"
+  },
+  {
+    "name": "Case 23: Add Thank You Slide",
+    "prompt": "Add a new slide at the very end with the title 'Thank you'.",
+    "style_target": "A new slide must be added at the very end of the presentation. The new slide's primary content must be the text 'Thank you', serving as the slide's title. The title should be prominently displayed and reasonably centered. The original slides must remain unchanged.",
+    "original": "Original/AddThankYouSlide_TestA.pptx",
+    "ground_truth": "GroundTruth/AddThankYouSlide_GroundTruthA.pptx",
+    "category": [
+      "Structure",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target removes the prescriptive requirement for a specific layout ('Title Only') and the exact coordinates of the title, focusing instead on the semantic requirements of adding a final slide with a prominent, well-placed title.",
+    "edit_type": "Slide Layout & Placeholders"
+  },
+  {
+    "name": "Case 24: Add Agenda Slide After First",
+    "prompt": "After the title slide, add a new slide titled 'Agenda'. The agenda should list these three sections: 1. Introduction, 2. Result and Discussion, 3. Conclusion.",
+    "style_target": "- A new slide is inserted immediately after the title slide, becoming the new slide 2.\n- The new slide must have a prominent title with the exact text \"Agenda\".\n- The slide body must contain a numbered list with the following three items in the correct order:\n    - 1. Introduction\n    - 2. Result and Discussion\n    - 3. Conclusion\n- The numbering (1, 2, 3) must be clearly visible and correctly associated with each corresponding agenda item.\n- The layout should be clean and professional, with all text easily readable and no overlapping elements.\n- The total slide count must increase by one, and all subsequent slides must be shifted down, with any visible slide numbers updated sequentially.",
+    "original": "Original/AddAgendaSlide_TestA.pptx",
+    "ground_truth": "GroundTruth/AddAgendaSlide_GroundTruthA.pptx",
+    "category": [
+      "Structure"
+    ],
+    "enhancement_notes": "The refined target removes prescriptive font names, sizes, and styles, focusing instead on the core requirements of slide position, title, and the correctly ordered, numbered list content.",
+    "edit_type": "Slide/Section Management & Footers"
+  },
+  {
+    "name": "Case 25: Match Table Theme and Colors",
+    "prompt": "The table on this slide looks out of place. Please reformat it to match the presentation's color scheme, using a style with a dark header and alternating row colors.",
+    "style_target": "The table's visual style must be updated to align with the presentation's color theme. The header row should be distinctly formatted with a dark background fill using a theme color, and the header text must have high contrast for readability (e.g., a light font color). The data rows must feature an alternating color pattern (banded rows), also using colors from the theme. The table's content, dimensions, and position on the slide must remain unchanged.",
+    "original": "Original/FixTableThemeColor_TestA.pptx",
+    "ground_truth": "GroundTruth/FixTableThemeColor_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The refined target now focuses on the semantic requirements of a theme-aligned dark header and banded rows, rather than prescribing a specific table style name and exact theme colors.",
+    "edit_type": "Tables"
+  },
+  {
+    "name": "Case 26: Match Slide Colors to Theme",
+    "prompt": "Apply a professional color scheme to this slide using a teal and dark green palette. Ensure all text elements are visually consistent and readable.",
+    "style_target": "The color scheme of the slide's text elements should be updated to use a professional palette of teal and/or dark green. The slide title and the text within the left-hand text box must be recolored using this palette, ensuring high readability against the background. A clear visual hierarchy should be created; for instance, using a brighter accent color for the sub-heading ('Make it interactive') and a darker, more subdued color for the main title and body text. The font size of the body paragraph in the left text box should be reduced to be noticeably smaller than its heading, further enhancing the hierarchy. The content, styling, and position of the table and other slide elements must remain unchanged.",
+    "original": "Original/FixSlideColorScheme_TestA.pptx",
+    "ground_truth": "GroundTruth/FixSlideColorScheme_GroundTruth.pptx",
+    "category": [
+      "Styling"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic goals of applying a consistent color palette and creating visual hierarchy, rather than prescribing exact hex codes and font sizes.",
+    "edit_type": "Theme & Background"
+  },
+  {
+    "name": "Case 27: Correct Images",
+    "prompt": "Make all three picture placeholders the same size, align them horizontally, and position each one directly above its corresponding text label.",
+    "style_target": "The three picture placeholders must be resized to a uniform size (identical width and height). They must be arranged in a single horizontal row, with their top or vertical centers aligned. Each picture placeholder must be positioned directly above its corresponding text label, with their horizontal centers approximately aligned (e.g., the image placeholder for 'shark' is above the 'shark' text). The title and the three text labels should remain unchanged in their content and approximate positions. The final layout should be visually balanced with no overlapping elements.",
+    "original": "Original/FixImagePorportions_TestA.pptx",
+    "ground_truth": "GroundTruth/FixImagePorportions_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target now focuses on the semantic requirements of uniform size, horizontal alignment, and correct pairing with text labels, rather than prescribing exact dimensions and coordinates.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 28: Fix Slide Order and Agenda",
+    "prompt": "The agenda on slide 2 is all mixed up and the slides are in the wrong order. Please fix the presentation so it flows logically and the agenda list matches the new slide order.",
+    "style_target": "The presentation's slides must be reordered to follow a logical presentation structure. The 'Agenda' slide must be first. The 'Conclusion' and 'Q&A' slides must be last, in that order. The remaining content slides must be ordered logically between the introduction and conclusion. On the 'Agenda' slide, the bulleted list must be reordered to match the new sequence of the subsequent slides. Slide numbers in the footers must be updated to reflect each slide's new position. No other changes to content or formatting should be made.",
+    "original": "Original/FixAgendaAndOrder_TestA.pptx",
+    "ground_truth": "GroundTruth/FixAgendaAndOrder_GroundTruthA.pptx",
+    "category": [
+      "Structure"
+    ],
+    "enhancement_notes": "The new target defines the required \"logical flow\" using structural rules (e.g., agenda first, conclusion last) instead of prescriptively listing the exact final slide and text order.",
+    "edit_type": "Slide/Section Management & Footers"
+  },
+  {
+    "name": "Case 29: Convert Bar Chart to Pie Chart",
+    "prompt": "On slide 3, change the column chart to a pie chart.",
+    "style_target": "On slide 3, the existing column chart must be changed to a pie chart. The new pie chart must accurately represent the data from the original column chart. The chart should be positioned in the main content area of the slide, with reasonable margins and no overlap with other slide elements. All other elements on the slide, such as the title and footer text, must be preserved.",
+    "original": "Original/PieChart_TestA.pptx",
+    "ground_truth": "GroundTruth/PieChart_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "Removed rigid position and dimension constraints, focusing on the core semantic change of the chart type while ensuring data integrity and a clean layout.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 30: Convert Text Data to a Line Chart",
+    "prompt": "On slide 8, convert the text data showing uninsured rates into a line chart with markers. Also, create a custom legend for the chart on the right.",
+    "style_target": "On slide 8, the text box containing the uninsured rate data must be removed and replaced with a line chart with markers.\n- **Chart Type:** The chart must be a line chart that includes markers for data points.\n- **Data Accuracy:** The chart must accurately represent the data from the original text box.\n  - The horizontal axis must represent the years: 2013, 2014, 2015, 2016, 2017.\n  - Three distinct data series must be plotted for \"NHOPI\", \"Asian\", and \"White\", with their corresponding percentage values for each year.\n- **Visual Clarity:**\n  - Each data series must be visually distinct from the others (e.g., using different colors and/or marker styles).\n  - The vertical axis should represent percentages, with a scale that is appropriate for the data (e.g., 0% to 20%).\n  - The chart should be clean and easily readable.\n- **Custom Legend:**\n  - A custom-built legend must be created and positioned to the right of the chart.\n  - This legend must clearly and accurately associate each series name (\"NHOPI\", \"Asian\", \"White\") with its corresponding line and marker style.\n  - The default, automatically generated chart legend must be removed or hidden.\n- **Overall Layout:** The chart and its custom legend should be the main focus of the slide, well-proportioned, and with no overlapping elements.",
+    "original": "Original/LineGraph_TestA.pptx",
+    "ground_truth": "GroundTruth/LineGraph_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic requirements of accurate data representation, correct chart type, and a clear, functional custom legend, while removing prescriptive details like exact positions, colors, and marker shapes.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 31: Fix Text Overflow",
+    "prompt": "The main text box on this slide is too wide and goes off the right side of the screen. Please resize it so it fits entirely on the slide, making sure all the text is still visible.",
+    "style_target": "The main text box ('TextBox 1') must be resized so that it is fully contained within the slide's boundaries, with a reasonable margin from the right edge. The box's height must be adjusted to ensure all original text is visible and does not overflow. The top-left position of the text box should remain unchanged. No other elements on the slide, such as the title, should be altered, and the text formatting within the main text box must be preserved.",
+    "original": "Original/FixTextOverFlow_TestA.pptx",
+    "ground_truth": "GroundTruth/FixTextOverFlow_GroundTurthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The new style target focuses on the semantic goal of fitting the text box on the slide without specifying exact dimensions, allowing for any valid resize that meets the criteria.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 32: Arrange Image and Text",
+    "prompt": "The image on the left is cut off and the text on the right is overflowing its box. Please adjust the layout to make sure both the image and all the text are fully visible on the slide.",
+    "style_target": "The image ('Content Placeholder 4') must be repositioned and/or resized so it is fully visible within the slide's boundaries. The text box ('Content Placeholder 8') must be resized so that all text is contained within its boundaries and there is no text overflow. The image and text box should not overlap each other or the title. The title element, as well as the content and styling of all text, must remain unchanged. The final layout should be visually balanced.",
+    "original": "Original/FixImage&TextOverFlow_TestB.pptx",
+    "ground_truth": "GroundTruth/FixImage&TextOverFlow_GroundTruthB.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The style_target now focuses on the semantic requirements of full visibility for both the image and text, allowing for flexible layout solutions instead of specifying exact coordinates and dimensions.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 33: Adjust Theme Colors to Light Blue",
+    "prompt": "Please adjust the presentation theme so that charts replace the dark blue/purple with a light blue color, but leave other colors-intact.",
+    "style_target": " All charts, shapes, and accent elements should use light blue instead of the dark blue color matching the reference deck. Preserve slide layouts, text content, and typography while updating color. No animations or other formatting changes are required.",
+    "original": "Original/ChartThemeColor_TestA.pptx",
+    "ground_truth": "GroundTruth/ChartThemeColor_GroundTruthA.pptx",
+    "category": [
+      "Styling"
+    ],
+    "enhancement_notes": "Updated to reflect the chart theme color task; emphasizes palette changes without altering layout or text content.",
+    "edit_type": "Theme & Background"
+  },
+  {
+    "name": "Case 34: Lambda Replacement",
+    "prompt": "Replace every instance of the word 'Lambda' with the Greek symbol \u03bb. Also, throughout the entire presentation, consolidate fragmented text runs into single words or phrases where the formatting is the same.",
+    "style_target": "Every instance of the case-sensitive word 'Lambda' is replaced with the Greek symbol '\u03bb'. The symbol '\u03bb' must inherit the formatting (font, size, color, style) of the word it replaces. Additionally, throughout the entire presentation, adjacent text runs with identical formatting are consolidated into single, coherent runs. This structural change must preserve the original visual appearance and styling of all text.",
+    "original": "Original/1ea18Lamda_TestA.pptx",
+    "ground_truth": "GroundTruth/1ea18LamdaReplacement_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "Removed the overly specific example of font properties for the symbol replacement, focusing instead on the general rule of inheriting the original style.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 35: Structural Fix",
+    "prompt": "On slide 1, shorten the main title to 'INTRODUCTION TO SPECTROSCOPY' and reduce the font size of the subtitle text to 14pt. On slide 20, change the font size of the text 'LET'S SEE...' to 16pt. Also, please clean up the text structure throughout the entire presentation to make it easier to edit.",
+    "style_target": "Throughout the presentation, the text structure is improved for easier editing. Fragmented text runs (e.g., text split into individual letters) are consolidated into coherent phrases or sentences, while preserving the original formatting attributes like font, color, and style within each segment. On slide 1, the main title text is updated to 'INTRODUCTION TO SPECTROSCOPY', and the font size of the subtitle text is reduced to 14pt. On slide 20, the font size of the text beginning 'LET'S SEE...' is changed to 16pt. The overall layout and visual hierarchy of each slide should be preserved without other significant changes.",
+    "original": "Original/1ea18StructuralFix_TestA copy.pptx",
+    "ground_truth": "GroundTruth/1ea18StructuralFix_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic goal of making text 'easier to edit' by consolidating runs and relaxes the overly strict constraint on unchanged element positions to allow for minor layout shifts.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 36: Add Speaker Notes",
+    "prompt": "Slide 2 contains speaker notes for the other slides. Please move the text from the text boxes on slide 2 to the speaker notes of the appropriate slides, then delete slide 2.",
+    "style_target": "- The original slide 2 must be deleted, resulting in a 9-slide presentation.\n- The text from each of the text boxes on the original slide 2 must be moved into the speaker notes of the semantically appropriate slide that follows.\n- The association between the text content and the destination slide must be correct based on the topic. For example, the text explaining \"Moment to Moment transitions\" must be moved to the notes of the slide titled \"Moment To Moment Transitions\". This applies to all text blocks and their corresponding slides (Action to Action, Subject to Subject, etc.).\n- The text containing instructions for the group activity belongs in the notes of the final \"Group Activity\" slide.\n- The complete text from each box must be transferred. Minor variations in whitespace or line breaks are acceptable.\n- The title slide (slide 1) should not have any speaker notes added.\n- The content, formatting, and order of the remaining slides must be preserved.",
+    "original": "Original/AddSpeakerNotes_TestA.pptx",
+    "ground_truth": "GroundTruth/AddSpeakerNotes_GroundTruth.pptx",
+    "category": [
+      "Structure"
+    ],
+    "enhancement_notes": "The style_target has been refined to focus on the semantic task of correctly associating text blocks with their corresponding slides, rather than requiring an exact character-for-character match of the speaker notes text.",
+    "edit_type": "Slide/Section Management & Footers"
+  },
+  {
+    "name": "Case 37: Add Transitions",
+    "prompt": "Apply a 'Fade' transition to all slides in the presentation.",
+    "style_target": "A 'Fade' transition must be applied to every slide in the presentation. The specific duration and variant (e.g., 'Smoothly' or 'Through Black') of the fade transition are not specified in the prompt, so any reasonable default is acceptable. No other content, formatting, or animations on any slide should be altered.",
+    "original": "Original/AddTransitions_TestA.pptx",
+    "ground_truth": "GroundTruth/AddTransitions_GroundTruthA.pptx",
+    "category": [
+      "Interactivity"
+    ],
+    "enhancement_notes": "The refined criteria remove the prescriptive duration and variant for the transition, allowing for any reasonable default since the prompt did not specify these details.",
+    "edit_type": "Slide Transitions"
+  },
+  {
+    "name": "Case 38: Flip Theme Scheme",
+    "prompt": "Change the presentation to a dark theme. Make sure all text is readable against the new dark background.",
+    "style_target": "A dark theme is applied consistently across all slides, resulting in dark-colored backgrounds. All text elements, including titles, body content, and slide numbers, must be updated to a light color that provides high contrast and readability against the new backgrounds. Slide numbers should be enabled and clearly visible on each slide. The original content, images, and overall layout structure must be preserved.",
+    "original": "Original/FixThemeScheme_TestA.pptx",
+    "ground_truth": "GroundTruth/FlipThemeScheme_GroundTruthA.pptx",
+    "category": [
+      "Styling"
+    ],
+    "enhancement_notes": "The style target was generalized to focus on the semantic requirements of applying a dark theme\u2014ensuring all text has high contrast and slide numbers are visible\u2014rather than prescribing specific colors, alignments, or font sizes.",
+    "edit_type": "Theme & Background"
+  },
+  {
+    "name": "Case 39: Generate Conclusion Slide",
+    "prompt": "Add a new slide at the end of the presentation to serve as a conclusion. Summarize the key points from the presentation on this new slide.",
+    "style_target": "- A new slide must be added at the end of the presentation (as slide 12).\n- The original 11 slides must remain unchanged.\n- The new slide must have a title that clearly identifies it as a conclusion or summary (e.g., \"Conclusions\", \"Summary\", \"Key Takeaways\").\n- The body of the slide must contain a summary of the presentation's key points, which can be formatted as a bulleted list or paragraphs.\n- The summary content must accurately reflect the presentation and should cover the following key concepts:\n    - The application and utility of Hidden Markov Models (HMMs) in gene prediction.\n    - The core components of HMMs, specifically mentioning \"transition probabilities\" and \"emission probabilities\".\n    - The concept of using HMMs to find the most likely \"state path\" for a sequence of observations.\n- The text should be well-organized and readable. Emphasis on key terms (like bold or italics) is acceptable but not required.",
+    "original": "Original/GenerateCompConclusion_TestA.pptx",
+    "ground_truth": "GroundTruth/GenerateCompConclusion_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Structure"
+    ],
+    "enhancement_notes": "The style_target was refined to define the semantic concepts required in the summary, rather than prescribing the exact text and formatting.",
+    "edit_type": "Slide/Section Management & Footers"
+  },
+  {
+    "name": "Case 40: Hindu Center Titles",
+    "prompt": "Horizontally center the main titles on slides 1, 2, 5, 7, and 9.",
+    "style_target": "- On slides 1, 2, 5, 7, and 9, the main title element must be horizontally centered on the slide.\n- For title placeholders that span most of the slide width (e.g., slides 1 and 2), this is achieved by setting the text alignment to center.\n- For title shapes that are narrower than the slide (e.g., slides 5, 7, and 9), this is achieved by moving the entire shape to the horizontal center.\n- The vertical position of the affected titles must be preserved.\n- No other properties of the titles (font, size, text content) or any other slide elements should be changed.",
+    "original": "Original/HinduCenterTitles_TestA.pptx",
+    "ground_truth": "GroundTruth/HinduCenterTitles_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target removes exact coordinates and instead describes the two valid semantic methods for centering a title, focusing on the visual outcome rather than a specific implementation.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 41: Match Background to Picture",
+    "prompt": "Change the slide background to match the light gray color from the picture.",
+    "style_target": "The slide background must be changed from white to a solid light gray color. The chosen gray should be visually consistent with the light gray areas within the central picture, creating a cohesive appearance. All other elements on the slide (the image and text boxes) must remain unchanged in their content, size, position, and formatting.",
+    "original": "Original/MatchBackgroundtoPicture_TestA.pptx",
+    "ground_truth": "GroundTruth/MatchBackgroundtoPicture_GroundTruthA.pptx",
+    "category": [
+      "Styling"
+    ],
+    "enhancement_notes": "The requirement for the background color is now more flexible, allowing for any light gray visually sampled from the image, rather than being restricted to a specific area.",
+    "edit_type": "Theme & Background"
+  },
+  {
+    "name": "Case 42: Organize Research Poster",
+    "prompt": "Please reorganize this research poster into a clean four-column layout. The first column should be 'Abstract', the second 'Materials', the third 'Results/Data Analysis', and the fourth 'Conclusion'. Arrange all the related text, charts, and images under their correct headings.",
+    "style_target": "The slide is reorganized into a clean four-column layout below the main header section.\n\n**Overall Layout:**\n- The main slide title ('ACADEMIC RESEARCH POSTER TEMPLATE'), subtitle, and the 'CONTRIBUTORS' list must remain at the top of the slide, substantially unchanged in their positions.\n- The rest of the slide content is arranged into four distinct vertical columns.\n- The columns are ordered from left to right, headed by: 'Abstract', 'Materials', 'Results/Data Analysis', and 'Conclusion'.\n- Elements within each column should be logically grouped and aligned (e.g., left-aligned as a group).\n- The final layout must be clean, with no overlapping elements and adequate spacing.\n- All original text, charts, and tables must be present, with their content and styling (font, color, etc.) preserved. Extraneous decorative elements like standalone lines may be removed to create a cleaner layout.\n\n**Column Content Requirements:**\n- **Column 1 ('Abstract'):** Must contain the 'Abstract' heading and the text boxes containing general information about the template ('This editable template...' and 'How to use this template...').\n- **Column 2 ('Materials'):** Must contain the 'Materials' heading and the text boxes with guidance on 'Text' and 'Images'.\n- **Column 3 ('Results/Data Analysis'):** Must contain the 'Results/Data Analysis' heading and all data visualization elements: the text box about 'Charts', the column chart, the doughnut chart, the table, and the associated caption.\n- **Column 4 ('Conclusion'):** Must contain the 'Conclusion' heading, the text box about 'Printing', and the 'Callout Box' group (title, text, and background shape).\n\nThe vertical arrangement of items within each column can vary as long as the grouping is logical and readable.",
+    "original": "Original/OrganizeResearchPoster_TestA.pptx",
+    "ground_truth": "GroundTruth/OrganizeResearchPoster_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The style_target was refined to describe the required four-column structure and content grouping semantically, removing all absolute positioning to allow for flexible yet correct layouts.",
+    "edit_type": "Alignment, Distribution & Z-order"
+  },
+  {
+    "name": "Case 43: Transitionary Slides",
+    "prompt": "Based on the agenda table on slide 2, insert a section divider slide before each new section in the presentation.",
+    "style_target": "Three new section divider slides must be inserted into the presentation, with content derived from the agenda table on slide 2. Each new slide must be placed immediately before the first content slide of its corresponding section.\n- A divider for \"Session A \u2013 Creating a spark!\" (Section 1) must be inserted before the \"Motivation\" slide.\n- A divider for \"Session B \u2013 Shining a light on your impact\" (Section 2) must be inserted before the \"Impact strategy\" slide.\n- A divider for \"Session C \u2013 Passing on the torch\" (Section 3) must be inserted before the \"Impact support: top recommendations\" slide.\nEach divider slide must clearly display the correct section title and number from the agenda table. The layout used should be appropriate for a section divider, but any specific divider-style layout is acceptable. All original slides must be retained and appear in their original relative order.",
+    "original": "Original/TransitionarySlides_TestA.pptx",
+    "ground_truth": "GroundTruth/TransitionarySlides_GroundTruthA.pptx",
+    "category": [
+      "Structure"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic placement of dividers before their relevant sections and the functional requirement of a 'divider' layout, rather than specifying exact slide positions and layout names.",
+    "edit_type": "Slide/Section Management & Footers"
+  },
+  {
+    "name": "Case 44: Match Flag to Text",
+    "prompt": "The list of regions and the flags at the bottom are mismatched. Please rearrange the slide by placing each flag next to its corresponding description from the list. Delete any duplicate flags.",
+    "style_target": "1. Each of the four unique flags (Kenya, Nigeria, Egypt, and Zambia) is correctly and unambiguously paired with its corresponding text description.\n2. The duplicate Zambian flag is deleted, leaving only four flags on the slide.\n3. The original bulleted list of regions is removed from the main content area, which now serves primarily to hold the new flag-text pairings. The \"Regional Liaisons\" heading may be retained.\n4. The four flag-and-text pairs are arranged in a clear, organized layout with reasonable spacing and alignment.\n5. There are no overlapping elements, and all text is fully readable.\n6. The slide title and the two small images in the header area are preserved without alteration.",
+    "original": "Original/MatchFlagtoText_TestA.pptx",
+    "ground_truth": "GroundTruth/MatchFlagtoText_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined criteria focus on the correct semantic pairing of flags and text and the removal of the duplicate, while allowing for flexible layouts instead of prescribing exact positions, row counts, or text styling.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 45: Lighter Colors",
+    "prompt": "Please lighten the color scheme on this slide. For the 'Drugs' and 'Devices' sections, change the background of the main content boxes to a lighter color. Then, update the dollar signs and the clock icons inside them to be black to ensure they are readable.",
+    "style_target": "- The background fill of the main content boxes for both 'Drugs' and 'Devices' is changed to a visually lighter color that provides good contrast with the text.\n- The dollar sign symbol in the 'Drugs' section is changed from red to black.\n- The dollar sign symbol in the 'Devices' section is changed from dark blue to black.\n- The original colored clock icons are removed and replaced with new, single-color black clock icons.\n- One new black clock icon is placed within the 'Drugs' content box, and the other is placed within the 'Devices' content box.\n- The new icons are positioned reasonably within their respective boxes and do not overlap with any text.\n- All other text content, formatting (font, size, etc.), and the overall slide layout are preserved.",
+    "original": "Original/LighterColors_TestA.pptx",
+    "ground_truth": "GroundTruth/LighterColors_GroundTruthA.pptx",
+    "category": [
+      "Styling"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic changes (lighter backgrounds, black icons/symbols) and their logical placement, removing prescriptive coordinates, dimensions, and specific shape names for the replaced icons.",
+    "edit_type": "Theme & Background"
+  },
+  {
+    "name": "Case 46: Convert Text & Arrows to SmartArt",
+    "prompt": "Please clean up this diagram. Convert the text boxes and arrows into a more organized, structured diagram centered around the person icon.",
+    "style_target": "The collection of text boxes, arrows, and other shapes that form the messy diagram must be converted into a single, cohesive, and structured diagram (such as a SmartArt graphic or a well-organized group of shapes). The person icon must be the central element of this new diagram. All text from the original stakeholder text boxes (\"Content Consumers\", \"IT and the Implementation Team\", \"Current Users...\", etc.) must be preserved within the nodes of the new diagram. The layout should be clean and organized, with nodes arranged logically around the central icon and connected by clear, consistent connectors. All original shapes that made up the messy diagram should be removed. The main slide title (\"Who\u2019s Involved?\") must be preserved and should not be incorporated into the diagram. The extraneous \"YOU\" text box should be removed.",
+    "original": "Original/ConvertText&Arrows2SmartArt_TestA.pptx",
+    "ground_truth": "GroundTruth/ConvertText&Arrows2SmartArt_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic goal of creating a structured diagram around a central element, preserving key text, and removing clutter, rather than listing every specific shape to be removed or preserved.",
+    "edit_type": "SmartArt & Diagrams"
+  },
+  {
+    "name": "Case 47: Change Line Graph to Bar Graph",
+    "prompt": "Change the line chart on the slide to a clustered column chart.",
+    "style_target": "The line chart must be converted into a clustered column chart. The underlying chart data, including categories and values, must be preserved. The chart's position and size should be approximately maintained, and it should not have a legend, consistent with the original. All other elements on the slide must remain unmodified.",
+    "original": "Original/ChangeLineGraphtoBar_TestA.pptx",
+    "ground_truth": "GroundTruth/ChangeLineGraphtoBar_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "Removed exact position and size specifications, focusing instead on the semantic requirements of preserving the chart's data, general location, and lack of a legend.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 48: Add Slide Numbers and Date",
+    "prompt": "Please add the date to the bottom left corner and the slide number to the bottom right corner of every slide.",
+    "style_target": "A date placeholder and a slide number placeholder must be added to every slide in the presentation. The date placeholder should be located in the general bottom-left corner area, and the slide number placeholder should be in the general bottom-right corner area. The positioning of these elements should be consistent across all slides. The slide numbers must be correct and sequential for each slide. The added elements should not overlap with other essential slide content and must be clearly readable.",
+    "original": "Original/AddSlideNumber_TestB.pptx",
+    "ground_truth": "GroundTruth/AddSlideNumber_GroundTruthB.pptx",
+    "category": [
+      "Structure"
+    ],
+    "enhancement_notes": "Removed exact coordinates and dimensions for the footer elements, focusing instead on their semantic placement in the corners, consistency across slides, and readability.",
+    "edit_type": "Slide/Section Management & Footers"
+  },
+  {
+    "name": "Case 49: Normalize Thousand Separators",
+    "prompt": "Go through the entire presentation and add comma separators for thousands to all numbers 1,000 and larger.",
+    "style_target": "Across all slides, all numerical values of 1,000 or greater must be formatted with comma separators for thousands. For example, '1000' should be changed to '1,000' and '10000' to '10,000'. This rule applies to numbers whether they appear as standalone text or within a sentence. Numbers less than 1,000 and those already correctly formatted with commas must not be changed. The original styling of the text (font, size, color, etc.) must be preserved. The overall slide layout and positioning of elements should remain consistent, with no significant changes to the size or location of text boxes beyond what is necessary to accommodate the added commas.",
+    "original": "Original/NormalizeThousandSeperators_Test.pptx",
+    "ground_truth": "GroundTruth/NormalizeThousandSeperators_GroundTruth.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "Relaxed the constraint on element position and size to allow for minor, necessary text reflow when commas are added.",
+    "edit_type": "Tables"
+  },
+  {
+    "name": "Case 50: Normalize Date Format",
+    "prompt": "Go through the presentation and standardize all the date formats to 'Month Day, Year', for example 'March 22, 2022'. Make sure to handle different formats like '28 March 2022', '02/26/2022', and '18 of March 2022'.",
+    "style_target": "All identifiable dates within the presentation text must be reformatted to a consistent 'Month Day, YYYY' format. This applies to various common date representations, including numerical (e.g., '02/26/2022'), mixed text-and-number (e.g., '28 March 2022'), and verbose formats (e.g., '18 of March 2022'). The original font styling (size, color, bold, italic, etc.) and casing of the original text must be preserved within the reformatted date. For any dates where the year is ambiguous or absent, it should be inferred from the context of the slide. Only the date format should be changed; all other text, shape properties, and slide layouts must remain unaltered.",
+    "original": "Original/NormalizeDate_Test.pptx",
+    "ground_truth": "GroundTruth/NormalizeDate_GroundTruth.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target describes the types of date formats to be handled semantically (numerical, mixed, verbose) rather than listing an exhaustive set of specific patterns, making it more generalizable.",
+    "edit_type": "Tables"
+  },
+  {
+    "name": "Case 51: Currency Symbol Swap (EUR\u2192USD)",
+    "prompt": "On slides 2 and 3, convert all monetary values from Euros to US Dollars. This includes changing the currency symbol, its placement, and the thousands separator.",
+    "style_target": "On slides 2 and 3, all monetary values must be correctly reformatted from Euro to US Dollar conventions. This means for each currency instance, the Euro symbol (\u20ac) is replaced by a dollar sign ($) placed before the number, and the thousands separator is changed from a period to a comma (e.g., \"40.000 \u20ac\" becomes \"$40,000\"). The numeric values themselves and all other text, styling, and layout on the slides must be preserved.",
+    "original": "Original/CurrencySwap_Test.pptx",
+    "ground_truth": "GroundTruth/CurrencySwap_GroundTruth.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target removes the prescriptive shape name and focuses on the semantic goal of converting currency formats, while still enforcing the specific formatting changes required by the prompt.",
+    "edit_type": "Tables"
+  },
+  {
+    "name": "Case 52: Add Source",
+    "prompt": "In the text box at the bottom right of the slide, add the following text after 'SOURCE:': PRVSS2, Chapter II.I.1-2; UN Handbook, Module 19, A; NCHS, Unit 17.",
+    "style_target": "The text box at the bottom right of the slide, originally containing 'SOURCE:', must be updated. The final text content should be exactly 'SOURCE: PRVSS2, Chapter II.I.1-2; UN Handbook, Module 19, A; NCHS, Unit 17.'. The added text should maintain the same font styling as the original text. The text box should remain in its original position at the bottom right and may resize vertically to ensure all text is visible without overflowing. No other elements on the slide should be altered.",
+    "original": "Original/AddSource_TestA.pptx",
+    "ground_truth": "GroundTruth/AddSource_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "Removed hardcoded dimensions and positions for the text box, focusing instead on the required text content and semantic constraints like visibility and positional stability.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 53: Fill Table from Data",
+    "prompt": "Take the financial data from the text box and use it to fill in the empty table below it. Then, delete the original text box.",
+    "style_target": "The empty 4x2 table must be populated with the financial data parsed from the text box located below it. After the data is transferred, the source text box must be deleted. The financial data should be correctly organized into a two-column format, with descriptive labels in the first column and their corresponding values in the second. The final cell contents must accurately reflect the source data:\n- Row 1: 'Revenue', '30% AMI Rents'\n- Row 2: 'Annual Actualized Income', '$387,030'\n- Row 3: 'Annual Operating Expenses', '($420,300)'\n- Row 4: 'Annual Net Revenue', '($33,270)'\nThe table's original styling (borders, fonts, fills) should be preserved. The final table should be reasonably positioned on the slide, avoiding any overlap with other elements. All other slide elements must remain unchanged.",
+    "original": "Original/FillTablefromData_TestA.pptx",
+    "ground_truth": "GroundTruth/FillTablefromData_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "Removed the exact coordinates for the table's final position, focusing instead on the correctness of the data transfer, the deletion of the source object, and a reasonable final layout.",
+    "edit_type": "Tables"
+  },
+  {
+    "name": "Case 54: Match Slide Deck Theme",
+    "prompt": "Apply the layout from slide 2 to all subsequent slides (3 through 9). Make sure the existing text and images are adjusted to fit the new layout.",
+    "style_target": "- **Scope:** The transformation applies only to slides 3 through 9. Slides 1 and 2 must remain unchanged.\n- **Layout:** Slides 3-9 must be updated to use the 'Title and Content' layout, matching the layout of slide 2.\n- **Content Preservation and Mapping:**\n    - All original text and images from slides 3-9 must be preserved.\n    - Original text formatting (bold, bullets, indentation, etc.) must be maintained.\n    - For each slide, the existing title text must be placed in the new layout's title placeholder.\n    - The existing body content must be placed in the new layout's content placeholder.\n- **Special Case (Slide 5):** Slide 5 originally lacks a title. A new, relevant title must be created based on its content (e.g., \"Rootmotion vs. controlled movement\") and placed in the title placeholder.\n- **Visual Composition:**\n    - Images on the modified slides must be repositioned to create a visually clean and balanced layout.\n    - There must be no overlap between text and images, or between different images.\n    - All content must be legible and contained within the slide boundaries.",
+    "original": "Original/MatchSlideDeck_TestA.pptx",
+    "ground_truth": "GroundTruth/MatchSlideDeck_GroundTruthA.pptx",
+    "category": [
+      "Styling"
+    ],
+    "enhancement_notes": "The style_target was refined to focus on the semantic requirements of applying a specific layout, mapping content correctly, and ensuring a balanced, non-overlapping visual composition, rather than specifying exact positions or actions.",
+    "edit_type": "Theme & Background"
+  },
+  {
+    "name": "Case 55: Highlight Important Words",
+    "prompt": "In the main text box, highlight the key phrases by making them bold and changing their color to teal.",
+    "style_target": "Within the main content text box, several key phrases should be visually emphasized by making them both bold and a shade of teal. The targeted key phrases are: 'MoPIED', 'collection, dissemination and publication', 'financial performance', and 'usable'. All other text and its formatting, including the existing bold headings, must remain unchanged.",
+    "original": "Original/ HighlightImportantWords_GroundTestA.pptx",
+    "ground_truth": "GroundTruth/ HighlightImportantWords_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The color requirement was generalized from a specific hex code to 'a shade of teal', and the instructions were rephrased to describe the desired semantic outcome rather than a prescriptive list of steps.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 56: Add Pictures",
+    "prompt": "For each of the words at the bottom of the slide (baseball, airplane, basketball), add a relevant icon or picture above the text.",
+    "style_target": "Three new images, icons, or shapes are added to the slide, one for each text label. Each new visual element must be clearly relevant to the word it is paired with (e.g., a baseball image for the word 'baseball', an airplane for 'airplane', etc.). The images must be positioned above their corresponding text labels, creating three distinct and unambiguous pairs. The added images should be of a reasonably similar size and should not overlap with each other or with the text. The original title and the three text placeholders must be preserved without changes to their content or location. Any extraneous empty text boxes from the original slide should be removed.",
+    "original": "Original/AddPictures_Test.pptx",
+    "ground_truth": "GroundTruth/AddPictures_GroundTruth.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined style_target removes exact positions, dimensions, and image types, focusing instead on the semantic requirements of visual relevance and clear pairing between the new images and their text labels.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 57: Add Water Mark",
+    "prompt": "Add a 'DRAFT' watermark to every slide in the presentation.",
+    "style_target": "A text box containing the word \"DRAFT\" must be added to every slide. The watermark should be visually prominent, using a very large, bold font. It should be approximately centered on each slide. The text color must be light (e.g., light gray or semi-transparent) so it functions as a background element and does not obscure the primary slide content. The watermark must appear on top of all other slide elements and its appearance should be consistent across all slides. No original slide content should be altered or removed.",
+    "original": "Original/AddWaterMark_Test.pptx",
+    "ground_truth": "GroundTruth/AddWaterMark_GroundTruth.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The style target was revised to focus on the semantic properties of a watermark (large, centered, light-colored, non-obstructive) rather than specifying exact dimensions, font sizes, and color codes, allowing for more visual flexibility.",
+    "edit_type": "Shapes & Drawing"
+  },
+  {
+    "name": "Case 58: Bullets Normalize Levels",
+    "prompt": "In the main text box, simplify the bulleted list so it only has two indentation levels. All sub-points should be at the second level.",
+    "style_target": "In the main text box ('TextBox 2'), the bulleted list's structure must be simplified to have a maximum of two indentation levels. All paragraphs originally at indentation level 0 or 1 should remain unchanged. Any paragraph originally at an indentation level of 2 or greater must be changed to level 1. The text content, the order of the paragraphs, and the overall position and size of the text box must be preserved.",
+    "original": "Original/BulletsNormalizeLevels_Test.pptx",
+    "ground_truth": "GroundTruth/BulletsNormalizeLevels_GroundTruth.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The new target specifies the general rule for indentation changes (any level > 1 becomes 1) rather than listing the specific paragraphs that must be altered, making it more semantic and less brittle.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 59: Convert Hyper Link",
+    "prompt": "In the text box that starts with 'Visit https://www.berkeley.edu/...', make the two URLs clickable hyperlinks.",
+    "style_target": "The text 'https://www.berkeley.edu/' within the sentence that begins 'Visit...' must be converted into a functional hyperlink pointing to that URL. The text 'https://illinois.edu/' in the same sentence must also be converted into a functional hyperlink pointing to its corresponding URL. The surrounding text in the sentence must not be hyperlinked. The original font and size of the text should be maintained, but default hyperlink styling (such as color or an underline) is acceptable.",
+    "original": "Original/ConvertHyperLink_Test.pptx",
+    "ground_truth": "GroundTruth/ConvertHyperLink_GroundTruth.pptx",
+    "category": [
+      "Interactivity"
+    ],
+    "enhancement_notes": "Removed the prescriptive shape name and the strict rule against default hyperlink styling, focusing on the core semantic requirement of creating two correct, functional hyperlinks while leaving other text untouched.",
+    "edit_type": "Hyperlinks & Action Settings"
+  },
+  {
+    "name": "Case 60: Fix Text Placement",
+    "prompt": "The title 'Naturalism' is overlapping the three images. Move it to the top of the slide, above the images, so it functions as a proper title.",
+    "style_target": "The text box containing \"Naturalism\" must be repositioned so that it is in the top portion of the slide, clearly above the three images. The text box must not overlap with the images or any other content. Its placement should be appropriate for a slide title, such as being approximately horizontally centered. The text formatting (font, size, color, etc.) within the \"Naturalism\" text box must be preserved. The three images and their captions should remain in their original relative arrangement and be otherwise unedited.",
+    "original": "Original/FixTextPlacement_Test.pptx",
+    "ground_truth": "GroundTruth/FixTextPlacement_GroundTruth.pptx",
+    "category": [
+      "Layout"
+    ],
+    "enhancement_notes": "The style target now focuses on the semantic relationship (title above images, no overlap) rather than specifying exact coordinates, allowing for more flexible but correct layouts.",
+    "edit_type": "Alignment, Distribution & Z-order"
+  },
+  {
+    "name": "Case 61: Sort By Score And Crop Image 169",
+    "prompt": "In the table on the slide, sort the rows by the 'Score' column in descending order.",
+    "style_target": "The table's data rows must be sorted in descending order based on the values in the 'Score' column. The header row ('Name', 'Team', 'Score') must remain in the first row. The integrity of each data row must be preserved (e.g., 'Bob' must remain associated with 'B' and '96'). Other slide elements, such as the title and the picture, should be preserved without significant modification.",
+    "original": "Original/SortByScoreAndCropImage169_Test.pptx",
+    "ground_truth": "GroundTruth/SortByScoreAndCropImage169_GroundTruth.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The style_target now describes the required sorting logic semantically instead of listing the exact final row content, and allows for minor, non-substantive changes to other slide elements.",
+    "edit_type": "Tables"
+  },
+  {
+    "name": "Case 62: Z Order",
+    "prompt": "Bring the picture and the oval shape to the front so they are visible on top of the large rectangle.",
+    "style_target": "The picture and the oval shape must both be visually layered on top of the large rectangle, making them fully visible. The relative stacking order between the picture and the oval is not important, as long as both are in front of the rectangle. The position, size, and content of all shapes should remain unchanged.",
+    "original": "Original/ZOrder_Test.pptx",
+    "ground_truth": "GroundTruth/ZOrder_GroundTruth.pptx",
+    "category": [
+      "Layout"
+    ],
+    "enhancement_notes": "The target now focuses on the semantic requirement of which shapes must be on top of others, rather than prescribing a single, exact z-order for all elements on the slide.",
+    "edit_type": "Alignment, Distribution & Z-order"
+  },
+  {
+    "name": "Case 63: Spatial Constraint Layout",
+    "prompt": "Please arrange the three tables (A, B, and C) on the slide according to the list of constraints. Make sure to follow all the rules.",
+    "style_target": "The three table groups (each consisting of a main shape and a text label below it) must be rearranged to satisfy all listed constraints. The final arrangement must adhere to the following semantic rules:\n1.  **Spatial Logic:** The horizontal order of the tables from left to right must be: Table A, then Table C, then Table B. This arrangement correctly satisfies the constraints that \"Table A must be closest to the Entrance marker\" and \"Table C must be left of Table B\".\n2.  **Alignment:** The three main table shapes (rectangle, triangle, oval) must be aligned along a common horizontal baseline (top, middle, or bottom alignment are all acceptable).\n3.  **Grouping:** Each table shape must remain clearly associated with its original descriptive label (e.g., \"Table A\" with \"Check-in\"). The relative positioning of the label below its shape should be maintained for all three groups.\n4.  **Layout Integrity:** There must be no overlapping elements on the slide. The tables should be reasonably spaced from each other and other slide elements.\n5.  **Unchanged Elements:** The slide title, the \"Constraints\" text box, and the \"Entrance\" marker (arrow and text box) must remain in their original positions and sizes.\n6.  **Element Preservation:** The size, shape type, and text content of all moved elements must be preserved.",
+    "original": "Original/SpatialLogicLayout_TestA.pptx",
+    "ground_truth": "GroundTruth/SpatialLogicLayout_GroundTruthA.pptx",
+    "category": [
+      "Layout"
+    ],
+    "enhancement_notes": "The style_target was refined to evaluate the logical satisfaction of the on-slide constraints (like relative positioning and alignment) rather than demanding exact pixel-perfect coordinates for each table.",
+    "edit_type": "Alignment, Distribution & Z-order"
+  },
+  {
+    "name": "Case 64: Colorblind-Safe Chart Palette",
+    "prompt": "Please make the chart on this slide accessible for people with colorblindness by applying the Okabe-Ito color palette to the data series.",
+    "style_target": "The fill colors of the chart's three data series must be updated to a colorblind-safe palette consistent with the Okabe-Ito standard. The colors should be applied in order to the series (e.g., Series 1: #0072B2, Series 2: #E69F00, Series 3: #009E73). All other chart properties\u2014including its type, data, labels, and legend order\u2014must remain unchanged. The chart's position and size should be preserved, maintaining the overall slide layout. No other elements on the slide should be modified.",
+    "original": "Original/ColorblindPalette_TestA.pptx",
+    "ground_truth": "GroundTruth/ColorblindPalette_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The style_target was refined to remove exact position and size coordinates for the chart, instead requiring that the overall slide layout be preserved.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 65: Unit Conversion: Fahrenheit \u2192 Celsius",
+    "prompt": "On this slide, please convert all the temperatures from Fahrenheit to Celsius, showing the results with one decimal place. Update the chart with these new Celsius values and change its vertical axis title to 'Temperature (\u00b0C)'. Don't change the temperature for Paris, as it's already in Celsius.",
+    "style_target": "In the text box listing city temperatures, all values originally in Fahrenheit must be correctly converted to Celsius and displayed with one decimal place. The correct conversions are 86\u00b0F to 30.0\u00b0C (Austin), 68\u00b0F to 20.0\u00b0C (Boston), and 50\u00b0F to 10.0\u00b0C (Oslo). The temperature for Paris, which is already in Celsius, must remain unchanged. The chart's data must be updated to accurately reflect these new Celsius temperatures for all four cities. The chart's vertical (value) axis title must be changed to 'Temperature (\u00b0C)'. All other slide elements, including layout, fonts, and colors, should be preserved.",
+    "original": "Original/UnitConversionTemps_TestA.pptx",
+    "ground_truth": "GroundTruth/UnitConversionTemps_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target focuses on the correctness of the unit conversions and the semantic requirement for the chart data to reflect the text, rather than prescribing exact string replacements or a specific data array.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 66: Add Picture Borders",
+    "prompt": "For all the pictures in this presentation, add a thin, dark gray border.",
+    "style_target": "Every picture shape across all slides must have a thin, solid, dark gray border applied. The position, size, and aspect ratio of the pictures must not be altered. No other visual effects, such as shadows or glows, should be added. All other elements on the slides should remain unchanged.",
+    "original": "Original/AddPictureBorders_TestA.pptx",
+    "ground_truth": "GroundTruth/AddPictureBorders_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The style target is relaxed to accept any 'thin' border and any 'dark gray' color, rather than requiring an exact point size and hex code, to better match the semantic nature of the prompt.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 67: WCAG Accessibility & Master Cleanup",
+    "prompt": "Improve this presentation's accessibility for screen readers. Ensure every slide has a unique title, the reading order is logical, and all text uses the theme's default font.",
+    "style_target": "- **Unique Slide Titles:** Each slide must have a unique, machine-readable title for screen readers. This is typically done by adding a text box with a descriptive title and placing it off the visible slide area. The titles must be distinct for each slide.\n- **Logical Reading Order:** The reading order of elements on each slide must be logical for a screen reader. The sequence should generally follow a natural flow, such as the slide's main title first, followed by content read from top-to-bottom and left-to-right.\n- **Theme Font Consistency:** All text throughout the presentation must use the theme's default font. Any direct font family overrides (e.g., 'DM Sans', 'Arial') must be removed, while preserving all other text formatting like size, color, and weight (bold/italic).\n- **Visual Preservation:** The visual layout, content, and positioning of on-screen elements must not be altered. The only acceptable visual change is the font family reverting to the theme's default.",
+    "original": "Original/AccessibilityMasterCleanup_TestA.pptx",
+    "ground_truth": "GroundTruth/AccessibilityMasterCleanup_GroundTruthA.pptx",
+    "source_url": "https://storage.googleapis.com/sc_templates/smartart_infographic/Table%20SmartArt%20Infographic.pptx",
+    "license_note": "SlidesCarnival templates are free for any use with attribution to SlidesCarnival.",
+    "category": [
+      "Structure",
+      "Styling"
+    ],
+    "enhancement_notes": "The criteria were updated to focus on the semantic goals (e.g., \"logical reading order,\" \"unique title\") rather than prescribing exact implementation details like off-screen coordinates or specific title text.",
+    "edit_type": "Accessibility & Semantics"
+  },
+  {
+    "name": "Case 68: Swimlane Flow Process Canonicalization",
+    "prompt": "Transform this messy flowchart into a structured swimlane diagram. Create three horizontal swimlanes labeled 'Intake', 'Processing', and 'Output'. Reorganize the steps: 'Intake', 'Validate', and 'Transform' go in the top lane; the 'OK?' decision and the image go in the middle lane; 'Reject' and 'Export' go in the bottom lane. Standardize the size of the process boxes, add numbered badges for each step, and replace the lines with clean elbow connectors. Finally, update the slide title to 'Canonical Process \u2022 3 Swimlanes' and add a legend explaining the new layout.",
+    "style_target": "- **Title:** The slide title must be updated to 'Canonical Process \u2022 3 Swimlanes'. It should be a prominent heading at the top of the slide.\n- **Swimlane Structure:** Three distinct, horizontal swimlanes must be created that span most of the slide's width. They must be clearly and correctly labeled as 'Intake' (top), 'Processing' (middle), and 'Output' (bottom).\n- **Shape Reorganization and Standardization:**\n    - All original process shapes (rectangles, diamond) and the picture must be retained.\n    - The rectangular process boxes ('Step 1: Intake', 'Step 2: Validate', etc.) must be standardized to a consistent size.\n    - Shapes must be rearranged into their correct swimlanes as specified in the prompt:\n        - **Intake Lane:** 'Step 1: Intake', 'Step 2: Validate', 'Step 3: Transform'.\n        - **Processing Lane:** The 'OK?' diamond and the picture.\n        - **Output Lane:** 'Step 4: Reject', 'Step 5: Export'.\n    - All elements should be neatly arranged with clear spacing and no overlaps.\n- **Added Elements:**\n    - **Numbered Badges:** Numbered badges (e.g., small circles) must be added to the five main process steps. Each badge must be clearly associated with its corresponding step shape and display a unique number from 1 to 5.\n    - **Legend:** A legend must be added to the slide. It should have a clear title and explain the key components of the new diagram (e.g., swimlanes, standardized boxes, connectors, badges).\n- **Connectors:**\n    - The original straight-line connectors must be removed and replaced with elbow connectors.\n    - The new connectors must correctly represent the logical flow of the process between shapes.\n    - Connectors should have a consistent style (e.g., with arrowheads indicating direction) and should not pass through other shapes.\n- **Cleanup and Preservation:**\n    - The original connectors and any extraneous background shapes must be removed.\n    - The text content and core visual style (e.g., fill color) of the original process shapes must be preserved.",
+    "original": "Original/SwimlaneFlowCanonicalization_TestA.pptx",
+    "ground_truth": "GroundTruth/SwimlaneFlowCanonicalization_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic structure (correct placement in lanes, logical connections) and requirements (standardized sizes, presence of a legend) rather than specifying exact pixel dimensions, positions, or font styles for the created elements.",
+    "edit_type": "SmartArt & Diagrams"
+  },
+  {
+    "name": "Case 69: Cross-Slide Image\u2013Caption Correlation",
+    "prompt": "1. For every slide, match each image to its correct caption.  2. After pairing them, rearrange the pairs to create a balanced layout.  3. Update each slide's title correspondingly. 4. Finally, make sure all images are the same size, 3.2 inches wide by 2.4 inches high.",
+    "style_target": "Across all slides, the following changes must be applied:\n1.  **Title Update**: The title on each slide must be updated by deleting the text '(Unmatched)'.\n2.  **Image-Caption Pairing**: Each image must be correctly associated with its corresponding text caption. The image and its caption should be positioned in close proximity to form a clear visual group.\n3.  **Image Sizing**: As specified in the prompt, all images must be resized to be consistently 3.2 inches wide and 2.4 inches high.\n4.  **Layout**: The resulting image-caption pairs must be arranged in a balanced and organized layout on each slide. There should be no overlapping elements, and the pairs should be distributed logically with reasonable spacing and margins. The specific arrangement (e.g., list, grid, rows) is flexible.\n5.  **Content Preservation**: The text content within the captions must not be altered. All original images and captions must be present on their respective slides, just rearranged.",
+    "original": "Original/ImageTextCorrelation_TestA.pptx",
+    "ground_truth": "GroundTruth/ImageTextCorrelation_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The style target was refined to remove exact coordinate-based layouts, instead focusing on the semantic requirements of correct pairing, a balanced/non-overlapping arrangement, and the specific image sizing requested in the prompt.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 70: Format Python Code Blocks (Dark Theme, Multi-Slide)",
+    "prompt": "On slides 2, 3, and 4, format the large text boxes containing Python code. Apply a dark theme with syntax highlighting, similar to a VS Code style.",
+    "style_target": "On slides 2, 3, and 4, the large text boxes containing Python code must be formatted. The text within these boxes must be set in a consistent, readable, monospaced font (e.g., Consolas, Courier New). The code must feature Python syntax highlighting with a dark theme, meaning light-colored text on a dark background. Different types of code elements (such as keywords, strings, numbers, and function names) must be assigned distinct and consistent colors to enhance readability. The original Python code text, including all spacing and indentation, must be perfectly preserved. The size and position of the text boxes, and all other elements on the slides, must not be changed.",
+    "original": "Original/FormatPythonCodeBlock_DarkMulti_TestA.pptx",
+    "ground_truth": "GroundTruth/FormatPythonCodeBlock_DarkMulti_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The refined style_target removes the prescriptive font name, size, and exact hex color codes, instead focusing on the semantic requirements of a \"dark theme\" code block: monospaced font, consistent syntax highlighting, and high contrast.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 71: Conditional Table Formatting (Negative Numbers)",
+    "prompt": "In all tables throughout the presentation, find any negative numbers and format them to be red and bold.",
+    "style_target": "Across all tables in the presentation, all text representing a negative numerical value must be styled as red and bold.\n- A number is considered negative if it is preceded by a negative sign (`-` or `\u2212`) or enclosed in parentheses (e.g., `(1.2%)`).\n- The red color should be a standard, unambiguous red, and the text must be bolded.\n- For numbers enclosed in parentheses, the text can either be formatted as-is (e.g., `(1.2%)` in red/bold) or be normalized to a hyphenated format (e.g., `-1.2%` in red/bold). Both interpretations are correct as they fulfill the intent to highlight a negative value.\n- If a negative number is the sole content of a cell, the entire text in that cell must be formatted.\n- If a negative number is part of a larger string, only the number and its sign/parentheses should be formatted, leaving the surrounding text unchanged.\n- All other text, formatting, and table properties must be preserved. Positive numbers and non-numeric text must not be altered.",
+    "original": "Original/ConditionalTableFormatting_Negatives_TestA.pptx",
+    "ground_truth": "GroundTruth/ConditionalTableFormatting_Negatives_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The refined target removes the strict requirement to convert parenthetical negatives into hyphenated ones, allowing for more flexible but semantically correct interpretations of the prompt.",
+    "edit_type": "Tables"
+  },
+  {
+    "name": "Case 72: Dynamic SmartArt Timeline with Image Integration",
+    "prompt": "On slide 2, convert the numbered list of project milestones into a 'Basic Timeline' SmartArt graphic. Then, add a relevant icon above each milestone on the timeline.",
+    "style_target": "On slide 2, the original numbered list is removed and replaced by a 'Basic Timeline' SmartArt graphic. This SmartArt graphic must accurately represent all six milestones from the original list, in the correct chronological order, with the list numbering (e.g., '1.', '2.') removed from the text. For each milestone on the timeline, a thematically relevant icon or picture must be added. These icons should be clearly associated with their respective milestones (e.g., positioned above them). The added icons should be visually consistent in size and alignment. The final composition should be well-organized, with no overlapping elements, and the timeline should be the central feature of the slide.",
+    "original": "Original/DynamicSmartArtTimeline_TestA.pptx",
+    "ground_truth": "GroundTruth/DynamicSmartArtTimeline_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target removes prescriptive positioning, sizing, and un-prompted title changes, focusing instead on the correct conversion to a 'Basic Timeline' SmartArt, the accurate transfer of content, and the semantic requirement for visually consistent and correctly associated icons.",
+    "edit_type": "SmartArt & Diagrams"
+  },
+  {
+    "name": "Case 73: Dynamic Data Label Placement",
+    "prompt": "Improve the readability of the chart by fixing the overlapping data labels. Also, rearrange the four metric boxes to be above the chart to create a cleaner layout.",
+    "style_target": "The data labels on the stacked column chart are adjusted to be fully legible and must not overlap. Each label should be clearly associated with its corresponding data segment. The four metric boxes ('Total Rev', 'YoY', 'NPS', 'Churn') and their background shapes are repositioned from the right side of the slide to a location above the chart. These boxes should be arranged in a visually aligned group (e.g., a 2x2 grid or a horizontal row). The chart is resized and/or repositioned to fit on the slide below the metric boxes. The main title, subtitle, and the 'Template Filters' box on the left must remain in their approximate original positions. All elements on the slide should be clearly spaced and not overlap.",
+    "original": "Original/DynamicDataLabelPlacement_TestA.pptx",
+    "ground_truth": "GroundTruth/DynamicDataLabelPlacement_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined style_target removes exact coordinates for the metric boxes and chart, instead focusing on their relative positioning and the overall goal of a clean, legible layout.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 74: Cross-Slide Data Consolidation",
+    "prompt": "Consolidate the team performance data from slides 2 and 3 into a single summary table on slide 2. Then, delete the original data slides (slides 3 and 4). On the remaining slides, format all titles and subtitles to Title Case. Finally, on the last slide, align all images, make them the same size, and center their captions.",
+    "style_target": "- The final presentation must contain only 3 slides. Original slides 3 and 4 must be deleted.\n- All titles and subtitles on the remaining slides must be converted to Title Case.\n- On the new slide 2:\n    - The original bulleted list of performance data must be removed.\n    - A new table must be created that consolidates the performance data from the original slides 2 (\"Team A\") and 3 (\"Team B\").\n    - The table must have columns for the category, Team A's scores, and Team B's scores.\n    - The data for categories common to both teams (Manufacturing, Finance, IT) must be correctly placed in their respective team columns.\n    - Data for categories unique to each team (Team A: Logistics, HR; Team B: Sales, Marketing) must be included, and can be grouped into a summary row (e.g., \"Other\").\n    - The table should be the primary content on the slide, clearly readable, and logically organized.\n- On the new slide 3 (originally slide 5):\n    - The three images must be resized to have a uniform height and width.\n    - The three images must be horizontally aligned with each other (e.g., top, middle, or bottom alignment).\n    - The text within each caption textbox must be center-aligned.\n    - Each image and its caption should remain clearly associated, and the groups should be distributed across the slide with reasonable spacing.",
+    "original": "Original/CrossSlideDataConsolidation_TestA.pptx",
+    "ground_truth": "GroundTruth/CrossSlideDataConsolidation_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Structure"
+    ],
+    "enhancement_notes": "The refined style_target focuses on the semantic requirements of data consolidation, slide deletion, text casing, and object alignment/sizing, removing all hardcoded positions and dimensions to allow for layout flexibility.",
+    "edit_type": "Tables"
+  },
+  {
+    "name": "Case 75: 12-Column Grid & Baseline Rhythm Canonicalization (Multi-modal)",
+    "prompt": "Please clean up this presentation. The slides are a mess. Align all the content to a consistent grid, ensure text boxes are vertically aligned, fix the chart legend so it doesn't overlap, and organize the pictures neatly with their captions below them. Crucially, please update the text on the slides that describes the layout problems to reflect that they have now been fixed.",
+    "style_target": "Slide 1:\n- The three main text boxes ('Overview', 'Details', 'Notes') must be arranged as columns, horizontally distributed with consistent spacing, and vertically top-aligned with each other.\n- All elements on the slide (text boxes, table, picture) must be aligned to a consistent grid, creating a clean and organized layout with no overlapping elements.\n- The bulleted text within the 'Overview', 'Details', and 'Notes' text boxes must be updated to describe the corrected state, as follows:\n  - 'Overview' text: \"\u2022 This column snaps to grid.\", \"\u2022 Lines align to 8-pt baselines.\", \"\u2022 No overlaps or margin violations.\"\n  - 'Details' text: \"\u2022 Content aligns to grid.\", \"\u2022 Consistent gutters between columns.\", \"\u2022 Safe-area respected.\"\n  - 'Notes' text: \"\u2022 Third column on grid.\", \"\u2022 Baselines consistent across boxes.\", \"\u2022 Readable spacing.\"\n\nSlide 2:\n- The chart's legend must be positioned so that it does not overlap with the chart's plot area. This can be achieved by moving the legend (e.g., to the bottom or right) or resizing the plot area.\n- The subtitle text (in 'TextBox 3') must be updated to reflect the corrected layout: \"Subtitle: Legend sits below chart, no overlap; all on grid.\"\n- The shape named 'Rectangle 5', which was used to indicate the legend overlap, must be deleted.\n- All remaining elements should be neatly arranged on the slide.\n\nSlide 3:\n- The slide title must be updated to \"Figures & Captions (Aligned)\".\n- The two pictures ('Picture 9' and 'Picture 11') must be resized to be of a similar, consistent size.\n- The pictures should be arranged side-by-side and be vertically aligned with each other (e.g., by their top edges).\n- Each picture's caption ('TextBox 4' and 'TextBox 6') must be positioned directly below its corresponding image and be left-aligned with that image.\n- The empty shape 'Rectangle 7' must be deleted.\n\nGlobal Constraints:\n- The following properties should remain unchanged: Font styles (name, bold, italic), font sizes and colors, table data and styling, chart data and type, and the content of the pictures.",
+    "original": "Original/GridBaselineReasoning_TestA.pptx",
+    "ground_truth": "GroundTruth/GridBaselineReasoning_GroundTruthA.pptx",
+    "category": [
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target now focuses on semantic relationships like alignment, distribution, and non-overlap, rather than prescribing exact pixel coordinates and sizes for every element.",
+    "edit_type": "Alignment, Distribution & Z-order"
+  },
+  {
+    "name": "Case 76: Aesthetic Slide Makeover",
+    "prompt": "Overhaul this presentation to make it look professional and modern. Unify the fonts and colors, declutter the text-heavy slides by moving the body text to the notes, change the pie chart to a column chart, and organize the messy image slide into a clean grid.",
+    "style_target": "Overall Requirements:\n- The presentation must have a unified and professional visual theme. This includes using a consistent color palette and a limited, professional font set across all slides.\n- All slide titles should be styled consistently in terms of font, size, and color to create a clear visual hierarchy.\n\nSlide-by-slide Requirements:\n- **Slide 1 (Title Slide):**\n  - The slide should be structured with a clear visual hierarchy, establishing 'Quarterly Business Overview' as the main title and 'FY2025 Q1\u2013Q4' as the subtitle.\n  - The title's inconsistent fonts and colors must be unified into a single, professional style.\n  - The title and subtitle should be consistently aligned (e.g., both left-aligned or both centered).\n  - The slide background should be updated to be consistent with the new, unified theme.\n\n- **Slide 2 (Financial Performance):**\n  - The main body text (the large block of paragraphs) must be removed from the slide canvas to declutter it.\n  - The full text content from the body must be preserved in the slide's notes section.\n  - The slide should be visually clean, with only the title remaining on the canvas, styled consistently with the overall presentation theme.\n\n- **Slide 3 (Sales Data):**\n  - The chart type must be changed from a Pie chart to a Column chart.\n  - The chart should be the primary visual element on the slide, clearly legible, and well-proportioned.\n  - Unnecessary chart elements, such as the legend for a single data series, should be removed to improve clarity.\n\n- **Slide 4 (Teams in Action):**\n  - The four images and their corresponding text boxes must be organized into a clean, orderly grid layout (e.g., a 2x2 grid).\n  - All images within the grid must be uniform in size and shape.\n  - The grid elements must be aligned with consistent spacing between them, and there should be no overlapping elements.\n  - The text captions should be made more concise (e.g., 'Teamwork collaboration' becomes 'Teamwork').\n  - Each caption must be clearly associated with its corresponding image and consistently aligned (e.g., centered below).\n\n- **Slide 5 (Future Plans):**\n  - The main body text (contained in multiple text boxes) and the background rectangle must be removed from the slide canvas.\n  - The full text content from the body text boxes must be consolidated and preserved in the slide's notes section.\n  - The slide should be visually clean, with only the title remaining on the canvas, styled consistently with the overall presentation theme.",
+    "original": "Original/AestheticMakeover_TestA.pptx",
+    "ground_truth": "GroundTruth/AestheticMakeover_GroundTruthA.pptx",
+    "category": [
+      "Styling",
+      "Layout"
+    ],
+    "enhancement_notes": "The style target was refined to focus on semantic requirements like visual hierarchy, content migration to notes, grid organization, and thematic consistency, while removing prescriptive details like exact font sizes, positions, and dimensions.",
+    "edit_type": "Theme & Background"
+  },
+  {
+    "name": "Case 77: Educational Solar System Makeover",
+    "prompt": "Overhaul this presentation on the solar system to follow modern educational design principles. Summarize the content on the 'Inner Planets' slide into four key bullet points. For the other content-heavy slides (Overview, Outer Planets, Conclusion), move the detailed paragraphs into the slide notes, leaving only the titles on the slides. Create a new slide titled 'Planetary Sizes' using an appropriate image. Unify the entire presentation with a clean, professional look using an Arial font for titles and a consistent blue and white color scheme.",
+    "style_target": "**Overall Presentation:**\n- A consistent and professional blue and white color scheme is applied throughout all slides.\n- All slide titles are set in a font from the Arial family.\n- The presentation maintains a clean, modern, and uncluttered aesthetic with clear visual hierarchy.\n\n**Slide 1 (Title Slide):**\n- The title is updated to be a clear and impactful main heading for the presentation (e.g., \"Our Solar System\").\n- A relevant subtitle is included to provide context (e.g., \"Overview of the Sun, planets, and other celestial bodies\").\n- The layout is professional and appropriate for a title slide.\n\n**Slide 2 (Overview):**\n- The slide retains its title, \"Overview\".\n- The detailed paragraph of body text from the original slide is moved into the slide's notes section. The main slide area is left with only the title.\n\n**Slide 3 (Inner Planets):**\n- The slide title is \"Inner Planets\".\n- The original text is summarized into four concise, single-level bullet points, with each point corresponding to one of the four inner planets. The summary must accurately capture the key characteristics from the original text.\n- The layout is redesigned to incorporate a relevant image of the inner planets alongside the summarized text in a balanced and visually appealing way.\n\n**Slide 4 (Outer Planets):**\n- The slide retains its title, \"Outer Planets\".\n- All detailed body text from the original slide is moved into the slide's notes section, leaving only the title on the slide.\n\n**New Slide (Planetary Sizes):**\n- A new slide is inserted after the 'Outer Planets' slide.\n- The title of the new slide is \"Planetary Sizes\".\n- The slide features a prominent, relevant image illustrating the relative sizes of the planets.\n- The layout effectively combines the title and image, and may include a short descriptive caption (e.g., \"Relative sizes of the planets (not to scale)\").\n\n**Final Slide (Conclusion):**\n- This slide corresponds to the original slide 5 and retains the title \"Conclusion\".\n- The detailed paragraph of body text from the original slide is moved into the slide's notes section, leaving only the title on the slide.",
+    "original": "Original/EducationalMakeoverSolarSystem_TestA.pptx",
+    "ground_truth": "GroundTruth/EducationalMakeoverSolarSystem_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The refined style_target now focuses on the semantic actions required by the prompt\u2014such as content summarization and moving text to notes\u2014while removing prescriptive font sizes, colors, and exact layouts to allow for more creative and varied visual solutions.",
+    "edit_type": "Theme & Background"
+  },
+  {
+    "name": "Case 78: Rock Cycle Recognition",
+    "prompt": "Overhaul this presentation to be more professional and visually engaging. Redesign the title slide with a modern two-column layout. On the second slide, organize the rock types into a clear three-column format with images and summarized descriptions. Finally, transform the text-heavy rock cycle on the third slide into a clean, visual diagram.",
+    "style_target": "Slide 1:\n- The slide must be redesigned into a two-column layout as requested by the prompt.\n- One column should contain the primary text content, including a main title (\"Recognizing the Rock Cycle\") and a subtitle. The title should be the most prominent text element on the slide.\n- The other column should feature a large, relevant image related to geology or rocks.\n- The original title and subtitle placeholders must be removed or replaced by the new text elements.\n- The overall layout should be visually balanced with clear separation between the two columns and no overlapping elements.\n\nSlide 2:\n- The slide content must be reorganized into a three-column format, with one distinct column for each rock type: Igneous, Sedimentary, and Metamorphic.\n- The original large text block and overlapping images must be removed.\n- The information from the original text block must be summarized and correctly placed within the corresponding rock type's column.\n- Each column must contain a heading (the rock type name), a relevant image, and the summarized description.\n- The layout of the three columns must be consistent (e.g., consistent alignment, spacing, and styling of headings/images/text). All elements should be clearly legible and spaced appropriately.\n\nSlide 3:\n- The slide must be transformed from a text-heavy layout into a clean, visual diagram illustrating the rock cycle.\n- The original rounded rectangles and the large paragraph of text must be removed.\n- The diagram must contain three main nodes or sections representing \"Igneous,\" \"Sedimentary,\" and \"Metamorphic\" rocks.\n- Connectors, such as arrows, must be used to show the cyclical relationship and transformations between the rock types.\n- These connectors must be labeled with the key processes described in the original text (e.g., \"Weathering & Erosion\", \"Heat & Pressure\", \"Melting\", \"Cooling\").\n- The diagram should be the central element of the slide, and the slide title \"The Rock Cycle\" should be preserved.",
+    "original": "Original/EducationalRockRecognition_TestA.pptx",
+    "ground_truth": "GroundTruth/EducationalRockRecognition_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined style_target now focuses on the semantic structure (two-column, three-column, diagram) and content requirements, removing all prescriptive formatting like exact positions, sizes, fonts, and colors to allow for more visual flexibility.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 79: Legend Placement Canonicalization",
+    "prompt": "On every slide, move the chart legend to the bottom and update the slide title to say '(Legend Bottom)'.",
+    "style_target": "On every slide in the presentation:\n1. The legend for the chart must be positioned at the bottom.\n2. The chart's overall size, position, data, and visual style (e.g., chart type, colors) must be preserved.\n3. The slide title text must be updated to end with '(Legend Bottom)'. For example, 'Clustered Column (Legend Right)' should become 'Clustered Column (Legend Bottom)'.\n4. The original formatting of the slide title (font, size, boldness, etc.) must be preserved.",
+    "original": "Original/LegendBottomMultiTypes_TestA.pptx",
+    "ground_truth": "GroundTruth/LegendBottomMultiTypes_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "Removed specific shape names ('Chart 3', 'TextBox 2') and explicit formatting values, focusing instead on semantic roles ('the chart', 'the slide title') and the general requirement to preserve original styles.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 80: Update theme and slides backgrounds(A)",
+    "prompt": "Apply a new professional design theme to the entire presentation using a two-tone blue color scheme. For content slides, create a layout with a dark blue vertical panel on the left containing the title inside a circle, and a light blue panel on the right for the body text. For section break slides, use a full-bleed layout with the same blue panels but remove all text. Standardize all body text to black and title text to white.",
+    "style_target": "A new, consistent design theme is applied across all slides, adhering to the following semantic structure:\n\n1.  **Overall Theme & Color Palette:**\n    *   The entire presentation must use a two-tone blue color scheme (a distinct dark blue and light blue).\n    *   All slide titles must be white.\n    *   All body text must be standardized to black, overriding any previous colors.\n    *   All text must be clearly legible with good contrast against its background.\n    *   Elements should be well-spaced and not overlap unintentionally.\n\n2.  **Content Slides Layout (Majority of slides):**\n    *   Slides must feature a two-panel layout with a dark blue vertical panel on the left and a light blue panel on the right.\n    *   The slide title must be positioned within the left dark blue panel.\n    *   The title text must be enclosed within a circular shape.\n    *   All body content (text boxes, images, tables, etc.) must be located within the right light blue panel.\n\n3.  **Section Break Slides Layout (e.g., slides 3, 8, 16, 20, 22, 24, 26):**\n    *   These slides must serve as visual dividers and feature the two-tone blue panel design.\n    *   All text and content placeholders must be removed from these slides, leaving only the background design elements.\n\n4.  **Title Slide Layout (Slide 1):**\n    *   The title slide must introduce the two-tone blue theme but can have a unique layout.\n    *   The main title and subtitle must be clearly distinguished, with the main title text in white and other text in black.",
+    "original": "Original/updatetheme_TestA.pptx",
+    "ground_truth": "GroundTruth/updatetheme_GroundTruthA.pptx",
+    "category": [
+      "Styling"
+    ],
+    "enhancement_notes": "The refined criteria focus on the semantic layout structure (e.g., two-panel design, title in a circle) and color roles as described in the prompt, while removing prescriptive pixel dimensions, exact hex codes, and font sizes to allow for greater implementation flexibility.",
+    "edit_type": "Theme & Background"
+  },
+  {
+    "name": "Case 81: Add Company Logo",
+    "prompt": "Please add our company logo to the top right corner of every slide in this presentation.",
+    "style_target": "A company logo must be added to every slide in the presentation. The logo should be positioned in the top-right corner of each slide, with reasonable and visually appropriate margins. The logo's size should be noticeable but not distracting, and it must not overlap with any existing slide content. The position and size of the logo must be consistent across all slides. All original slide elements must be preserved without any changes to their position, size, or formatting.",
+    "original": "Original/AddCompanyLogoTestA_MonthlyScoreboardInfographic.pptx",
+    "ground_truth": "GroundTruth/AddCompanyLogoGroundTruthA_MonthlyScoreboardInfographic.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "Removed exact pixel/inch measurements for the logo's size and position, focusing instead on the semantic placement in the 'top right corner' with consistency and no overlap.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 82: Add Slide Border",
+    "prompt": "On every slide, add a thin, dark gray border around the content.",
+    "style_target": "A border must be added to every slide in the presentation (4 slides total). The border should be a thin, solid, dark gray line with no fill, effectively framing the slide's content. It should be positioned inset from the slide edges, creating a visually consistent and uniform margin on all sides. The border must not overlap, obscure, or alter any of the original slide content.",
+    "original": "Original/AddSlideBorderTestB_AccountantCVResume.pptx",
+    "ground_truth": "GroundTruth/AddSlideBorderGroundTruthB_AccountantCVResume.pptx",
+    "category": [
+      "Styling"
+    ],
+    "enhancement_notes": "Relaxed the requirement for an exact 0.2in margin and specific hex color, instead focusing on the semantic goal of a uniform, thin, dark gray border on every slide.",
+    "edit_type": "Shapes & Drawing"
+  },
+  {
+    "name": "Case 83: Bibliography Slide from Footers",
+    "prompt": "Find all the source citations from the bottom of my slides, and create a new 'Bibliography' slide just before the final slide. The new slide should list all unique sources, alphabetized.",
+    "style_target": "A new slide is inserted immediately before the final slide of the presentation. The new slide is titled 'Bibliography'. The slide contains a list of all unique source citations found throughout the presentation (9 in this case). The list of citations is sorted alphabetically. Each citation is presented clearly as a distinct entry (e.g., separate paragraphs or list items). Important text formatting from the original citations, such as italics, is preserved. The original source text boxes on other slides remain unaltered.",
+    "original": "Original/AddBibliography_TestA.pptx",
+    "ground_truth": "GroundTruth/AddBibliography_GroundTruthA.pptx",
+    "category": [
+      "Structure"
+    ],
+    "enhancement_notes": "The refined target removes prescriptive details like the exact slide number, layout name, and font size, focusing instead on the semantic requirements of content, order, and relative position.",
+    "edit_type": "Slide/Section Management & Footers"
+  },
+  {
+    "name": "Case 84: Add Progress Bar",
+    "prompt": "Add a progress bar to the bottom of every slide to track the presentation's progress.",
+    "style_target": "A progress bar must be added to all 6 slides. The bar should be positioned horizontally near the bottom of each slide, spanning most of the slide's width with reasonable margins. The filled portion of the bar must accurately and proportionally represent the current slide's progress through the deck (e.g., slide 1 of 6 is ~1/6th full, slide 3 is half full, slide 6 is fully filled). The bar's design must be consistent across all slides and should not overlap or obscure any existing slide content. The filled and unfilled portions of the bar must be visually distinct. No other content on any slide should be modified.",
+    "original": "Original/AddProgressBarTestC_ProjectManagementWorkflowInfographic.pptx",
+    "ground_truth": "GroundTruth/AddProgressBarGroundTruthC_ProjectManagementWorkflowInfographic.pptx",
+    "category": [
+      "Structure",
+      "Layout"
+    ],
+    "enhancement_notes": "The style target was refined to focus on the semantic requirements of a progress bar (proportional fill, consistent placement) rather than prescribing exact dimensions and colors, allowing for more visual flexibility.",
+    "edit_type": "Shapes & Drawing"
+  },
+  {
+    "name": "Case 85: Arabic Translate LTR",
+    "prompt": "Translate the entire presentation from Arabic to English. Adjust the layout and text alignment to be appropriate for a left-to-right language.",
+    "style_target": "1. All Arabic text across all slides must be accurately translated into English.\n2. Text alignment must be adjusted for a left-to-right (LTR) language. Text that was previously right-aligned should become left-aligned. Centered alignment for titles or specific design elements can be maintained where appropriate for the design.\n3. For asymmetrical layouts (e.g., a sidebar on one side and content on the other), the layout should be adapted for LTR reading. This typically means mirroring the layout so the main visual anchor (sidebar) is on the left and content is on the right. Preserving the original element positions while ensuring correct LTR text alignment is also an acceptable interpretation.\n4. All text must be clearly legible. On slides where text is placed over a dark background (e.g., slides 17, 21), the text color must be changed to a high-contrast color, such as white.\n5. On slides containing diagrams with embedded text (e.g., slides 5, 6, 12), the textual information must be translated and presented in English. This can be achieved by replacing the diagram with a readable text-based equivalent (like a bulleted list) or by substituting the diagram with its localized English version.\n6. The presentation's overall visual style, including color scheme, fonts, and non-diagrammatic images, should be preserved unless modification is necessary for layout adjustments or readability.",
+    "original": "Original/TranslateArabicLTR_TestB.pptx",
+    "ground_truth": "GroundTruth/TranslateArabicLTR_GroundTruthB.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic goals of LTR adaptation, such as text alignment and layout mirroring, while allowing for implementation flexibility and combining multiple prescriptive, slide-specific instructions into more general, outcome-oriented rules.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 86: Dash and Minus Normalization",
+    "prompt": "On this slide, please correct the dashes and minus signs to follow standard typographic rules. For the date range, use an en dash. For the negative temperature, use a proper minus sign. For the clause breaks, replace the em dashes with spaced en dashes.",
+    "style_target": "The text within the main content placeholder must be corrected to use typographically appropriate dashes and signs. Specifically:\n1. The hyphen in the date range '2019-2021' must be replaced with an en dash (U+2013).\n2. The hyphen indicating the negative temperature '-5' must be replaced with a proper minus sign (U+2212).\n3. The two em dashes (U+2014) used for clause separation must be replaced with en dashes (U+2013), with a single space on either side of each en dash.\nAll other text, formatting, and the layout of slide elements must remain unchanged.",
+    "original": "Original/DashMinusNormalization_TestEasy.pptx",
+    "ground_truth": "GroundTruth/DashMinusNormalization_GroundTruthEasy.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The style_target now specifies the required typographic corrections based on their semantic purpose (date range, negative number, clause break) rather than providing prescriptive before-and-after text strings.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 87: Merge Near-Duplicate Slides",
+    "prompt": "Please remove any duplicate slides from this presentation. If you find a duplicate, delete the one that is more out of place.",
+    "style_target": "The total slide count must be reduced from 21 to 20. The content of all remaining slides must be unchanged, and their original relative order must be preserved. The kept slide should be on slide 13, not 10!",
+    "original": "Original/DeleteDuplicate_TestA.pptx",
+    "ground_truth": "GroundTruth/DeleteDuplicate_GroundTruthA.pptx",
+    "category": [
+      "Structure"
+    ],
+    "enhancement_notes": "The style_target now focuses on the semantic outcome (removing the correct duplicate and preserving order) rather than prescribing the exact slide numbers to be deleted and renumbered.",
+    "edit_type": "Slide/Section Management & Footers"
+  },
+  {
+    "name": "Case 88: Normalize images and objects on slides",
+    "prompt": "Some of my pictures and shapes are running off the edges of the slides. Can you adjust them so everything fits neatly on each slide?",
+    "style_target": "All shapes on every slide must be fully contained within the slide boundaries. The primary changes should occur on slides 1, 8, and 14, where shapes originally extended beyond the slide edges.\n\n- Any shape that was previously partially or fully outside the slide area must be moved and/or resized so it is completely visible.\n- The aspect ratio of any resized images must be preserved to avoid distortion.\n- Shapes that were already fully within the slide boundaries must not be altered in size or position.\n- The adjustments should not introduce new, unintended overlaps between elements.",
+    "original": "Original/ObjectDistance_TestA.pptx",
+    "ground_truth": "GroundTruth/ObjectDistance_GTA.pptx",
+    "category": [
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic goal of containing all elements within the slide boundaries while preserving aspect ratios, rather than specifying exact final positions and sizes for the adjusted shapes.",
+    "edit_type": "Alignment, Distribution & Z-order"
+  },
+  {
+    "name": "Case 89: Fill in Animal Research poster",
+    "prompt": "I have two research posters, one for a toucan and one for a snake, but they are filled with placeholder text. Please research these animals and replace all the 'Lorem Ipsum' text with relevant, factual information. Make sure the information fits the context of each section on the posters and adjust font sizes for readability. Also, update the source citations at the bottom of each poster.",
+    "style_target": "**General Requirements (Applicable to both slides):**\n- All 'Lorem Ipsum' placeholder text must be replaced with factually accurate and contextually relevant information about the animal featured on each poster (Toucan on Slide 1, Snake on Slide 2).\n- The information provided in each text box must be relevant to its corresponding section title (e.g., text under \"THE EYES\" should be about toucan eyes).\n- Font sizes for body text are adjusted across the posters to ensure legibility and prevent text from overflowing its designated containers.\n- A clear visual hierarchy between headings and body text is maintained.\n- Paragraph alignment is adjusted for better readability, avoiding centered alignment for multi-line paragraphs.\n- The placeholder source citation text at the bottom of each poster is replaced with a generic citation format (e.g., numbered references).\n\n**Slide 1 (Toucan Poster):**\n- The text labels in the 'TOUCAN DIET' section are updated from generic terms ('PLANTS', 'FRUITS') to more accurate descriptions of a toucan's diet (e.g., 'INSECTS & EGGS', 'FRUIT & SEEDS').\n\n**Slide 2 (Snake Poster):**\n- All generic section titles (e.g., 'POINT 01', 'POINT 02') are replaced with specific, meaningful titles relevant to the study of snakes (e.g., 'LOCOMOTION', 'SENSORY', 'Morphology').\n- Placeholder numerical data in the 'RESULTS' section is replaced with factual statistics about snakes. The text should be formatted to fit the space, which may include line breaks.\n- Redundant placeholder elements are removed to improve the layout, specifically the placeholder picture and the now-unnecessary title boxes ('POINT 01', 'POINT 02') within the 'RESULTS' section.",
+    "original": "Original/AnimalResearchPoster.pptx",
+    "ground_truth": "GroundTruth/AnimalResearchPoster_final_updated.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined target focuses on the semantic goals of replacing all placeholder content with factual, context-relevant information and improving overall readability, rather than prescribing exact font sizes, text strings, or alignments.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 90: Screenshot-to-Editable Text (UB Title Slide)",
+    "prompt": "On slide 12, there is a screenshot of a title slide. Recreate this screenshot as a new, fully editable slide. Use the 'Title Slide' layout, extract the text and the crest from the image, and place them as separate, editable elements.",
+    "style_target": "The transformation must apply ONLY to slide 12. All other slides must remain unchanged.\n\n1.  **Slide Configuration:**\n    - The layout of slide 12 must be changed to 'Title Slide'.\n    - The original screenshot image must be removed from the slide.\n\n2.  **Content and Elements:**\n    - All text content (\"Presentation title\", \"Sub-topic\", \"University at Buffalo\", \"School of Management\") and the university crest must be extracted from the screenshot and exist as separate, editable elements on the slide.\n    - The main title placeholder must contain \"Presentation\" on the first line and \"title\" on the second.\n    - The subtitle placeholder must contain \"Sub-topic\".\n    - The university crest must be added as an image.\n    - Two separate text boxes must be added for \"University at Buffalo\" and \"School of Management\".\n\n3.  **Visual Layout and Hierarchy:**\n    - The arrangement of elements must visually replicate the structure of the original screenshot.\n    - The title and subtitle should be positioned in the upper-left portion of the slide, with the subtitle below the title.\n    - The crest and the two associated text boxes (\"University at Buffalo\", \"School of Management\") must form a clear visual group in the lower-left portion of the slide.\n    - Within the lower group, the \"University at Buffalo\" text must be positioned directly above the \"School of Management\" text.\n    - No elements should overlap, and all text must be clearly readable.\n\n4.  **Styling:**\n    - The slide background must be a solid dark blue that visually matches the background color in the original screenshot.",
+    "original": "Original/UB_Title_Screenshot_TestA.pptx",
+    "ground_truth": "GroundTruth/UB_Title_Screenshot_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The refined criteria focus on the semantic recreation of the slide's content and visual hierarchy, removing prescriptive pixel-perfect positions and font specifications.",
+    "edit_type": "Slide Layout & Placeholders"
+  },
+  {
+    "name": "Case 91: Add QR Code",
+    "prompt": "On the last slide, add a QR code for the URL https://github.com/michaelofengend/PPTPilot. Below the QR code, add a text box with the caption 'GitHub: michaelofengend/PPTPilot'.",
+    "style_target": "On the last slide (slide 32), a new QR code image and a new text box are added. The QR code must represent the URL 'https://github.com/michaelofengend/PPTPilot'. The new text box must contain the exact text 'GitHub: michaelofengend/PPTPilot'. The text box is positioned below the QR code, serving as its caption. The QR code and its caption should be visually grouped (e.g., aligned) and reasonably placed on the slide without overlapping each other or any pre-existing slide elements. All original elements on the slide must remain unchanged.",
+    "original": "Original/AddQRCode_TestA.pptx",
+    "ground_truth": "GroundTruth/AddQRCode_GroundTurthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined criteria remove exact positions, dimensions, and text formatting, focusing instead on the semantic requirements of adding a correct QR code with its caption placed below it, without altering existing content.",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 92: Avatar Circle Crop",
+    "prompt": "Make all the team photos circular. They should all be the same size, 1.5 inches wide and tall, and be vertically aligned.",
+    "style_target": "All three rectangular team photos must be transformed into circles. As specified in the prompt, each circular photo must be 1.5 inches wide and 1.5 inches tall. The three resulting photos must be vertically aligned with each other. Each photo must remain clearly and correctly paired with its corresponding name text box. The subject within each photo should be reasonably centered in the circular crop. The content and formatting of the text boxes and title should not be altered.",
+    "original": "Original/AvatarCircleCrop_TestA.pptx",
+    "ground_truth": "GroundTruth/AvatarCircleCrop_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The refined target removes the specific vertical position ('top=2.5in') and the prescriptive method for creating a circle, focusing instead on the required final state (circular, specific size, aligned, and correctly associated with names).",
+    "edit_type": "Images & Pictures"
+  },
+  {
+    "name": "Case 93: Multi-Edit Cascade (Copernicus Climate Highlights)",
+    "prompt": "Please apply a consistent, professional theme to this presentation. Change all slide titles to a dark blue and all body text to a dark gray. On slide 4, replace the static image of the bar chart with an actual, editable column chart. On slide 5, rearrange the images and their captions for a better flow. Also, add a progress bar at the bottom of every slide. Finally, add a new 'Bibliography' slide at the very end with the source URL.",
+    "style_target": "- **Overall Thematic Changes (All Slides):**\n  - All slide titles are consistently colored in a dark blue.\n  - All body text is consistently colored in a dark gray.\n  - A visual progress indicator (e.g., a progress bar) is added to the bottom of every slide. This indicator must visually represent the current slide's position in the deck (e.g., on slide 2 of 7, it should be about 2/7 full). The indicator must not obstruct other slide content.\n\n- **Slide 4 (Chart Replacement):**\n  - The static image of the bar chart is removed.\n  - An editable, native PowerPoint column chart is added to the slide.\n  - The new chart and its associated descriptive text box are arranged logically on the slide with clear spacing and no overlap.\n\n- **Slide 5 (Layout Improvement):**\n  - The two images and their two corresponding caption text boxes are rearranged to create a more balanced and professional layout.\n  - The visual association between each image and its original caption must be maintained and be unambiguous.\n  - Elements should be clearly spaced and not overlap.\n\n- **New Final Slide (Bibliography):**\n  - A new slide is added at the very end of the presentation.\n  - The new slide's title is \"Bibliography\" or a close synonym.\n  - The body of the slide contains the source URL `(climate.copernicus.eu)`, which may be listed multiple times.\n  - The numeric citation markers (e.g., `[1]`, `[2]`) on the original slides must be preserved.\n  - The final slide count is 7.",
+    "original": "Original/climate_original.pptx",
+    "ground_truth": "GroundTruth/climate_ground_truth.pptx",
+    "source_url": "https://climate.copernicus.eu/copernicus-2024-first-year-exceed-1.5degc-above-pre-industrial-level",
+    "license_note": "The Copernicus Climate Change Service press release is publicly accessible under EU open-data policies.",
+    "category": [
+      "Content",
+      "Styling"
+    ],
+    "enhancement_notes": "The refined style_target now focuses on the semantic intent\u2014such as a \"visual progress indicator\" and \"unambiguous association\" between images and captions\u2014instead of prescribing exact positions, sizes, and colors for the elements.",
+    "edit_type": "Charts"
+  },
+  {
+    "name": "Case 94: Slide Size Conversion 4:3 \u2192 16:9",
+    "prompt": "Convert this 4:3 presentation to a 16:9 widescreen format. Make sure all the content fits on the slides and that images are not stretched or distorted.",
+    "style_target": "1. The presentation's slide size must be converted from a 4:3 aspect ratio to a 16:9 widescreen aspect ratio.\n2. All slide content must be adjusted to fit entirely within the new, shorter slide boundaries. No elements should be cut off.\n3. Elements originally near the bottom of the slides, such as the reference text boxes (e.g., '[1]'), must be repositioned upwards to be fully visible.\n4. On slide 4, the two images must be resized and repositioned so they are both fully visible and do not overlap. Their original aspect ratios must be preserved, as specified in the prompt, to prevent distortion or stretching.\n5. On slide 3, the chart must remain fully visible and legible. Its chart type, data, and legend must be preserved.\n6. The textual content, font properties (size, color, style), and theme of the presentation must be preserved.",
+    "original": "Original/Size43to169_DifferentContent_TestA.pptx",
+    "ground_truth": "GroundTruth/Size43to169_DifferentContent_GroundTruthA.pptx",
+    "category": [
+      "Layout",
+      "Structure"
+    ],
+    "enhancement_notes": "The refined criteria remove prescriptive coordinates and sizes for the chart and images, focusing instead on the semantic requirements that all content must fit, not overlap, and not be distorted.",
+    "edit_type": "Slide Layout & Placeholders"
+  },
+  {
+    "name": "Case 95: Master & Layout Rebind",
+    "prompt": "On slide 2, change the layout from 'Title Slide' to 'Title and Content'. Make sure the existing text content is moved into the new content placeholder.",
+    "style_target": "On slide 2, the layout must be changed to 'Title and Content'. The body text content from the original slide (\"Astronomers used the James Webb...\") must be successfully moved into the new main content placeholder. Any redundant or empty text boxes from the original slide 2 layout should be removed. The image and text on slide 2 must be arranged in a balanced way with no overlapping elements. Slides 1, 3, and 4 must remain unchanged. All other content and formatting across the presentation should be preserved.",
+    "original": "Original/MasterRebind_TestA.pptx",
+    "ground_truth": "GroundTruth/MasterRebind_GroundTruthA.pptx",
+    "category": [
+      "Styling",
+      "Structure"
+    ],
+    "enhancement_notes": "Removed prescriptive coordinates for images on slides 2 and 3, focusing instead on the semantic requirement for a balanced, non-overlapping layout on the edited slide and ensuring other slides are not affected.",
+    "edit_type": "Template & Master-Level Edits"
+  },
+  {
+    "name": "Case 96: Reading Order Fix (Complex Slides)",
+    "prompt": "On slides 2 through 5, correct the reading order for accessibility. Ensure the slide title is read first, followed by the main text content, and then the image. Adjust the layout to match this logical flow.",
+    "style_target": "On slides 2, 3, and 4, the reading order of elements must be corrected to: Title, Body Text, and then the associated Picture. The visual layout must be adjusted to reflect this logical flow, with the title positioned as the primary heading at the top of the slide. The body text and image should be arranged in a clear, balanced manner below the title (e.g., side-by-side or stacked vertically). On slide 5, the \"Conclusion & Outlook\" title must be repositioned to be visually and sequentially ahead of the main content placeholder. Slide 1 must remain unchanged. All original content must be preserved, and elements on the modified slides should be well-spaced without any overlap.",
+    "original": "Original/ReadingOrderComplex_TestA.pptx",
+    "ground_truth": "GroundTruth/ReadingOrderComplex_GroundTruthA.pptx",
+    "category": [
+      "Structure"
+    ],
+    "enhancement_notes": "The refined criteria focus on the required logical and visual hierarchy (Title -> Content -> Image) while removing prescriptive layout coordinates, allowing for any clean arrangement that respects this order.",
+    "edit_type": "Accessibility & Semantics"
+  },
+  {
+    "name": "Case 97: LaTeX to Office Math (OMML)",
+    "prompt": "On slides 2 and 3, convert all text representations of mathematical equations, like 'x^{n} + y^{n} = z^{n}' and '\\frac{1}{2}', into properly formatted, editable math objects.",
+    "style_target": "On slide 2, the text representing Fermat's equation (`x^{n} + y^{n} = z^{n}, n > 2`) must be converted into a single, editable math object. The mathematical notation, including superscripts, must be accurately rendered.\n\nOn slide 3, all four text strings representing mathematical equations or symbols (`a^{2} + b^{2} = c^{2}`, `3^{2} + 4^{2} = 5^{2}`, `\\frac{1}{2}`, and `\\alpha^{2}`) must each be converted into their own separate, editable math object. The rendering must be mathematically correct, accurately representing superscripts, stacked fractions, and Greek letters as specified in the original text.\n\nFor both slides, the surrounding non-mathematical text and the original paragraph structure (including indentation levels) must be preserved. The resulting math objects should be visually consistent in size with the surrounding text. No other content on any slide should be altered.",
+    "original": "Original/LaTeXtoOMML_TestA.pptx",
+    "ground_truth": "GroundTruth/LaTeXtoOMML_GroundTruthA.pptx",
+    "category": [
+      "Content"
+    ],
+    "enhancement_notes": "The new style_target focuses on the semantic requirements of accurate mathematical rendering and preservation of document structure, removing prescriptive details like specific font names.",
+    "edit_type": "Text & Typography"
+  },
+  {
+    "name": "Case 98: Cross-Slide Conditional Formatting (Status \u2192 Timeline)",
+    "prompt": "Using the status table on slide 2, update the project timeline on slide 3. For any project marked 'At Risk', change its corresponding shape's fill color to red. Aswell as the second one.",
+    "style_target": "On slide 3, the shape corresponding to the 'Mars Sample Return' project, which is identified as 'At Risk' in the table on slide 2, must have its fill color changed to a shade of red. The text inside the modified shape must remain clearly readable against the new background. The other two project shapes on slide 3 ('Kaheawa Wind Farm' and 'U.S. Renewable Energy Growth') must remain unchanged. Slides 1 and 2 must also be completely preserved.",
+    "original": "Original/CrossSlideStatusToTimeline_TestA.pptx",
+    "ground_truth": "GroundTruth/CrossSlideStatusToTimeline_GroundTruthA.pptx",
+    "category": [
+      "Content",
+      "Layout"
+    ],
+    "enhancement_notes": "The style_target was updated to accept any shade of red instead of a specific hex code, and to require text readability rather than prescribing an exact font color and style.",
+    "edit_type": "SmartArt & Diagrams"
+  },
+  {
+    "name": "Case 99: Embed & Configure Video Playback",
+    "prompt": "On slide 3, replace the placeholder box with the provided video file. The video should be embedded and set to play on click.",
+    "style_target": "On slide 3, the placeholder elements (the text box and its background shape) must be removed and replaced with the provided video file. The video should occupy the same approximate area as the original placeholder, filling the main content area below the title. The video must be embedded, not linked. The video's playback must be set to trigger 'On Click'. The slide title must be preserved, and no other slides should be modified.",
+    "original": "Original/EmbedVideoPlayback_TestA.pptx",
+    "ground_truth": "GroundTruth/EmbedVideoPlayback_GroundTruthA.pptx",
+    "category": [
+      "Interactivity"
+    ],
+    "enhancement_notes": "The style target was updated to describe the video's position and size semantically (\"approximate area of the placeholder\") instead of using rigid coordinates.",
+    "edit_type": "Audio & Video"
+  },
+  {
+    "name": "Case 100: Animation Canonicalization & Bullet Sequencing",
+    "prompt": "On slide 5, apply a 'Fly In' animation from the left to the main bullet points, making each point appear one by one on click. Additionally, adjust the width and height of the main text boxes on slides 3, 4, and 5 to accommodate the content and animation.",
+    "style_target": "On slide 5, the main text box ('TextBox 2') must have a 'Fly In' entrance animation applied. The animation must be configured to fly in from the left, with each paragraph appearing individually on a separate click. On slides 3, 4, and 5, the main text boxes ('TextBox 2' on each slide) must be resized so that all text content is clearly visible and fits within the box without being cut off or having awkward line breaks. The overall layout, content, and formatting of all other elements across all slides must be preserved. No other animations should be added or changed.",
+    "original": "Original/AnimationCanonicalization_Bullets_TestA.pptx",
+    "ground_truth": "GroundTruth/AnimationCanonicalization_Bullets_GroundTruthA.pptx",
+    "category": [
+      "Interactivity"
+    ],
+    "enhancement_notes": "The refined target removes exact dimensions for the resized text boxes, focusing instead on the semantic goal that the text must fit comfortably within the new bounds.",
+    "edit_type": "Object Animations"
+  }
+]
