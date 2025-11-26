@@ -67,10 +67,11 @@ def _log_token_info(model, prompt, token_count, log_type="gemini", request_id=No
         print(f"[TokenLog] Error writing to CSV: {e}")
 
 def load_api_keys():
-    """Loads API keys from credentials.env"""
+    """Loads API keys from credentials.env (or environment) once into a cached dict."""
     global API_KEYS
-    if not API_KEYS: # Load only once
-        API_KEYS = {} # Initialize as dict
+    if not API_KEYS:  # Load only once
+        API_KEYS = {}
+        file_loaded = False
         try:
             if os.path.exists(CREDENTIALS_FILE):
                 with open(CREDENTIALS_FILE, 'r') as f:
@@ -84,11 +85,25 @@ def load_api_keys():
                                 API_KEYS["openai_org_id"] = value.strip()
                             elif key.strip().upper() == "GEMINI_API_KEY":
                                 API_KEYS["gemini"] = value.strip()
-            else:
-                _log(f"Warning: {CREDENTIALS_FILE} not found. API calls will likely fail.")
+                file_loaded = True
         except Exception as e:
             _log(f"Error loading {CREDENTIALS_FILE}: {e}")
-            API_KEYS = {} 
+            API_KEYS = {}
+
+        # Environment variable fallbacks (do not overwrite file values)
+        env_openai = os.environ.get("OPENAI_API_KEY")
+        env_openai_org = os.environ.get("OPENAI_ORG_ID")
+        env_gemini = os.environ.get("GEMINI_API_KEY")
+        if env_openai and "openai" not in API_KEYS:
+            API_KEYS["openai"] = env_openai
+        if env_openai_org and "openai_org_id" not in API_KEYS:
+            API_KEYS["openai_org_id"] = env_openai_org
+        if env_gemini and "gemini" not in API_KEYS:
+            API_KEYS["gemini"] = env_gemini
+
+        # Only warn if nothing was found anywhere
+        if not API_KEYS and not file_loaded:
+            _log(f"Warning: {CREDENTIALS_FILE} not found and no API keys present in environment.", None)
     return API_KEYS
 
 def _create_openai_client(api_key: Optional[str] = None):

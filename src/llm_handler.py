@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 import base64
 from typing import Optional, List
+from PIL import Image
 
 
 # Import from new modules
@@ -52,18 +53,23 @@ def call_openai_api(
     edit_history=None,
     edit_plan=None,
 ):
-    # Always use the credentials.env OpenAI key, ignore any provided api_key from frontend
-    keys = load_api_keys()
-    api_key = keys.get("openai") or keys.get("openai_api_key")
-    _log("Using OPENAI_API_KEY from credentials.env for OpenAI call", request_id)
+    # Prefer caller-provided key, fall back to credentials.env/environment
+    if api_key:
+        resolved_api_key = api_key
+        key_source = "frontend"
+    else:
+        keys = load_api_keys()
+        resolved_api_key = keys.get("openai") or keys.get("openai_api_key")
+        key_source = "credentials.env/env"
+    _log(f"Using OPENAI_API_KEY from {key_source} for OpenAI call", request_id)
     response_data = {"text_response": "", "model_used": model_id, "inference_time_seconds": None}
 
-    if not api_key:
-        response_data["text_response"] = f"Error: OpenAI API key not found in {CREDENTIALS_FILE}"
+    if not resolved_api_key:
+        response_data["text_response"] = f"Error: OpenAI API key not provided (set in UI or {CREDENTIALS_FILE})."
         return response_data
 
     try:
-        client = _create_openai_client(api_key)
+        client = _create_openai_client(resolved_api_key)
         if client is None:
             response_data["text_response"] = "Error: Failed to initialize OpenAI client (missing API key?)."
             return response_data
@@ -315,12 +321,16 @@ def plan_xml_edits_with_router(
     """
     _log("Planning XML edits with GPT router...", request_id)
 
-    keys = load_api_keys()
-    api_key = keys.get("openai") or keys.get("openai_api_key")
-    if not api_key:
-        return {"error": "OPENAI_API_KEY missing."}
+    openai_key = None
+    if api_keys:
+        openai_key = api_keys.get("openai") or api_keys.get("openai_api_key")
+    if not openai_key:
+        keys = load_api_keys()
+        openai_key = keys.get("openai") or keys.get("openai_api_key")
+    if not openai_key:
+        return {"error": "OPENAI_API_KEY missing (set in UI or credentials.env)."}
 
-    client = _create_openai_client(api_key)
+    client = _create_openai_client(openai_key)
     if client is None:
         return {"error": "Failed to init OpenAI client."}
 
@@ -386,11 +396,15 @@ def get_llm_response(
     image_inputs=None,
     use_pre_analysis=True,
     request_id=None,
-    api_keys=None, # Added for compatibility
+    api_key=None,
     edit_history=None,
 ):
     """
     Orchestrates the two-call process to get the LLM's response.
+    1. Uses a heuristic algorithm to identify relevant files.
+    2. Calls the user-selected model with only the content of those files.
+    This pre-analysis step can be toggled off.
+    Returns a dictionary containing the LLM response and the list of files used.
     """
     _log(f"LLM Handler (get_llm_response) Called for: {engine_or_model_id}", request_id)
 
@@ -405,6 +419,7 @@ def get_llm_response(
             all_xml_file_paths=xml_file_paths,
             request_id=request_id,
             model_id="gpt-5.1-2025-11-13",
+            api_keys={"openai": api_key} if api_key else None,
         )
         if plan and not plan.get("error"):
             edit_plan = plan
@@ -457,7 +472,7 @@ def get_llm_response(
             engine_or_model_id,
             image_inputs,
             request_id=request_id,
-            api_key=api_keys.get("gemini") if api_keys else None,
+            api_key=api_key,
             edit_history=edit_history,
             edit_plan=edit_plan,
         )
@@ -469,7 +484,7 @@ def get_llm_response(
             engine_or_model_id,
             image_inputs,
             request_id=request_id,
-            api_key=api_keys.get("openai") if api_keys else None,
+            api_key=api_key,
             edit_history=edit_history,
             edit_plan=edit_plan,
         )
@@ -499,8 +514,10 @@ def call_llm_router(
     ROUTER_MODEL_ID = "gpt-5.1-2025-11-13"
     _log("Calling LLM Router to decide editing strategy...", request_id)
 
-    keys = load_api_keys()
-    router_api_key = keys.get("openai") or keys.get("openai_api_key")
+    router_api_key = api_key
+    if not router_api_key:
+        keys = load_api_keys()
+        router_api_key = keys.get("openai") or keys.get("openai_api_key")
 
     if not router_api_key:
         _log("Router Error: OpenAI API key not found. Defaulting to XML_EDIT.", request_id)
@@ -567,8 +584,10 @@ def generate_content_for_python_pptx(
 
     def _call_gemini_content():
         gemini_model_id = effective_model_id if not use_openai else "gemini-3-pro-preview"
-        keys = load_api_keys()
-        gemini_key = api_key or keys.get("gemini") or keys.get("gemini_api_key")
+        gemini_key = api_key
+        if not gemini_key:
+            keys = load_api_keys()
+            gemini_key = keys.get("gemini") or keys.get("gemini_api_key")
 
         if not gemini_key:
             return {"error": "API key not found."}
@@ -610,10 +629,12 @@ Analyze the user's prompt and the provided JSON summary of the presentation, and
 
     try:
         if use_openai:
-            keys = load_api_keys()
-            openai_key = keys.get("openai") or keys.get("openai_api_key")
+            openai_key = api_key
             if not openai_key:
-                return {"error": f"OpenAI API key not found in {CREDENTIALS_FILE}"}
+                keys = load_api_keys()
+                openai_key = keys.get("openai") or keys.get("openai_api_key")
+            if not openai_key:
+                return {"error": f"OpenAI API key not provided (set in UI or {CREDENTIALS_FILE})."}
 
             client = _create_openai_client(openai_key)
             if client is None:
@@ -657,8 +678,10 @@ def generate_python_pptx_code(
 
     def _call_gemini_code():
         gemini_model_id = effective_model_id if not use_openai else "gemini-3-pro-preview"
-        keys = load_api_keys()
-        gemini_key = api_key or keys.get("gemini") or keys.get("gemini_api_key")
+        gemini_key = api_key
+        if not gemini_key:
+            keys = load_api_keys()
+            gemini_key = keys.get("gemini") or keys.get("gemini_api_key")
 
         if not gemini_key:
             return "print('Error: API key not found.')"
@@ -703,10 +726,12 @@ Below is the context you need to write the script.
 
     try:
         if use_openai:
-            keys = load_api_keys()
-            openai_key = keys.get("openai") or keys.get("openai_api_key")
+            openai_key = api_key
             if not openai_key:
-                return "print('Error: OpenAI API key not found.')"
+                keys = load_api_keys()
+                openai_key = keys.get("openai") or keys.get("openai_api_key")
+            if not openai_key:
+                return "print('Error: OpenAI API key not provided (set in UI or credentials.env).')"
 
             client = _create_openai_client(openai_key)
             if client is None:

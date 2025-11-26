@@ -28,7 +28,7 @@ from ppt import (
 # --- Constants ---
 SCRIPT_DIR          = Path(__file__).parent.resolve()
 # Put temp-execution files in the system-temp directory, not in src/,
-# so Flask’s watchdog doesn’t trigger a restart.
+# so Flask's watchdog doesn't trigger a restart.
 TEMP_CODE_EXEC_DIR  = Path(tempfile.gettempdir()) / "pptpilot_exec"
 
 DATA_DIR            = SCRIPT_DIR / "work_dir"
@@ -49,38 +49,27 @@ def log_processing_details(row: dict) -> None:
     """Log summary rows to console; real CSV logging lives in app.py."""
     print("[Orchestrator-LOG]", row)
 
-def decide_editing_strategy(user_prompt: str, ppt_json_data: dict, api_keys: dict, request_id: str) -> str:
+def decide_editing_strategy(user_prompt: str, ppt_json_data: dict, api_key: str, request_id: str) -> str:
     """
     Uses a preliminary LLM call to decide which editing path to take.
 
     Args:
         user_prompt: The user's instruction.
         ppt_json_data: The JSON representation of the presentation.
-        api_keys: The API keys dictionary to use for the LLM call.
+        api_key: The API key to use for the LLM call.
         request_id: The ID for the current request for logging.
 
     Returns:
         A string, either "XML_EDIT" or "PYTHON_PPTX_EDIT".
     """
-    # Note: call_llm_router is not yet implemented in llm_handler in this refactor, 
-    # but assuming it will be or using a placeholder. 
-    # For now, let's assume we default to XML_EDIT if not present, or use a simple heuristic.
-    # But wait, I didn't implement call_llm_router in llm_handler.py!
-    # I should probably add it or remove this function if it's not used.
-    # The original code had it. Let's check llm_handler.py again.
-    # It seems I missed `call_llm_router` in my `llm_handler.py` rewrite.
-    # I will add a simple placeholder or implement it if I can find the original logic.
-    # The original logic was likely in `llm_handler.py`.
-    
-    # For this refactor, I'll implement a simple version here or call a function I added.
-    # I added `plan_xml_edits_with_router`, but that returns a plan, not a strategy.
-    
-    # Let's check if I can use `plan_xml_edits_with_router` or if I should just default to XML_EDIT for now.
-    # The user wants to refactor, so I should try to keep functionality.
-    # I'll assume XML_EDIT for now to avoid breaking things if I can't find the router logic.
-    return "XML_EDIT"
+    return llm_handler.call_llm_router(
+        user_prompt=user_prompt,
+        ppt_json_data=ppt_json_data,
+        api_key=api_key,
+        request_id=request_id
+    )
 
-def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json_data: dict, selected_model_id: str, api_keys: dict):
+def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json_data: dict, selected_model_id: str, api_key: str):
     """
     Manages the two-step LLM chain for python-pptx editing.
     1. Generate content.
@@ -92,42 +81,36 @@ def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json
     
     # --- Step 1: Content Generation ---
     progress.append(ppt_json_data.get('request_id',''), "Calling content planning LLM (python-pptx)")
-    # Note: generate_content_for_python_pptx is not in my new llm_handler.py
-    # I need to add it or stub it.
-    # Since I don't have the original code for this function in my view history (I might have missed it),
-    # I will return an error for now saying this path is not fully refactored yet.
-    return {"error": "PYTHON_PPTX_EDIT path is currently under maintenance during refactoring."}
+    generated_content = llm_handler.generate_content_for_python_pptx(
+        user_prompt=user_prompt,
+        ppt_json_data=ppt_json_data,
+        api_key=api_key,
+        request_id=None,
+        model_id=selected_model_id,
+    )
 
-    # generated_content = llm_handler.generate_content_for_python_pptx(
-    #     user_prompt=user_prompt,
-    #     ppt_json_data=ppt_json_data,
-    #     api_key=api_key,
-    #     request_id=None, # Add request_id if you have one
-    #     model_id=selected_model_id,
-    # )
-
-    # if not generated_content or "error" in generated_content:
-    #     return {"error": f"Failed to generate content: {generated_content.get('error', 'Unknown error')}"}
+    if not generated_content or "error" in generated_content:
+        return {"error": f"Failed to generate content: {generated_content.get('error', 'Unknown error')}"}
     
-    # # --- Step 2: Code Generation ---
-    # progress.append(ppt_json_data.get('request_id',''), "Calling code generation LLM (python-pptx)")
-    # generated_code = llm_handler.generate_python_pptx_code(
-    #     user_prompt=user_prompt,
-    #     ppt_json_data=ppt_json_data,
-    #     generated_content=generated_content,
-    #     api_key=api_key,
-    #     request_id=None, # Add request_id if you have one
-    #     model_id=selected_model_id,
-    # )
+    # --- Step 2: Code Generation ---
+    progress.append(ppt_json_data.get('request_id',''), "Calling code generation LLM (python-pptx)")
+    generated_code = llm_handler.generate_python_pptx_code(
+        user_prompt=user_prompt,
+        ppt_json_data=ppt_json_data,
+        generated_content=generated_content,
+        api_key=api_key,
+        request_id=None,
+        model_id=selected_model_id,
+    )
 
-    # if not generated_code or generated_code.strip().startswith("print('Error"):
-    #     return {"error": f"Failed to generate code: {generated_code}"}
+    if not generated_code or generated_code.strip().startswith("print('Error"):
+        return {"error": f"Failed to generate code: {generated_code}"}
 
-    # # --- Step 3: Secure Execution ---
-    # progress.append(ppt_json_data.get('request_id',''), "Executing generated python-pptx code")
-    # modified_pptx_path = _securely_execute_generated_code(original_filepath, generated_code, generated_content)
+    # --- Step 3: Secure Execution ---
+    progress.append(ppt_json_data.get('request_id',''), "Executing generated python-pptx code")
+    modified_pptx_path = _securely_execute_generated_code(original_filepath, generated_code, generated_content)
     
-    # return {"modified_pptx_filepath": modified_pptx_path}
+    return {"modified_pptx_filepath": modified_pptx_path}
 
 
 def _securely_execute_generated_code(original_pptx_path: str, code: str, content: dict) -> str:
@@ -188,10 +171,10 @@ def _execute_xml_edit(
     selected_model_id: str,
     use_pre_analysis: bool,
     request_id: str,
-    api_keys: dict,
+    api_key: str,
     session_id: str = None,
     edit_history=None,
-    image_inputs=None,          # <-- added – was referenced but missing
+    image_inputs=None,
 ):
     """
     The original XML processing logic, now housed in the orchestrator.
@@ -238,12 +221,12 @@ def _execute_xml_edit(
             image_inputs=image_inputs_for_llm,
             use_pre_analysis=use_pre_analysis,
             request_id=request_id,
-            api_keys=api_keys,
+            api_key=api_key,
             edit_history=edit_history,
         )
         actual_model_used = llm_result.get("model_used", selected_model_id)
         parsed_modified_xml_map = llm_handler.parse_llm_response_for_xml_changes(
-            llm_result.get("response_text", "") # Changed from text_response to response_text
+            llm_result.get("text_response", "")
         )
 
         if parsed_modified_xml_map:
@@ -251,7 +234,7 @@ def _execute_xml_edit(
                 if not validate_xml(xml_text):
                     return {
                         "error": f"Invalid XML for {fname}",
-                        "llm_response": llm_result.get("response_text", ""),
+                        "llm_response": llm_result.get("text_response", ""),
                     }
         
         modified_pptx_filepath = None
@@ -353,10 +336,9 @@ def _execute_xml_edit(
             else:
                 reason_for_no_modification = "PPTX creation failed in ppt_processor."
                 modified_pptx_filepath = None
-                modified_pptx_download_url = None # Ensure this is None if creation failed
 
         else:
-            reason_for_no_modification = llm_result.get("response_text", "The LLM did not return any parsable XML modifications.")
+            reason_for_no_modification = llm_result.get("text_response", "The LLM did not return any parsable XML modifications.")
 
         total_processing_time = time.time() - overall_start_time
         total_image_conversion_time = 0 # Reset for this scope
@@ -368,7 +350,7 @@ def _execute_xml_edit(
             "total_processing_time_s": round(total_processing_time, 3),
             "json_extraction_time_s": round(time_json_end - time_json_start, 3),
             "xml_extraction_time_s": round(time_xml_extract_end - time_xml_extract_start, 3),
-            "llm_inference_time_s": llm_result.get("duration"), # Changed from inference_time_seconds
+            "llm_inference_time_s": llm_result.get("inference_time_seconds"),
             "pptx_modification_time_s": round(time_pptx_modify_end - time_pptx_modify_start, 3) if time_pptx_modify_start else "N/A",
             "image_conversion_time_s": round(total_image_conversion_time, 3),
             "number_of_slides_edited_by_llm": number_of_slides_edited,
@@ -394,23 +376,24 @@ def _execute_xml_edit(
         response_payload = {
             "message": "File processed successfully (XML Path).",
             "llm_engine_used": actual_model_used,
-            "llm_response": llm_result.get("response_text"),
+            "llm_response": llm_result.get("text_response"),
             "reason_for_no_modification": reason_for_no_modification,
             "edited_slides_comparison_data": edited_slides_comparison_data,
             "timing_stats": timing_stats,
             "json_data": json_data,
-            # "xml_files": [Path(f).name for f in llm_result.get("relevant_files", [])], # relevant_files not in new llm_result
+            "xml_files": [Path(f).name for f in llm_result.get("relevant_files", [])],
             "modified_xml_data": parsed_modified_xml_map,
             "session_id": session_id,
             "modified_pptx_filepath": str(modified_pptx_filepath) if modified_pptx_filepath else None,
-            "modified_pptx_download_url": modified_pptx_download_url, # Added this
-            # "planning_plan": llm_result.get("planning_plan"), # Not in new llm_result
-            # "planning_model": llm_result.get("planning_model"), # Not in new llm_result
+            "planning_plan": llm_result.get("planning_plan"),
+            "planning_model": llm_result.get("planning_model"),
         }
         return response_payload
 
     except Exception as e:
         print(f"Error in _execute_xml_edit: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
         return {"error": f"An error occurred during XML processing: {str(e)}"} 
 
 # --------------------------------------------------------------------------- #
@@ -423,6 +406,7 @@ def _process_single_iteration(
     use_pre_analysis: bool = True,
     image_inputs=None,
     request_id: str = "",
+    api_key: str = None,
     api_keys: dict = None,
     session_id: str = None,
     edit_history=None,
@@ -430,6 +414,14 @@ def _process_single_iteration(
 ):
     """Run a single pass of the hybrid pipeline (XML vs python-pptx)."""
     print(f"[Orchestrator] Hybrid processing start (request_id={request_id})")
+    
+    # Support both api_key (string) and api_keys (dict) for compatibility
+    if api_keys and not api_key:
+        # Extract appropriate key based on model
+        if "gemini" in selected_model_id.lower() or "google" in selected_model_id.lower():
+            api_key = api_keys.get("gemini")
+        else:
+            api_key = api_keys.get("openai")
 
     # Fast JSON overview so the router can decide.
     ppt_json_data = pptx_to_json(original_filepath)
@@ -444,12 +436,12 @@ def _process_single_iteration(
             user_prompt=prompt_text,
             ppt_json_data=ppt_json_data,
             selected_model_id=selected_model_id,
-            api_keys=api_keys,
+            api_key=api_key,
         )
 
     progress.append(request_id, "Routing: deciding editing strategy")
     # For OpenAI models, force using credentials.env key inside the handler
-    strategy = decide_editing_strategy(prompt_text, ppt_json_data, api_keys, request_id)
+    strategy = decide_editing_strategy(prompt_text, ppt_json_data, api_key, request_id)
     print(f"[Orchestrator] Strategy chosen → {strategy}")
     progress.append(request_id, f"Router decision: {strategy}")
 
@@ -459,7 +451,7 @@ def _process_single_iteration(
             user_prompt=prompt_text,
             ppt_json_data=ppt_json_data,
             selected_model_id=selected_model_id,
-            api_keys=api_keys,
+            api_key=api_key,
         )
 
     # Fallback / default: XML path
@@ -469,7 +461,7 @@ def _process_single_iteration(
         selected_model_id=selected_model_id,
         use_pre_analysis=use_pre_analysis,
         request_id=request_id,
-        api_keys=api_keys,
+        api_key=api_key,
         session_id=session_id,
         edit_history=edit_history,
         image_inputs=image_inputs,
@@ -483,6 +475,7 @@ def process_presentation_hybrid(
     use_pre_analysis: bool = True,
     image_inputs=None,
     request_id: str = "",
+    api_key: str = None,
     api_keys: dict = None,
     session_id: str = None,
     edit_history=None,
@@ -503,6 +496,7 @@ def process_presentation_hybrid(
             use_pre_analysis=use_pre_analysis,
             image_inputs=image_inputs,
             request_id=request_id,
+            api_key=api_key,
             api_keys=api_keys,
             session_id=session_id,
             edit_history=edit_history,
@@ -525,6 +519,7 @@ def process_presentation_hybrid(
             use_pre_analysis=use_pre_analysis,
             image_inputs=image_inputs,
             request_id=request_id,
+            api_key=api_key,
             api_keys=api_keys,
             session_id=session_id,
             edit_history=edit_history,

@@ -324,7 +324,17 @@ def process_eval_prediction():
             return jsonify(processing_result), 500
 
         modified_pptx_path = processing_result.get('modified_pptx_filepath')
-        pred_pdf = convert_pptx_to_pdf(modified_pptx_path, GENERATED_PDFS_FOLDER) if modified_pptx_path else None
+        if not modified_pptx_path:
+            generation_time = round(time.time() - generation_start_time, 2)
+            reason = processing_result.get('reason_for_no_modification') or "No modified PPTX was produced by the pipeline."
+            progress.append(request_id, "No modified PPTX produced; skipping PDF conversion")
+            return jsonify({
+                "error": reason,
+                "request_id": request_id,
+                "generation_time_seconds": generation_time,
+            }), 500
+
+        pred_pdf = convert_pptx_to_pdf(modified_pptx_path, GENERATED_PDFS_FOLDER)
         progress.append(request_id, "Converted prediction to PDF")
 
         generation_time = round(time.time() - generation_start_time, 2)
