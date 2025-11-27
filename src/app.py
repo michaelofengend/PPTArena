@@ -81,6 +81,30 @@ for folder in [DATA_DIR, EXTRACTED_XML_FOLDER, MODIFIED_PPTX_FOLDER, GENERATED_I
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def check_api_key(model_id, api_keys):
+    """
+    Verifies if the required API key is present for the selected model.
+    Returns (True, None) if valid, or (False, error_message) if invalid.
+    """
+    if not model_id:
+        return False, "No model selected."
+    
+    # Import here to avoid circular dependency if placed at top, 
+    # though app.py imports llm_handler which imports utils, so it should be fine.
+    # But let's use the logic directly or import from llm.utils if available.
+    # We'll use a simple check here to match frontend and avoid complex imports inside helper.
+    is_openai = any(token in model_id.lower() for token in ["gpt", "openai", "o1", "o3", "o4", "gpt-5"])
+    
+    if is_openai:
+        if not api_keys.get("openai"):
+            return False, f"OpenAI API Key is required for model '{model_id}'."
+    else:
+        # Assume Gemini/Google
+        if not api_keys.get("gemini"):
+            return False, f"Gemini API Key is required for model '{model_id}'."
+            
+    return True, None
+
 def generate_pdf_preview_url(pptx_path):
     """Convert pptx to PDF and return the relative /view_pdf URL if available."""
     try:
@@ -308,6 +332,12 @@ def process_eval_prediction():
             "gemini": request.form.get('gemini_api_key')
         }
         force_python_pptx = request.form.get('force_python_pptx') == 'on'
+        
+        # --- API Key Validation ---
+        is_valid, error_msg = check_api_key(selected_model_id, api_keys)
+        if not is_valid:
+            return jsonify({'error': error_msg}), 400
+            
         loop_mode = request.form.get('loop_mode') == 'on'
         loop_iterations_raw = request.form.get('loop_iterations')
         try:
@@ -369,11 +399,16 @@ def process_eval_prediction():
 
         generation_time = round(time.time() - generation_start_time, 2)
         progress.append(request_id, f"Finished processing (took {generation_time}s)")
+        # Always generate the public preview URL for the MS Viewer fallback
+        # The file is in MODIFIED_PPTX_FOLDER, so we use the 'public_modified' route
+        public_preview_url = url_for('public_modified', filename=Path(modified_pptx_path).name, _external=True)
+
         return jsonify({
             'prediction_pdf_name': Path(pred_pdf).name if pred_pdf else None,
             'prediction_pptx_name': Path(modified_pptx_path).name if modified_pptx_path else None,
             'modified_pptx_filepath': str(modified_pptx_path) if modified_pptx_path else None,
-            'message': 'Processing successful!',
+            'public_preview_url': public_preview_url,
+            'message': 'Processing successful!' if pred_pdf else 'Processing successful (PDF preview unavailable, using MS Viewer).',
             'request_id': request_id,
             'generation_time_seconds': generation_time,
             'loop_mode_enabled': processing_result.get('loop_mode_enabled', False),
@@ -452,6 +487,11 @@ def judge_edit_route():
         }
         request_id = data.get('request_id', 'judging')
 
+        # --- API Key Validation ---
+        is_valid, error_msg = check_api_key(judge_model, api_keys)
+        if not is_valid:
+            return jsonify({"error": error_msg}), 400
+
         # Basic validation
         if not all([user_prompt, original_slide_image_b64, modified_slide_image_b64, original_slide_xml, modified_slide_xml]):
             return jsonify({"error": "Missing required fields for judging"}), 400
@@ -503,6 +543,11 @@ def process_ppt_route():
         "gemini": data.get('gemini_api_key')
     }
     force_python_pptx = data.get('force_python_pptx') == 'on'
+    
+    # --- API Key Validation ---
+    is_valid, error_msg = check_api_key(selected_model_id, api_keys)
+    if not is_valid:
+        return jsonify({'error': error_msg}), 400
     
     if not all([prompt_text, selected_model_id]):
         return jsonify({'error': 'Missing required fields: prompt and llm_engine'}), 400
@@ -630,6 +675,16 @@ def judge_arena_route():
         prediction_name = data.get('prediction_pptx_name')
         judge_model = data.get('judge_model') or 'gemini-3-pro-preview'
 
+        api_keys = {
+            "openai": data.get('openai_api_key'),
+            "gemini": data.get('gemini_api_key')
+        }
+        
+        # --- API Key Validation ---
+        is_valid, error_msg = check_api_key(judge_model, api_keys)
+        if not is_valid:
+            return jsonify({'error': error_msg}), 400
+
         evaluation_pairs = get_evaluation_pairs()
         selected_pair = next((p for p in evaluation_pairs if p['name'] == selected_pair_name), None)
 
@@ -736,6 +791,11 @@ def edit_existing_ppt_route():
         "gemini": data.get('gemini_api_key')
     }
     force_python_pptx = data.get('force_python_pptx') == 'on'
+    
+    # --- API Key Validation ---
+    is_valid, error_msg = check_api_key(selected_model_id, api_keys)
+    if not is_valid:
+        return jsonify({'error': error_msg}), 400
     
     if not all([session_id, prompt_text, selected_model_id]):
         return jsonify({'error': 'Missing session_id, prompt, or llm_engine'}), 400

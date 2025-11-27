@@ -825,6 +825,26 @@
             apiKeyGeminiInput.addEventListener('input', () => localStorage.setItem('pptpilot_gemini_api_key', apiKeyGeminiInput.value));
         }
 
+        function isOpenAIModel(modelId) {
+            if (!modelId) return false;
+            const lower = modelId.toLowerCase();
+            return lower.includes('gpt') || lower.includes('openai') || lower.includes('o1') || lower.includes('o3') || lower.includes('o4');
+        }
+
+        function validateApiKeys(modelId) {
+            if (isOpenAIModel(modelId)) {
+                if (!apiKeyOpenAIInput || !apiKeyOpenAIInput.value.trim()) {
+                    return { valid: false, provider: 'OpenAI' };
+                }
+            } else {
+                // Assume Gemini/Google for everything else
+                if (!apiKeyGeminiInput || !apiKeyGeminiInput.value.trim()) {
+                    return { valid: false, provider: 'Gemini' };
+                }
+            }
+            return { valid: true };
+        }
+
         // Evaluation tab elements
         const pairSelector = document.getElementById('evaluationPairSelector');
         const evalForm = document.getElementById('evalForm');
@@ -962,10 +982,24 @@
 
         evalForm.addEventListener('submit', function (event) {
             event.preventDefault();
+            const modelId = llmEngineSelect.value;
+            const validation = validateApiKeys(modelId);
+            if (!validation.valid) {
+                displayEvalMessage(`Error: ${validation.provider} API Key is required for model '${modelId}'. Please enter it in the top bar.`, 'error');
+                return;
+            }
             submitPrediction({ loopMode: false });
         });
 
-        if (loopButton) loopButton.addEventListener('click', () => submitPrediction({ loopMode: true }));
+        if (loopButton) loopButton.addEventListener('click', () => {
+            const modelId = llmEngineSelect.value;
+            const validation = validateApiKeys(modelId);
+            if (!validation.valid) {
+                displayEvalMessage(`Error: ${validation.provider} API Key is required for model '${modelId}'. Please enter it in the top bar.`, 'error');
+                return;
+            }
+            submitPrediction({ loopMode: true });
+        });
 
         async function submitPrediction({ loopMode = false } = {}) {
             if (evalLoader) evalLoader.style.display = 'block';
@@ -1006,6 +1040,9 @@
 
                 const result = await response.json();
                 if (response.ok) {
+                    if (!result.prediction_pdf_name && result.public_preview_url) {
+                        showNotification('Preview Notice', 'PDF preview unavailable. Using Microsoft Office Viewer.', true);
+                    }
                     displayEvalMessage(result.message || 'Processing successful!', 'success');
                     if (result.request_id) {
                         currentRequestId = result.request_id;
@@ -1063,6 +1100,13 @@
         }
 
         judgeButton.addEventListener('click', async function () {
+            const modelId = judgeModelSelect ? judgeModelSelect.value : '';
+            const validation = validateApiKeys(modelId);
+            if (!validation.valid) {
+                displayEvalMessage(`Error: ${validation.provider} API Key is required for judge model '${modelId}'.`, 'error');
+                return;
+            }
+
             if (evalLoader) evalLoader.style.display = 'block';
             judgementDisplay.style.display = 'none';
             judgeTimeDisplay.style.display = 'none';
@@ -1482,6 +1526,14 @@
 
         chatForm.addEventListener('submit', async (event) => {
             event.preventDefault();
+
+            const modelId = chatLLMSelect.value;
+            const validation = validateApiKeys(modelId);
+            if (!validation.valid) {
+                displayChatMessage(`Error: ${validation.provider} API Key is required for model '${modelId}'. Please enter it in the top bar.`, 'error');
+                return;
+            }
+
             if (chatLoader) chatLoader.style.display = 'block';
             const prompt = document.getElementById('chat_prompt').value;
 
