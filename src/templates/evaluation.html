@@ -626,6 +626,10 @@
                     {% if test_pdf_name %}
                     <iframe id="testPdfViewer" src="{{ url_for('view_pdf', pdf_path=test_pdf_name) }}"
                         class="pdf-viewer"></iframe>
+                    {% elif public_gt_url %}
+                    <iframe id="testPdfViewer"
+                        src="https://view.officeapps.live.com/op/embed.aspx?src={{ public_gt_url }}"
+                        class="pdf-viewer"></iframe>
                     {% else %}
                     <div class="pdf-viewer flex items-center justify-center text-slate-500">PDF not available.</div>
                     {% endif %}
@@ -658,6 +662,10 @@
                     </p>
                     {% if prediction_pdf_name %}
                     <iframe id="predictionPdfViewer" src="{{ url_for('view_pdf', pdf_path=prediction_pdf_name) }}"
+                        class="pdf-viewer"></iframe>
+                    {% elif public_pred_url %}
+                    <iframe id="predictionPdfViewer"
+                        src="https://view.officeapps.live.com/op/embed.aspx?src={{ public_pred_url }}"
                         class="pdf-viewer"></iframe>
                     {% else %}
                     <div id="predictionPdfViewer" class="pdf-viewer flex items-center justify-center text-slate-500">No

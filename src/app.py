@@ -5,6 +5,7 @@ import shutil
 from flask import Flask, request, jsonify, render_template, send_from_directory, redirect, url_for
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
 import progress
 import llm_handler 
 import re 
@@ -39,6 +40,7 @@ def image_to_base64(image_path):
 IS_GUNICORN = "gunicorn" in sys.modules
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 CORS(app)
 
 # --- Disable Caching for Development ---
@@ -150,9 +152,35 @@ def build_evaluation_context(selected_pair_name=None, prediction_pptx_path=None)
             pred_ppt = initial_pred_ppt
             pred_pdf = convert_pptx_to_pdf(str(pred_ppt), app.config['GENERATED_PDFS_FOLDER'])
 
-    gt_pdf_name = Path(gt_pdf).name if gt_pdf else None
-    pred_pdf_name = Path(pred_pdf).name if pred_pdf else None
     prediction_pptx_name = pred_ppt.name if pred_ppt else None
+
+    # Generate public URLs for MS Viewer fallback
+    # Note: We use _external=True to get absolute URLs. 
+    # ProxyFix ensures these are https:// if the request came via HTTPS.
+    # For static files in the parent dir, we use the 'serve_file_in_root' endpoint.
+    public_gt_url = url_for('serve_file_in_root', filepath=selected_pair['ground_truth'], _external=True)
+    
+    public_pred_url = None
+    if is_prediction and modified_pptx_path:
+         # If it's a modified file in session
+         # We need to find the session_id and filename. 
+         # This is tricky without session_id in context. 
+         # Simpler: If it's a modified file, it's likely served via download_modified or similar.
+         # Let's assume for now we only need this for the initial load which is usually original vs GT.
+         pass
+    
+    # For the "Original" or "Prediction" slot:
+    if is_prediction:
+         # It's a bit complex to reconstruct the URL for an arbitrary path without session context here.
+         # But if we are in 'app_page' or 'evaluation_page', we might not have session_id easily if it's just a path.
+         # However, if prediction_pptx_path is passed, it's an absolute path.
+         # If it is in MODIFIED_PPTX_FOLDER, we can serve it.
+         if str(app.config['MODIFIED_PPTX_FOLDER']) in str(pred_ppt):
+             public_pred_url = url_for('public_modified', filename=pred_ppt.name, _external=True)
+             pass
+    else:
+         # It is the original file from the pair
+         public_pred_url = url_for('serve_file_in_root', filepath=selected_pair['original'], _external=True)
 
     context = dict(
         evaluation_pairs=evaluation_pairs,
@@ -160,7 +188,9 @@ def build_evaluation_context(selected_pair_name=None, prediction_pptx_path=None)
         test_pdf_name=gt_pdf_name,
         prediction_pdf_name=pred_pdf_name,
         prediction_pptx_name=prediction_pptx_name,
-        is_prediction=is_prediction
+        is_prediction=is_prediction,
+        public_gt_url=public_gt_url,
+        public_pred_url=public_pred_url
     )
     return context, None
 
@@ -367,6 +397,11 @@ def process_eval_prediction():
         return jsonify({"error": f"An unexpected server error occurred: {str(e)}"}), 500
 
 
+@app.route('/public/modified/<path:filename>')
+def public_modified(filename):
+    """Serves modified PPTX files for public preview (e.g. MS Viewer)."""
+    return send_from_directory(app.config['MODIFIED_PPTX_FOLDER'], filename)
+
 @app.route('/upload_only', methods=['POST'])
 def upload_only_route():
     """Handles file upload for quick preview without processing."""
@@ -521,7 +556,8 @@ def process_ppt_route():
             processing_result["modified_pptx_download_url"] = f"/download_modified/{session_id}/modified.pptx"
             processing_result["modified_pptx_url"] = f"/preview_ppt/modified/{session_id}/modified.pptx"
             # Generate public preview URL for Microsoft Live viewer
-            processing_result["public_preview_url"] = url_for('public_preview', filename=session_modified_path.name, _external=True)
+            # Use preview_modified_ppt route which serves from session folder
+            processing_result["public_preview_url"] = url_for('preview_modified_ppt', session_id=session_id, filename='modified.pptx', _external=True)
             pdf_url = generate_pdf_preview_url(session_modified_path)
             if pdf_url:
                 processing_result["pdf_preview_url"] = pdf_url
@@ -754,7 +790,10 @@ def edit_existing_ppt_route():
             processing_result["original_pptx_download_url"] = f"/download_original/{session_id}/{history_path.name}"
             processing_result["original_pptx_url"] = f"/preview_ppt/original/{session_id}/{history_path.name}"
             # Generate public preview URL for Microsoft Live viewer
-            processing_result["public_preview_url"] = url_for('public_preview', filename=current_ppt_path.name, _external=True)
+            # History files are in session folder, served by preview_original_ppt? No, download_original serves from session.
+            # We need a route to serve history files publicly.
+            # preview_original_ppt serves from session folder.
+            processing_result["public_preview_url"] = url_for('preview_original_ppt', session_id=session_id, filename=history_path.name, _external=True)
             pdf_url = generate_pdf_preview_url(current_ppt_path)
             if pdf_url:
                 processing_result["pdf_preview_url"] = pdf_url
