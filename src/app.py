@@ -170,7 +170,7 @@ def build_evaluation_context(selected_pair_name=None, prediction_pptx_path=None)
         pred_pdf = convert_pptx_to_pdf(str(pred_ppt), app.config['GENERATED_PDFS_FOLDER'])
         is_prediction = True
 
-    if not pred_pdf:
+    if not pred_pdf and not is_prediction:
         initial_pred_ppt = SCRIPT_DIR.parent / selected_pair['original']
         if initial_pred_ppt.exists():
             pred_ppt = initial_pred_ppt

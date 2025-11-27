@@ -944,7 +944,7 @@
                     oscillator.frequency.setValueAtTime(349.23, audioContext.currentTime + 0.1);
                     oscillator.type = 'square';
                 }
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
                 oscillator.start(audioContext.currentTime);
                 oscillator.stop(audioContext.currentTime + 0.3);
