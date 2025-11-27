@@ -320,8 +320,14 @@ def plan_xml_edits_with_router(
     Output schema mirrors the previous Gemini planner.
     """
     use_openai = _is_openai_model(model_id)
-    planner_model_id = model_id if use_openai else (model_id or "gemini-3-pro-preview")
-    _log(f"Planning XML edits with {'OpenAI' if use_openai else 'Gemini'} router...", request_id)
+    
+    # Dynamic Planning LLM Selection
+    if use_openai:
+        planner_model_id = "gpt-5-nano-2025-08-07"
+    else:
+        planner_model_id = "gemini-2.5-flash"
+        
+    _log(f"Planning XML edits with {'OpenAI' if use_openai else 'Gemini'} router ({planner_model_id})...", request_id)
 
     resolved_openai_key = None
     resolved_gemini_key = None
@@ -537,8 +543,14 @@ def call_llm_router(
     Uses a lightweight model (OpenAI or Gemini) to decide which editing strategy to use.
     """
     use_openai = _is_openai_model(preferred_model_id) if preferred_model_id else True
-    router_model_id = preferred_model_id if (preferred_model_id and not use_openai) else "gpt-5.1-2025-11-13"
-    _log(f"Calling LLM Router to decide editing strategy via {'OpenAI' if use_openai else 'Gemini'}...", request_id)
+    
+    # Dynamic Router Model Selection
+    if use_openai:
+        router_model_id = "gpt-5-nano-2025-08-07"
+    else:
+        router_model_id = "gemini-2.5-flash"
+    
+    _log(f"Calling LLM Router to decide editing strategy via {router_model_id} (User preferred: {preferred_model_id})...", request_id)
 
     system_prompt = """
 You are a decision-making engine. Your task is to choose the best strategy for editing a PowerPoint presentation based on the user's request.
@@ -546,7 +558,11 @@ You have two choices:
 1.  `XML_EDIT`: Best for complex, single-slide edits like creating SmartArt, charts, or intricate formatting changes that require direct XML manipulation.
 2.  `PYTHON_PPTX_EDIT`: Best for simple, repetitive, multi-slide tasks like text replacement, translation, or applying a consistent style change across the entire deck.
 
-Analyze the user's prompt and the presentation structure. Respond with ONLY the string `XML_EDIT` or `PYTHON_PPTX_EDIT`. Do not provide any explanation.
+Analyze the user's prompt and the presentation structure.
+- If the user asks to "translate the whole deck", "translate all slides", or "rewrite all text", YOU MUST CHOOSE `PYTHON_PPTX_EDIT`.
+- If the user asks for a specific visual design change on one slide, choose `XML_EDIT`.
+
+Respond with ONLY the string `XML_EDIT` or `PYTHON_PPTX_EDIT`. Do not provide any explanation.
 """
 
     prompt = f"""
