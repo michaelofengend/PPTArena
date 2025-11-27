@@ -779,4 +779,6 @@ def get_progress():
 
 if __name__ == '__main__':
     # Note: The benchmark runner expects the host to be 127.0.0.1 and port 5001
-    app.run(host='127.0.0.1', port=5001, debug=True)
+    # Render provides the PORT environment variable
+    port = int(os.environ.get("PORT", 5001))
+    app.run(host='0.0.0.0', port=port, debug=True)
