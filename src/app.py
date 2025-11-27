@@ -178,6 +178,9 @@ def build_evaluation_context(selected_pair_name=None, prediction_pptx_path=None)
 
     prediction_pptx_name = pred_ppt.name if pred_ppt else None
 
+    gt_pdf_name = Path(gt_pdf).name if gt_pdf else None
+    pred_pdf_name = Path(pred_pdf).name if pred_pdf else None
+
     # Generate public URLs for MS Viewer fallback
     # Note: We use _external=True to get absolute URLs. 
     # ProxyFix ensures these are https:// if the request came via HTTPS.
@@ -185,13 +188,6 @@ def build_evaluation_context(selected_pair_name=None, prediction_pptx_path=None)
     public_gt_url = url_for('serve_file_in_root', filepath=selected_pair['ground_truth'], _external=True)
     
     public_pred_url = None
-    if is_prediction and modified_pptx_path:
-         # If it's a modified file in session
-         # We need to find the session_id and filename. 
-         # This is tricky without session_id in context. 
-         # Simpler: If it's a modified file, it's likely served via download_modified or similar.
-         # Let's assume for now we only need this for the initial load which is usually original vs GT.
-         pass
     
     # For the "Original" or "Prediction" slot:
     if is_prediction:
@@ -199,7 +195,7 @@ def build_evaluation_context(selected_pair_name=None, prediction_pptx_path=None)
          # But if we are in 'app_page' or 'evaluation_page', we might not have session_id easily if it's just a path.
          # However, if prediction_pptx_path is passed, it's an absolute path.
          # If it is in MODIFIED_PPTX_FOLDER, we can serve it.
-         if str(app.config['MODIFIED_PPTX_FOLDER']) in str(pred_ppt):
+         if pred_ppt and str(app.config['MODIFIED_PPTX_FOLDER']) in str(pred_ppt):
              public_pred_url = url_for('public_modified', filename=pred_ppt.name, _external=True)
              pass
     else:
