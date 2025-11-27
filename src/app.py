@@ -385,7 +385,7 @@ def upload_only_route():
         file.save(saved_filepath)
         preview_url = f"/preview_ppt/original/{save_filename}"
         # Generate public preview URL for Microsoft Live viewer
-        public_preview_url = f"/public/preview/{save_filename}"
+        public_preview_url = url_for('public_preview', filename=save_filename, _external=True)
         pdf_preview_url = generate_pdf_preview_url(saved_filepath)
         return jsonify({
             'preview_url': preview_url,
@@ -521,7 +521,7 @@ def process_ppt_route():
             processing_result["modified_pptx_download_url"] = f"/download_modified/{session_id}/modified.pptx"
             processing_result["modified_pptx_url"] = f"/preview_ppt/modified/{session_id}/modified.pptx"
             # Generate public preview URL for Microsoft Live viewer
-            processing_result["public_preview_url"] = f"/public/preview/{session_modified_path.name}"
+            processing_result["public_preview_url"] = url_for('public_preview', filename=session_modified_path.name, _external=True)
             pdf_url = generate_pdf_preview_url(session_modified_path)
             if pdf_url:
                 processing_result["pdf_preview_url"] = pdf_url
@@ -754,7 +754,7 @@ def edit_existing_ppt_route():
             processing_result["original_pptx_download_url"] = f"/download_original/{session_id}/{history_path.name}"
             processing_result["original_pptx_url"] = f"/preview_ppt/original/{session_id}/{history_path.name}"
             # Generate public preview URL for Microsoft Live viewer
-            processing_result["public_preview_url"] = f"/public/preview/{current_ppt_path.name}"
+            processing_result["public_preview_url"] = url_for('public_preview', filename=current_ppt_path.name, _external=True)
             pdf_url = generate_pdf_preview_url(current_ppt_path)
             if pdf_url:
                 processing_result["pdf_preview_url"] = pdf_url

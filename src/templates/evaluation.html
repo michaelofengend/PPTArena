@@ -1263,7 +1263,21 @@
                                     pdfViewer.replaceWith(iframe);
                                 }
                             } else {
-                                displayEvalMessage('Upload successful, but PDF preview failed.', 'warning');
+                                // Fallback to MS Viewer if PDF preview is missing
+                                if (data.public_preview_url) {
+                                    const publicUrl = data.public_preview_url.startsWith('http') ? data.public_preview_url : toAbsoluteUrl(data.public_preview_url);
+                                    if (pdfViewer.tagName === 'IFRAME') {
+                                        setIframeWithFallback(pdfViewer, publicUrl);
+                                    } else {
+                                        const iframe = document.createElement('iframe');
+                                        iframe.id = 'predictionPdfViewer';
+                                        iframe.className = 'pdf-viewer';
+                                        setIframeWithFallback(iframe, publicUrl);
+                                        pdfViewer.replaceWith(iframe);
+                                    }
+                                } else {
+                                    displayEvalMessage('Upload successful, but preview failed.', 'warning');
+                                }
                             }
                         }
 
@@ -1444,7 +1458,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     const pdfUrl = data.pdf_preview_url ? joinUrl(backend, data.pdf_preview_url) : null;
-                    const publicUrl = data.public_preview_url ? joinUrl(backend, data.public_preview_url) : toAbsoluteUrl(data.preview_url);
+                    const publicUrl = data.public_preview_url ? (data.public_preview_url.startsWith('http') ? data.public_preview_url : toAbsoluteUrl(data.public_preview_url)) : toAbsoluteUrl(data.preview_url);
                     if (pdfUrl) {
                         chatModifiedPptIframe.src = pdfUrl;
                     } else if (publicUrl) {
@@ -1507,7 +1521,9 @@
                         if (pdfUrl) {
                             chatModifiedPptIframe.src = pdfUrl;
                         } else {
-                            setIframeWithFallback(chatModifiedPptIframe, publicUrl);
+                            // Ensure publicUrl is absolute for MS Viewer
+                            const absPublicUrl = publicUrl.startsWith('http') ? publicUrl : toAbsoluteUrl(publicUrl);
+                            setIframeWithFallback(chatModifiedPptIframe, absPublicUrl);
                         }
                         chatPreviewSection.style.display = 'flex';
                         chatModifiedPptxDownload.href = `${backend}${data.modified_pptx_download_url}`;
