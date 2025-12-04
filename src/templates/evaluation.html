@@ -507,33 +507,68 @@
     </div>
 
     <main class="page">
-        <!-- Hero section removed as requested -->
-
-
+        <div class="project-header text-center mb-8 pt-6">
+            <h1 class="text-3xl md:text-4xl font-bold mb-3 tracking-tight text-slate-900">PPTArena: A Benchmark for
+                Agentic PowerPoint Editing</h1>
+            <div class="text-base text-slate-600 mb-6 font-medium">
+                <span class="mr-4">Michael Ofengenden</span> <span class="mr-4">Yunze Man</span> <span class="mr-4">Ziqi
+                    Pang</span> <span>Yu-Xiong Wang</span>
+            </div>
+            <div class="flex justify-center gap-3 mb-8">
+                <a href="https://arxiv.org/abs/2512.03042" target="_blank"
+                    class="btn secondary flex items-center gap-2 hover:bg-slate-50 py-1.5 px-4 text-sm">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+                    </svg>
+                    Paper
+                </a>
+                <a href="https://github.com/michaelofengend/PPTArena" target="_blank"
+                    class="btn secondary flex items-center gap-2 hover:bg-slate-50 py-1.5 px-4 text-sm">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                    </svg>
+                    Code
+                </a>
+                <a href="https://arxiv.org/pdf/2512.03042" target="_blank"
+                    class="btn secondary flex items-center gap-2 hover:bg-slate-50 py-1.5 px-4 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    PDF
+                </a>
+            </div>
+        </div>
 
         <div id="evaluationTab" class="tab-panel active">
-            <section id="controls" class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
-                <div class="card">
-                    <h3><span class="pill">1</span> Select test case</h3>
+            <section id="controls" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="card border-0 shadow-lg shadow-slate-200/50 ring-1 ring-slate-200">
+                    <h3 class="text-slate-800"><span
+                            class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">1</span>
+                        Select test case</h3>
                     <div class="flex-grow flex flex-col gap-4">
                         <div>
-                            <label for="evaluationPairSelector" class="font-semibold text-slate-800 block mb-1">Test
-                                case</label>
-                            <select id="evaluationPairSelector" class="input-field">
+                            <label for="evaluationPairSelector"
+                                class="font-semibold text-slate-700 text-sm block mb-1.5">Test case</label>
+                            <select id="evaluationPairSelector" class="input-field text-sm">
                                 {% for pair in evaluation_pairs %}
                                 <option value="{{ pair.name }}" {% if pair.name==selected_pair.name %}selected{% endif
                                     %}>{{ pair.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="surface space-y-3">
+                        <div class="space-y-4 pt-2">
                             <div>
-                                <p class="font-semibold text-slate-800 text-sm">Prompt</p>
+                                <p class="font-semibold text-slate-700 text-xs uppercase tracking-wider mb-1">Prompt</p>
                                 <p class="text-slate-600 text-sm leading-relaxed" id="promptDisplay">{{
                                     selected_pair.prompt }}</p>
                             </div>
                             <div>
-                                <p class="font-semibold text-slate-800 text-sm">Style target</p>
+                                <p class="font-semibold text-slate-700 text-xs uppercase tracking-wider mb-1">Style
+                                    target</p>
                                 <p class="text-slate-600 text-sm leading-relaxed clamp-two" id="styleDisplay"
                                     title="{{ selected_pair.style_target }}">{{ selected_pair.style_target }}</p>
                             </div>
@@ -541,16 +576,18 @@
                     </div>
                 </div>
 
-                <div class="card">
-                    <h3><span class="pill">2</span> Generate prediction</h3>
+                <div class="card border-0 shadow-lg shadow-slate-200/50 ring-1 ring-slate-200">
+                    <h3 class="text-slate-800"><span
+                            class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">2</span>
+                        Generate prediction</h3>
                     <form id="evalForm" class="flex-grow flex flex-col gap-4">
                         <input type="hidden" id="eval_prompt" name="prompt" value="{{ selected_pair.prompt }}">
                         <input type="hidden" id="eval_original_filepath" name="original_filepath"
                             value="{{ selected_pair.original }}">
                         <div>
-                            <label for="eval_llm_engine" class="font-semibold text-slate-800 block mb-1">LLM
+                            <label for="eval_llm_engine" class="font-semibold text-slate-700 text-sm block mb-1.5">LLM
                                 engine</label>
-                            <select id="eval_llm_engine" name="llm_engine" class="input-field">
+                            <select id="eval_llm_engine" name="llm_engine" class="input-field text-sm">
                                 <optgroup label="Google Gemini">
                                     <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
                                 </optgroup>
@@ -561,36 +598,39 @@
                                 </optgroup>
                             </select>
                         </div>
-                        <div class="flex items-center gap-3 text-sm text-slate-700">
-                            <input type="checkbox" id="eval_force_python_pptx" class="h-4 w-4">
-                            <label for="eval_force_python_pptx" class="select-none font-semibold">Use python-pptx
+                        <div class="flex items-center gap-2.5 text-sm text-slate-600">
+                            <input type="checkbox" id="eval_force_python_pptx"
+                                class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                            <label for="eval_force_python_pptx" class="select-none font-medium">Use python-pptx
                                 only</label>
                         </div>
                         <div>
-                            <label for="eval_loop_iterations" class="font-semibold text-slate-800 block mb-1">Max
-                                iterations</label>
-                            <input type="number" id="eval_loop_iterations" name="loop_iterations" class="input-field"
-                                min="1" max="10" value="3">
+                            <label for="eval_loop_iterations"
+                                class="font-semibold text-slate-700 text-sm block mb-1.5">Max iterations</label>
+                            <input type="number" id="eval_loop_iterations" name="loop_iterations"
+                                class="input-field text-sm" min="1" max="10" value="3">
                             <p class="hint mt-1">Used when running Loop for iterative refinement.</p>
                         </div>
                         <div id="generationTimeDisplay" class="text-xs text-slate-600 font-semibold"
                             style="display:none;"></div>
                         <div class="flex-grow"></div>
-                        <div class="grid grid-cols-1 gap-3">
-                            <button type="submit" class="btn">Generate prediction</button>
-                            <button type="button" id="eval_loopButton" class="btn secondary">Loop</button>
+                        <div class="grid grid-cols-1 gap-2.5">
+                            <button type="submit" class="btn text-sm py-2">Generate prediction</button>
+                            <button type="button" id="eval_loopButton" class="btn secondary text-sm py-2">Loop</button>
                         </div>
                     </form>
                 </div>
 
-                <div class="card">
-                    <h3><span class="pill">3</span> LLM judge</h3>
+                <div class="card border-0 shadow-lg shadow-slate-200/50 ring-1 ring-slate-200">
+                    <h3 class="text-slate-800"><span
+                            class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">3</span>
+                        LLM judge</h3>
                     <div class="flex-grow flex flex-col">
-                        <p class="text-sm text-slate-600 mb-4">The judge compares <strong>Ground Truth</strong> vs
-                            <strong>Prediction</strong> with the original as baseline.
-                        </p>
-                        <label for="judge_model" class="font-semibold text-slate-800 block mb-2">Judge model</label>
-                        <select id="judge_model" class="input-field mb-4">
+                        <p class="text-sm text-slate-500 mb-4 leading-relaxed">The judge compares <strong>Ground
+                                Truth</strong> vs <strong>Prediction</strong> with the original as baseline.</p>
+                        <label for="judge_model" class="font-semibold text-slate-700 text-sm block mb-1.5">Judge
+                            model</label>
+                        <select id="judge_model" class="input-field mb-4 text-sm">
                             <optgroup label="Google Gemini">
                                 <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
                             </optgroup>
@@ -603,7 +643,7 @@
                             style="display:none;"></div>
                         <div id="judgementDisplay" class="judgement-container" style="display:none;"></div>
                     </div>
-                    <button id="judgeButton" class="btn secondary mt-4">Call LLM Judge</button>
+                    <button id="judgeButton" class="btn secondary mt-4 text-sm py-2">Call LLM Judge</button>
                 </div>
             </section>
 
