@@ -1,0 +1,237 @@
+\section{PPTArena Benchmark}
+\label{sec:benchmark}
+
+PPTArena contains 100 real-world editing instructions spanning 2{,}125 slides. Each case bundles an initial deck, a target deck with human-generated ground references, structured textual instructions, and a rubric capturing layout, typography, color, and content requirements. We group the cases into sixteen topical buckets (detailed in \Cref{tab:edit_taxonomy}), ensuring that the benchmark stresses both semantic reasoning and low-level formatting fidelity.
+
+\begin{table}[!t]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabular}{@{}p{0.21\columnwidth}p{0.75\columnwidth}@{}}
+    \toprule
+    \textbf{Category} & \textbf{Edit Types} \\
+    \midrule
+    \rowcolor{gray!8}
+    \textbf{Content} & 
+    \textbf{(1)}~Text \& Typography • \textbf{(2)}~Shapes \& Drawing • \textbf{(3)}~Images \& Pictures • \textbf{(4)}~Tables • \textbf{(5)}~Charts • \textbf{(6)}~SmartArt \& Diagrams • \textbf{(7)}~Audio \& Video \\[2pt]
+    
+    \textbf{Layout} & 
+    \textbf{(8)}~Alignment, Distribution, Grid, Grouping, Z-order • \textbf{(9)}~Slide Layouts \& Placeholders \\[2pt]
+    
+    \rowcolor{gray!8}
+    \textbf{Styling} & 
+    \textbf{(10)}~Themes (colors, fonts, effects), Background • \textbf{(11)}~Master-level edits (Slide/Notes Masters) \\[2pt]
+    
+    \textbf{Interactivity} & 
+    \textbf{(12)}~Animations (entrance, emphasis, exit, paths, timing) • \textbf{(13)}~Slide Transitions • \textbf{(14)}~Hyperlinks \\[2pt]
+    
+    \rowcolor{gray!8}
+    \textbf{Structure} & 
+    \textbf{(15)}~Slide/Section/Order Mgmt., Slide Numbers, Headers/Footers, Notes • \textbf{(16)}~Comments/Review, Accessibility (alt text, reading order, contrast) \\
+    \bottomrule
+    \end{tabular}
+    \vspace{-2mm}
+    \caption{Taxonomy of 16 editing operations in PPTArena. The five major categories: Content, Layout, Styling, Interactivity, and Structure, encompass operations ranging from basic text manipulation to advanced master-level edits and accessibility compliance.}
+    \vspace{-5mm}
+    \label{tab:edit_taxonomy}
+\end{table}
+    
+
+    
+\subsection{Benchmark Composition and Difficulty}
+\label{sec:benchmark_composition}
+
+\mypar{Data sourcing and coverage.} We webscrape over 15{,}000 PowerPoints (SlidesCarnival~\cite{slidescarnival}, Zenodo~\cite{zenodo}, SlideShare~\cite{slideshare}) curating the largest open-sourced dataset of PPTs and converted them into structured JSON traces that capture layout, styling, and content metadata. Automated filtering retains decks with diverse multimodal assets which we conjoined to an internal corpus from literature analysts, biology researchers, and art design students. From more than 500 hand-reviewed candidates, including 25 decks created from scratch by our students, we selected the 100 cases that best span professional, academic, multi-lingual, and art/design genres, ensuring every topic bucket in~\Cref{tab:edit_taxonomy} contains challenging exemplars.
+
+
+\mypar{Taxonomy-driven case design.} Drawing from established principles of presentation design~\cite{duarte2008slide,reynolds2011presentation,williams2015non,alley2005scientific}, we defined five parent categories that decompose into 16 concrete edit types, guaranteeing coverage from low-level typography to master-edit workflows. Following~\citet{pmlr-v235-maia-polo24a}, we favor fewer but richer cases, so the taxonomy is used to balance high-difficulty scenarios rather than to inflate totals. Cases range from simple text replacements to multi-edit, multimodal reasoning problems. For instance, \Cref{fig:complex_example} illustrates a cross-modal case that requires matching images to captions across slides using both visual and textual cues; many cases straddle multiple taxonomy buckets, so category counts exceed 100.
+
+PPTArena distinguishes itself from prior benchmarks through its emphasis on \textit{edit difficulty} across four key dimensions: multi-step reasoning depth, cross-slide dependencies, semantic understanding requirements, and long-horizon planning complexity. While existing resources such as PPTC-R~\cite{zhang-etal-2024-pptc} and T2US~\cite{jung2025talkslideslanguagedrivenagents} focus on short, template-bound edits, PPTArena intentionally concentrates difficulty into fewer but richer scenarios to expose real-world failures.
+
+\begin{figure}[t]
+    \centering
+
+    % ==========================
+    % Yellow backdrop starts here
+    % ==========================
+    \colorbox{yellow!12}{
+        \begin{minipage}{0.98\linewidth}
+            \vspace{0.7em}
+
+            % ---- Title block ----
+            \textbf{\normalsize Cross-Slide Image-Caption Correlation}\\[-.2em]
+            \rule{0.95\linewidth}{0.5pt}\\[0.2em]
+            \textcolor{blue!70!black}{\texttt{"category"}}: \textit{Layout}
+            \newline \textcolor{blue!70!black}{\texttt{"prompt"}}: \textit{"1. For every slide, match each image to its correct caption. 
+            \newline 2. After pairing them, rearrange the pairs to create a balanced layout. 
+            \newline 3. Update each slide's title correspondingly. 
+            \newline 4. Finally, make sure all images are the same size, 3.2 inches wide by 2.4 inches high."}\\[0.2em]
+            \rule{0.95\linewidth}{0.5pt}
+
+            \vspace{0.8em}
+
+            % ---- Two image panels ----
+            \begin{minipage}[t]{0.48\linewidth}
+                \centering
+                \fbox{\includegraphics[width=0.95\linewidth]{figures/match-text-imageCorrOrg.png}}\\[0.3em]
+                {\small\textbf{(a) Original}}
+            \end{minipage}
+            \hfill
+            \begin{minipage}[t]{0.48\linewidth}
+                \centering
+                \fbox{\includegraphics[width=0.95\linewidth]{figures/match-text-imageCorrGT.png}}\\[0.3em]
+                {\small\textbf{(b) Ground Truth}}
+            \end{minipage}
+        \end{minipage}
+    }
+    \caption{Example case from PPTArena demonstrating cross-slide image-caption matching.  
+            The task requires semantic understanding to correlate visual and textual content:
+            (a) the original slide with misaligned images and captions,
+            (b) the ground truth with correctly matched pairs, uniform sizing, and balanced layout.}
+    \vspace{-5mm}
+    \label{fig:complex_example}
+\end{figure}
+
+
+
+\begin{figure}[t]
+    \centering
+
+    % ==========================
+    % Yellow backdrop for entire figure
+    % ==========================
+    \colorbox{yellow!12}{
+        \begin{minipage}{0.98\linewidth}
+            \vspace{0.7em}
+
+            % ---- Title block ----
+            \textbf{\normalsize Configure Speaker Notes}\\[-.2em]
+            \rule{0.95\linewidth}{0.5pt}\\[0.2em]
+            \textcolor{blue!70!black}{\texttt{"Category"}}: \textit{Content, Structure} \\
+            \textcolor{blue!70!black}{\texttt{"Prompt"}}: \textit{"Slide 2 contains speaker notes for the other slides. Please move the text from the text boxes on slide 2 to the speaker notes of the appropriate slides, then delete slide 2."}
+
+            \vspace{0.3em}
+            \rule{0.95\linewidth}{0.5pt}
+
+            \vspace{0.8em}
+
+            % ---- Two images ----
+            \begin{minipage}[t]{0.48\linewidth}
+                \centering
+                \fbox{\includegraphics[width=0.95\linewidth]{figures/textjumble_cropped.png}}\\[0.3em]
+                {\small\textbf{(a) Original slide 2}}
+            \end{minipage}\hfill
+            \begin{minipage}[t]{0.48\linewidth}
+                \centering
+                \fbox{\includegraphics[width=0.95\linewidth]{figures/comic.png}}\\[0.3em]
+                {\small\textbf{(b) Ground Truth slide 6}}
+            \end{minipage}
+
+            \vspace{0.8em}
+        \end{minipage}
+    }
+    \vspace{-2mm}
+    \caption{This task requires aligning narration, speaker notes, and visual panels across slides, forcing the agent to reason about cross-slide correspondences before deleting the staging slide. The only way to recognize which speaker notes correspond to what slide is by understanding the comics on each slide.}
+    \vspace{-4mm}
+    \label{fig:case36_example}
+\end{figure}
+
+
+
+
+\subsection{Comparison with Prior Benchmarks}
+
+Table~\ref{tab:edit_difficulty_comparison} quantitatively compares PPTArena against prior benchmarks. PPTArena demonstrates substantially higher complexity with an average of 5.1 operations per case and 8.3 slides per case, with 32\% of cases involving cross-slide dependencies and 28\% requiring text-visual reasoning. Prior benchmarks suffer from key limitations: PPTC-R relies on synthetically generated decks that lack real-world visual richness and complexity, while T2US artificially inflates its size by rewording prompts for identical tasks rather than introducing genuine task diversity~\cite{jung2025talkslideslanguagedrivenagents, zhang-etal-2024-pptc, lee-etal-2024-prometheus}.
+
+In contrast, PPTArena combines both human-created and Python-generated decks, provides ground truth for deterministic evaluation, and maintains cross-platform compatibility. It uniquely incorporates accessibility constraints, external knowledge requirements, and complex multimodal tasks that emphasize multi-step reasoning, cross-slide dependencies, and long-horizon planning. This design exposes failure modes that remain hidden on simpler tasks and provides a rigorous testbed for evaluating the next generation of agentic systems. We demonstrate two representative samples in ~\Cref{fig:case36_example,fig:complex_example}.
+
+
+\subsection{VLM-as-Judge Evaluation Protocol}\label{sec:eval}
+
+\mypar{Instruction following (IF) and Visual quality (VQ).} Our evaluation framework is designed to move beyond simple pixel- or code-level diffs, which fail to capture the semantic and aesthetic goals of PPT editing. We instead measure an agent's performance on two fundamental axes: \emph{Instruction Following} and \emph{Visual Quality} ~\cite{sim-etal-2025-vlms}, both scored by expert VLM judges on an integer scale from 0 (Failure) to 5 (Perfect).
+
+\noindent(1) \emph{Instruction Following (IF)} measures the agent's semantic and logical adherence to the user's prompt. It assesses \textit{what} was done, such as correctly identifying and moving content, applying the right formatting, or fulfilling all sub-tasks in a complex command.
+
+\noindent(2) \emph{Visual Quality (VQ)} measures the \textit{aesthetic and professional polish} of the resulting slide. It assesses \textit{how} the changes were implemented, focusing on layout, alignment, typography, color harmony, and overall visual appeal, independent of the instruction's logical fulfillment.
+
+By combining the two metrics together, our PPTArena covers the common user requirements from either content aspects (IF) or aesthetics aspects (VQ).
+
+\newcommand{\goodmark}[1]{\textcolor{green!60!black}{\checkmark}\,#1}
+\newcommand{\badmark}[1]{\textcolor{red!70!black}{\ensuremath{\times}}\,#1}
+
+\begin{table}[t]
+\centering
+\begingroup
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.05}
+\small
+\begin{tabular}{@{}l*{3}{c}@{}}
+\toprule
+\textbf{Metric} & \textbf{PPTC-R} & \textbf{T2US} & \textbf{PPTArena} \\
+\midrule
+\rowcolor{gray!10}
+\multicolumn{4}{@{}l}{\textit{Task Complexity}} \\
+\quad Avg. operations per case & 2.9 & 1.2 & \textbf{5.1} \\
+\quad Avg. slides per case & 1.3 & 1.2 & \textbf{8.3} \\
+\quad Cross-slide dependencies & 21\% & 5\% & \textbf{32\%} \\
+\quad Text-visual dependencies & \badmark{} & 1.3\% & \textbf{28\%} \\
+\midrule
+\rowcolor{gray!10}
+\multicolumn{4}{@{}l}{\textit{Benchmark Design}} \\
+\quad Human-created decks & \badmark{} & \goodmark{} & \goodmark{} \\
+\quad Python-created decks & \goodmark{} & \badmark{} & \goodmark{} \\
+\quad Ground truth provided & \goodmark{} & \badmark{} & \goodmark{} \\
+\quad Cross-platform compatibility & \goodmark{} & \badmark{} & \goodmark{} \\
+\midrule
+\rowcolor{gray!10}
+\multicolumn{4}{@{}l}{\textit{Advanced Requirements}} \\
+\quad Accessibility constraints & \badmark{} & \badmark{} & \goodmark{} \\
+\quad External knowledge & \badmark{} & \badmark{} & \goodmark{} \\
+\quad Complex multimodal tasks & \badmark{} & \badmark{} & \goodmark{} \\
+\bottomrule
+\end{tabular}
+\endgroup
+\vspace{-0.5em}
+\caption{Comparative analysis of benchmark characteristics and task complexity. PPTC-R metrics are derived from their released API traces. PPTArena demonstrates substantially higher complexity across all dimensions, featuring multi-operation tasks, extensive cross-slide reasoning, and semantic understanding requirements. A comprehensive comparison with more baselines is provided in the supplementary material.}
+\vspace{-1em}
+\label{tab:edit_difficulty_comparison}
+\end{table}
+
+
+\mypar{Per-sample rubric: style target.}
+A core challenge in PPT editing is the immense variation across decks, layouts, and design habits. There is no universal rubric that can reliably score every instruction, which separates our setting from common LLM judges used in question-answering. Our solution is to generate a fine-grained, per-sample style target that specifies all crucial structural and visual requirements for that case. For example, if the user prompt is ``Overhaul this rock-cycle presentation with ..., reorganizing the rock types into three columns on slide 2, and replace slide 3's wall of text with ...,'' then the corresponding style-target rubric would spell out the exact ground truth with hyper-specific constraints, such as: \textit{``... must have a geology photo occupying... Slide 2 columns must be labeled ... Slide 3 centers a fully labeled cycle diagram linking the three rock types with ...''}.
+
+
+
+
+To provide trustworthy style targets, we combine automatic generation together with exhaustive human verification. Specifically, we send the json summaries and screenshots of the PPT's ground truth and original decks to a VLM to generate style targets. Both ground truth and the original slide are provided as input so that the generation of style target can precisely understand the desired outcome. Then each style target is manually verified for correctness and faithfulness to the editing instructions and PPT context.
+
+\mypar{Dual-Judge Pipeline for Reliable Evaluation.}
+To ensure reliable scoring, we employ a dual-judge architecture that separately conducts the evaluation for instruction following and visual quality (as in \Cref{fig:vlm_judge_pipeline}), each implemented as a separate VLM, \emph{\eg}, GPT-5. To further enhance the judge's capability for IF and VQ, respectively, we selectively provide them contexts that align best with the evaluation target, in addition to the style target mentioned above. 
+
+\noindent(1) \emph{Instruction Following Judge}: This judge receives \textit{only} the structured data diffs (\eg, JSON and XML summaries) between the original, predicted, and ground-truth slides. Such inputs enforce the judge to concentrate at the content level and carefully inspect whether the desired content changes are correct.
+
+\noindent(2) \emph{Visual Quality Judge}: This judge is responsible for visual aesthetics, so it receives \textit{only} the rendered screenshots of the predicted and ground-truth slides. Its context is engineered to focus purely on aesthetics, comparing the visual execution of alignment, layout, and style against the rubric.
+
+
+To further improve the reliability, especially for multi-slide edits, our pipeline only filters the slides with salient changes to the visual judge, so that it concentrates better on the edits without being overwhelmed by the enormous contexts.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=1.0\columnwidth]{figures/vlmjudge5.pdf}
+        \vspace{-2mm}
+    \caption{\textbf{Our VLM-as-judge paradigm}. To maximize the reliability of existing VLMs, we employ two separate judges. The visual quality (VQ) judge primarily comprehends the PPT screenshots for visual understanding, while the instruction-follwing (IF) judge focuses on structured data to analyze the contents.}
+    \label{fig:vlm_judge_pipeline}
+    \vspace{-3mm}
+\end{figure}
+
+
+\mypar{Comparison with judges in Rrelated benchmarks.}
+Our evaluation methodology marks a significant advance over existing benchmarks. Prior work, such as PPTC-R~\cite{guo-etal-2024-pptc}, primarily relies on API-level ``diffs''. While useful, this approach is brittle and cannot detect critical semantic errors, such as an agent copying the correct text but to the \textit{wrong slide}. Our IF Judge, by operating on structured summaries, is explicitly designed to capture such logical failures. Furthermore, while other benchmarks like T2US~\cite{jung2025talkslideslanguagedrivenagents} also use VLM-as-judge, their reliance on prompting without a strong rubric leads to noisy and unreliable ratings. PPTArena designs the style target to mitigate such issues by providing a rigorous and reproducible foundation for scoring. 
+
+To conclude, our dual-judge, rubric-grounded architecture is essential for measuring the complex, multi-step reasoning required for PPT editing and for analyzing the subtle failure modes that simpler benchmarks would miss.
+
+
+
+

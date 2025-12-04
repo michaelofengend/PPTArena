@@ -1,0 +1,89 @@
+% CVPR 2026 Paper Template; see https://github.com/cvpr-org/author-kit
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+%%%%%%%%% PAPER TYPE  - PLEASE UPDATE FOR FINAL VERSION
+% \usepackage{cvpr}              % To produce the CAMERA-READY version
+\usepackage[pagenumbers]{cvpr}      % To produce the REVIEW version
+% \usepackage[pagenumbers]{cvpr} % To force page numbers, e.g. for an arXiv version
+
+% Import additional packages in the preamble file, before hyperref
+\input{preamble}
+
+% It is strongly recommended to use hyperref, especially for the review version.
+% hyperref with option pagebackref eases the reviewers' job.
+% Please disable hyperref *only* if you encounter grave issues, 
+% e.g. with the file validation for the camera-ready version.
+%
+% If you comment hyperref and then uncomment it, you should delete *.aux before re-running LaTeX.
+% (Or just hit 'q' on the first LaTeX run, let it finish, and you should be clear).
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+
+\usepackage{minitoc}
+\doparttoc % This tells minitoc to get ready to create ToCs for "parts"
+
+\definecolor{myblue}{HTML}{3E3EE9}
+\definecolor{myorange}{HTML}{FF9000}
+\definecolor{mygreen}{HTML}{4B9F2D}
+\definecolor{myyellow}{HTML}{D1CA00}
+\definecolor{LightGrey}{rgb}{0.92,0.92,0.92}
+\definecolor{Myred}{rgb}{1.00,0.12,0.36}
+\definecolor{Myblue}{rgb}{0,0.60,0.87}
+
+\newcommand\mypar[1]{\par\vspace{1mm}\noindent\textbf{#1}\;\;}
+\newcommand{\red}[1]{{\color{red}#1}}
+\newcommand{\todo}[1]{{\color{red}#1}}
+\newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}
+\newcommand{\ourwork}{PPTArena\xspace}
+
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\paperID{} % *** Enter the Paper ID here
+\def\confName{CVPR}
+\def\confYear{2026}
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+\title{PPTArena: A Benchmark for Agentic PowerPoint Editing}
+
+%%%%%%%%% AUTHORS - PLEASE UPDATE
+\author{
+    Michael Ofengenden$^{1,2}$\textsuperscript{*} \quad Yunze Man$^{1}$ \quad Ziqi Pang$^{1}$ \quad Yu-Xiong Wang$^{1}$ \\[2mm]
+    $^{1}$University of Illinois Urbana-Champaign \quad $^{2}$University of California, Berkeley\\
+}
+
+\begin{document}
+\suppressmaintoc
+\twocolumn[{%
+\renewcommand\twocolumn[1][]{#1}%
+\maketitle
+\begin{center}
+    \centering
+    \captionsetup{type=figure}
+    \vspace{-4mm} 
+    \includegraphics[trim=0 0 0 0, clip=True, width=1.0\textwidth]{figures/pptarena_teaser.pdf}
+    \vspace{-5mm} 
+    \captionof{figure}{Representative real-world PowerPoint edits in PPTArena exemplifying structure-aware, multimodal, cross-slide reasoning tasks.}
+    \label{fig:teaser}
+\end{center}%
+}]
+
+\input{sec/0_abstract}
+\input{sec/1_intro}
+\input{sec/2_related_work}
+\input{sec/3_benchmark}
+\input{sec/5_pptpilot}
+\input{sec/4_experiments}
+\input{sec/6_conclusion}
+\clearpage
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{main}
+}
+
+\restoretoc          % TOC entries start from here
+\input{sec/X_suppl}
+
+\end{document}

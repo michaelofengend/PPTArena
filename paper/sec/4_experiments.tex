@@ -1,0 +1,153 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\mypar{VLM-as-Judge.} To enhance the reliability of evaluation, we rely on the strongest vision-language models of Gemini 2.5 Pro and GPT 5 for evaluation. For clarity, we mainly include the results evaluated from the GPT 5 judge in the main comparison (Table~\ref{tab:all_gpt5_judge_transposed_no_smartart}). The results of utilizing Gemini 2.5 Pro as the judge and more implementation details are covered in the supplementary materials.
+
+\mypar{Agent Baselines.} We evaluate a wide range of existing PPT agents on PPTArena and compare with PPTPilot. We provide results from the extended thinking mode ChatGPT, Gemini-CLI, and GPT-Agent, which simulates a computer, the terminal, and the ability to use a desktop, and MiniMax Agent, which specifically excels at multimodal tasks and is marketed as great ``PPT helper''. We also report numbers with PPTAgent and Poster2Agent. 
+
+
+\mypar{Subset Evaluation.} In our baselines, several proprietary products enforce strict rate limits and huge costs, such as the ChatGPT and MiniMax Agent. Therefore, we select a subset of 25 samples for evaluation with budget limits. Our selection procedure follows the principle of emphasizing the most challenging cases: we take the 20 hardest tasks that PPTPilot and ChatGPT performed the worst at and 5 manually selected ones to ensure breadth coverage. Specific cases are detailed in the supplementary materials.
+
+
+
+\subsection{Performance on PPTArena}\label{sec:main_comparison}
+
+
+\begin{table*}[ht]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.2}
+\caption{{\bf PPTArena evaluation}. Scores report instruction-following (IF) and visual quality (VQ) with VLM-as-judge. Columns marked with $^{*}$ are only run on a 25-case subsample for cost reasons. Bracketed values in the PPTPilot column report scores on that same subsample.}
+\vspace{-2mm}
+\label{tab:all_gpt5_judge_transposed_no_smartart}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l r
+    >{\columncolor{cyan!9}}c >{\columncolor{cyan!9}}c  % PPTPilot
+    >{\columncolor{gray!12}}c   >{\columncolor{gray!12}}c    % Gemini
+    >{\columncolor{orange!12}}c   >{\columncolor{orange!12}}c    % ChatGPT
+    >{\columncolor{green!8}}c   >{\columncolor{green!8}}c    % ChatGPT Agent
+    >{\columncolor{purple!10}}c >{\columncolor{purple!10}}c  % Mini Max Agent
+    c c  % PPTAgent*
+    c c  % Poster2Agent*
+}
+\toprule
+& & \multicolumn{2}{c}{\textbf{PPTPilot}}
+  & \multicolumn{2}{c}{\textbf{Gemini CLI}}
+  & \multicolumn{2}{c}{\textbf{ChatGPT}}
+  & \multicolumn{2}{c}{\textbf{ChatGPT Agent$^{*}$}}
+  & \multicolumn{2}{c}{\textbf{Mini Max Agent$^{*}$}}
+  & \multicolumn{2}{c}{\textbf{PPTAgent$^{*}$}}
+  & \multicolumn{2}{c}{\textbf{Poster2Agent$^{*}$}} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}\cmidrule(lr){11-12}\cmidrule(lr){13-14}\cmidrule(lr){15-16}
+\textbf{Category} & \textbf{Cases} & IF$\uparrow$ & VQ$\uparrow$ & IF$\uparrow$ & VQ$\uparrow$ & IF$\uparrow$ & VQ$\uparrow$ & IF$\uparrow$ & VQ$\uparrow$ & IF$\uparrow$ & VQ$\uparrow$ & IF$\uparrow$ & VQ$\uparrow$ & IF$\uparrow$ & VQ$\uparrow$ \\
+\midrule
+Content      & 67 &
+\textbf{2.49}\hspace{0.15em}[1.65] & 2.41\hspace{0.15em}[\textbf{1.50}] &
+1.30 & \textbf{2.54} &
+2.03 & 2.20 &
+\textbf{1.80} & \textbf{1.50} &
+1.10 & 0.75 &
+0.00 & 0.00 &
+0.00 & 0.00 \\
+Layout       & 29 &
+\textbf{2.14}\hspace{0.15em}[\textbf{1.71}] & \textbf{2.38}\hspace{0.15em}[\textbf{1.29}] &
+1.07 & 1.78 &
+2.08 & 2.19 &
+1.14 & 0.71 &
+0.71 & 0.71 &
+0.00 & 0.00 &
+0.00 & 0.00 \\
+Styling      & 29 &
+2.14\hspace{0.15em}[\textbf{1.33}] & \textbf{2.72}\hspace{0.15em}[1.33] &
+0.91 & 1.89 &
+\textbf{2.41} & 2.44 &
+0.83 & \textbf{1.67} &
+1.00 & 1.00 &
+0.00 & 0.00 &
+0.00 & 0.00 \\
+Structure    & 15 &
+\textbf{2.27}\hspace{0.15em}[1.47] & \textbf{2.95}\hspace{0.15em}[1.85] &
+1.32 & 2.27 &
+1.73 & 1.93 &
+\textbf{2.00} & \textbf{2.33} &
+0.67 & 1.33 &
+0.00 & 0.00 &
+0.00 & 0.00 \\
+Interactivity& 4 &
+3.00\hspace{0.15em}[\textbf{3.00}] & \textbf{3.00}\hspace{0.15em}[\textbf{2.00}] &
+0.00 & 0.00 &
+\textbf{3.25} & 2.75 &
+0.00 & 0.00 &
+2.00 & 1.00 &
+0.00 & 0.00 &
+0.00 & 0.00 \\
+\midrule
+All Cases    & 100 &
+\textbf{2.36}\hspace{0.15em}[\textbf{1.71}] & \textbf{2.69}\hspace{0.15em}[1.54] &
+1.21 & 1.98 &
+2.07 & 2.22 &
+1.68 & \textbf{1.60} &
+1.04 & 0.84 &
+0.00 & 0.00 &
+0.00 & 0.00 \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+Table \ref{tab:all_gpt5_judge_transposed_no_smartart} summarizes system-level performance across the full benchmark. PPTPilot attains the strongest overall results with an instruction-following score of 2.36 and a visual-quality score of 2.69, improving to 2.84 and 3.21 respectively when self-correction is enabled. Even without its refinement loop, PPTPilot surpasses all proprietary and open baselines by large margins.
+
+\mypar{Baseline system performance.} Across competing systems, clear patterns emerge. ChatGPT performs well on straightforward content edits and light styling adjustments, yet its performance drops on tasks requiring visual-text alignment, cross-slide reasoning, or maintenance of deck-wide structural constraints. ChatGPT Agent shows somewhat stronger visual correlation performance but continues to struggle with multi-step logical instructions. In many scenarios involving tasks beyond simple python-pptx usage—such as SmartArt manipulation, theme-level updates, chart edits, transitions, animations, or master-level fixes—the agent mode routinely stalls for extended periods (often 30+ minutes) without producing a valid PPTX. MiniMax Agent, despite being marketed as a specialized presentation tool, underperforms consistently. It achieves a notable result in one visual-layout case, but PPTPilot and ChatGPT Agent outperform it on every other category. PPTAgent and Poster2Agent, though not designed as full editing frameworks, highlight the fragility of one-shot, generation-driven pipelines: while they occasionally produce output files, the generated decks diverge substantially from the original structure, breaking fundamental preservation requirements and failing all tasks under our rubric.
+
+\mypar{Runtime efficiency and key design principles.} Runtime patterns amplify these distinctions. Only MiniMax Agent and PPTPilot reliably complete edits in under two minutes; many other systems are significantly slower or frequently encounter tool failures. Because efficiency is a priority, we restrict the main comparison to single-pass outputs and report loop-enabled scores separately in Table \ref{tab:pptpilot_ablation}. Taken together, these results indicate that reliable PPT editing hinges on three properties embodied in PPTPilot: structure-aware planning that reasons over deck semantics, a hybrid execution model that routes between programmatic APIs and deterministic OOXML operations, and an iterative refine-and-verify loop that stabilizes long-horizon edits. The benchmark findings show that current frontier VLM agents remain brittle on compound edits, multimodal dependencies, and cross-slide transformations, even while PPTPilot's design substantially narrows this gap.
+
+
+\begin{table}[!t]
+  \centering
+  \setlength{\tabcolsep}{10pt}
+  \renewcommand{\arraystretch}{1.05}
+  \caption{Ablation study results on PPTArena. Average instruction fidelity (IF) and visual quality (VQ) scores across executor variants (bottom block) and judge configurations (top block).}
+  \label{tab:pptpilot_ablation}
+  \begin{tabular}{lcc}
+  \toprule
+  \textbf{Configuration} & \textbf{IF} & \textbf{VQ} \\
+  \midrule
+  \rowcolor{LightGrey}
+  \multicolumn{3}{l}{\textit{Judge configuration}} \\
+  Single VLM judge (all signals) & 2.31 & 4.26 \\
+  Dual judge (no diffs) & 3.76 & 4.54 \\
+  Dual judge with diffs & 2.36 & 2.40 \\
+  \midrule
+  \rowcolor{LightGrey}
+  \multicolumn{3}{l}{\textit{PPTPilot executor variants}} \\
+  XML-only & 0.95 & 2.85 \\
+  \texttt{python-pptx}-only & 2.06 & 2.73 \\
+  Hybrid (no refinement) & 2.36 & 2.69 \\
+  Hybrid + Loop (3$\times$) & 2.84 & 3.21 \\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+
+  
+
+\subsection{Ablation Study}
+\label{sec:ablation}
+
+We conduct a systematic ablation study of PPTPilot's key components to understand their individual contributions to overall performance. We evaluate each variant using the same metrics defined in Section~\ref{sec:benchmark}: task success rate, PPTX validity, instruction fidelity (IF), visual quality (VQ), and computational cost.
+
+\mypar{Experimental setup.} Our baseline configuration uses the full PPTPilot pipeline: JSON snapshot construction, intelligent routing between XML editing and programmatic \texttt{python-pptx} paths, strict output schemas for LLM responses, and post-hoc XML validation with automatic repair. We systematically disable or replace individual components while holding all other factors constant.
+
+\mypar{Ablation variants.} We evaluate four key configurations:
+
+\noindent\textit{XML-only:} Forces all edits through the direct XML manipulation path. This approach excels at precise, slide-local modifications (\eg, adjusting a single shape's geometry) but struggles with repetitive deck-wide operations such as bulk text normalization or global theme application, resulting in increased latency and reduced task success on global transformations.
+
+\noindent\textit{\texttt{python-pptx}-only:} Routes all requests through the programmatic API. This variant handles global changes effectively (uniform typography, batch renaming, translation) but underperforms on precise structural fixes requiring fine-grained control over individual elements.
+
+\noindent\textit{Hybrid (no refinement):} Uses intelligent routing but disables iterative refinement. This reduces latency but sacrifices robustness on multi-step transformations where a second pass typically resolves residual formatting issues.
+
+\noindent\textit{Hybrid + Loop (3$\times$):} The full system with up to three refinement iterations, corresponding to the workflow illustrated in Figure~\ref{fig:pptpilot_diagram}.
+
+\mypar{Results and observations.} Table~\ref{tab:pptpilot_ablation} presents the ablation results. The hybrid routing strategy proves essential: forcing a single execution path substantially degrades task success, particularly on workloads mixing local and global edits. The XML-only variant achieves an IF score of 0.95, while \texttt{python-pptx}-only reaches 2.06. The hybrid approach without refinement achieves 2.36, and enabling iterative refinement further improves performance to 2.84 IF and 3.21 VQ. Case-by-case analysis reveals that providing slide images to PPTPilot improves layout reasoning: visual grounding enhances decisions about z-ordering, spacing, and alignment without compromising text editing quality. Iterative refinement stabilizes complex edits, with one additional pass often resolving formatting drift after re-theming or batch rewrites, at modest computational overhead.
+
+
+\mypar{Judge configuration analysis.} The top block of Table~\ref{tab:pptpilot_ablation} compares three evaluation strategies: a single-call VLM judge receiving all modalities simultaneously, a single-call judge using only slide images, and our dual-judge configuration with explicit diff analysis. The dual-judge approach with structural diffs proves substantially more stable on multi-edit cases, as the instruction-following judge can directly reason over structured manifests rather than inferring changes from pixel-level comparisons alone.
