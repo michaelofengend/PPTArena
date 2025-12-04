@@ -5,10 +5,6 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2512.03042-b31b1b.svg)](https://arxiv.org/abs/2512.03042)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<img src="paper/figures/PPTPilotWebpage.jpg" alt="PPTPilot Web Interface" width="100%">
-<br>
-<img src="paper/figures/pptarena_teaser.png" alt="PPTArena Teaser" width="100%">
-
 </div>
 
 ## Abstract
@@ -25,7 +21,13 @@ Building on this setting, we propose **PPTPilot**, a structure-aware slide-editi
 - **Multi-Modal Judge**: Automated evaluation using VLM-as-a-judge for both instruction following and visual quality.
 - **Comprehensive Benchmark**: Covers diverse tasks including text editing, chart manipulation, layout adjustments, and image handling.
 
+- **Comprehensive Benchmark**: Covers diverse tasks including text editing, chart manipulation, layout adjustments, and image handling.
+
 <div align="center">
+<img src="paper/figures/PPTPilotWebpage.jpg" alt="PPTPilot Web Interface" width="100%">
+<br>
+<img src="paper/figures/pptarena_teaser.png" alt="PPTArena Teaser" width="100%">
+<br>
 <img src="paper/figures/PPTPilotChatDemo.jpg" alt="Chat Demo" width="80%">
 <p><em>Interactive Chat Interface for Slide Editing</em></p>
 </div>
