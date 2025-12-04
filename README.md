@@ -27,9 +27,7 @@ Building on this setting, we propose **PPTPilot**, a structure-aware slide-editi
 
 <div align="center">
 <img src="paper/figures/PPTPilotWebpage.jpg" alt="PPTPilot Web Interface" width="100%">
-<br>
-<img src="paper/figures/pptarena_teaser.png" alt="PPTArena Teaser" width="100%">
-<br>
+
 <img src="paper/figures/PPTPilotChatDemo.jpg" alt="Chat Demo" width="80%">
 <p><em>Interactive Chat Interface for Slide Editing</em></p>
 </div>
