@@ -229,7 +229,7 @@ def app_page():
 def get_evaluation_pairs():
     """Reads and returns the evaluation pairs from the JSON file."""
     try:
-        with open(SCRIPT_DIR.parent / 'evaluation_pairs_refined.json', 'r') as f:
+        with open(SCRIPT_DIR / 'evaluation_pairs_refined.json', 'r') as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return []

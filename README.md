@@ -5,9 +5,7 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2512.03042-b31b1b.svg)](https://arxiv.org/abs/2512.03042)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<img src="paper/figures/PPTPilotWebpage.jpg" alt="PPTPilot Web Interface" width="100%">
-<br>
-<img src="paper/figures/pptarena_teaser.png" alt="PPTArena Teaser" width="100%">
+
 
 </div>
 
@@ -25,7 +23,7 @@ Building on this setting, we propose **PPTPilot**, a structure-aware slide-editi
 - **Multi-Modal Judge**: Automated evaluation using VLM-as-a-judge for both instruction following and visual quality.
 - **Comprehensive Benchmark**: Covers diverse tasks including text editing, chart manipulation, layout adjustments, and image handling.
 
-- **Comprehensive Benchmark**: Covers diverse tasks including text editing, chart manipulation, layout adjustments, and image handling.
+
 
 <div align="center">
 <img src="paper/figures/PPTPilotWebpage.jpg" alt="PPTPilot Web Interface" width="100%">
@@ -38,10 +36,9 @@ Building on this setting, we propose **PPTPilot**, a structure-aware slide-editi
 
 ## Directory Structure
 
-- `src/`: Core application code (Flask app, LLM handlers, PPT processing).
+- `src/`: Core application code (Flask app, LLM handlers, PPT processing) and configuration files (`requirements.txt`, `evaluation_pairs_refined.json`).
 - `Original/`: Benchmark dataset - Original PowerPoint files.
 - `GroundTruth/`: Benchmark dataset - Ground Truth PowerPoint files.
-- `evaluation_pairs_refined.json`: Metadata defining the benchmark tasks.
 - `paper/`: Contains the paper LaTeX source and figures.
 
 ## Installation
@@ -54,7 +51,7 @@ Building on this setting, we propose **PPTPilot**, a structure-aware slide-editi
 
 2.  **Install dependencies:**
     ```bash
-    pip install -r requirements.txt
+    pip install -r src/requirements.txt
     ```
 
 3.  **Configure API Keys:**
