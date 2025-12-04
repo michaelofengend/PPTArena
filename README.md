@@ -23,7 +23,7 @@ Building on this setting, we propose **PPTPilot**, a structure-aware slide-editi
 - **Multi-Modal Judge**: Automated evaluation using VLM-as-a-judge for both instruction following and visual quality.
 - **Comprehensive Benchmark**: Covers diverse tasks including text editing, chart manipulation, layout adjustments, and image handling.
 
-
+WebApp: https://ppt-arena.onrender.com/evaluation
 
 <div align="center">
 <img src="paper/figures/PPTPilotWebpage.jpg" alt="PPTPilot Web Interface" width="100%">
