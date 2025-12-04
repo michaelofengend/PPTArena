@@ -7,7 +7,7 @@
 
 <img src="paper/figures/PPTPilotWebpage.jpg" alt="PPTPilot Web Interface" width="100%">
 <br>
-<img src="paper/figures/pptarena_teaser.png" alt="PPTArena Teaser" width="100%">
+<img src="paper/figures/pptarena_teaser.png" alt="PPTArena Teaser" width="60%">
 
 </div>
 
