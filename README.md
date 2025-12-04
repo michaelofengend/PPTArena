@@ -5,6 +5,10 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2512.03042-b31b1b.svg)](https://arxiv.org/abs/2512.03042)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+<img src="paper/figures/PPTPilotWebpage.jpg" alt="PPTPilot Web Interface" width="100%">
+<br>
+<img src="paper/figures/pptarena_teaser.png" alt="PPTArena Teaser" width="100%">
+
 </div>
 
 ## Abstract
