@@ -26,7 +26,7 @@ Building on this setting, we propose **PPTPilot**, a structure-aware slide-editi
 WebApp: https://ppt-arena.onrender.com/evaluation
 
 <div align="center">
-<img src="src/pptarena_teaser.png" alt="PPTArena Teaser" width="100%">
+<img src="src/pptarenawebapp.png" alt="PPTArena Teaser" width="100%">
 </div>
 
 
