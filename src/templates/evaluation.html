@@ -801,6 +801,35 @@
                 </aside>
             </section>
         </div>
+
+        <section class="mt-12 mb-8 text-center border-t border-slate-200 pt-8">
+            <h2 class="text-xl font-semibold text-slate-800 mb-4">Contact Us</h2>
+            <p class="text-slate-600 mb-6 max-w-2xl mx-auto">
+                Have questions, feedback, or want to contribute? Send us a message!
+            </p>
+            <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="mb-4 text-left">
+                    <label for="contact_subject" class="block text-sm font-medium text-slate-700 mb-1">Subject</label>
+                    <input type="text" id="contact_subject" class="input-field" placeholder="What is this regarding?">
+                </div>
+                <div class="mb-4 text-left">
+                    <label for="contact_message" class="block text-sm font-medium text-slate-700 mb-1">Message</label>
+                    <textarea id="contact_message" rows="4" class="input-field w-full"
+                        placeholder="Your message here..."></textarea>
+                </div>
+                <button id="contactSubmitBtn" class="btn w-full flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    <span id="contactBtnText">Send Email</span>
+                </button>
+
+            </div>
+
+        </section>
+
     </main>
 
     <script id="evaluationPairsData" type="application/json">{{ evaluation_pairs | tojson | safe }}</script>
@@ -1200,6 +1229,69 @@
                 if (evalLoader) evalLoader.style.display = 'none';
             }
         });
+
+        // Contact Form Logic
+        const contactBtn = document.getElementById('contactSubmitBtn');
+        if (contactBtn) {
+            contactBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const subjectInput = document.getElementById('contact_subject');
+                const messageInput = document.getElementById('contact_message');
+                const btnText = document.getElementById('contactBtnText');
+
+                const subject = subjectInput.value.trim();
+                const body = messageInput.value.trim();
+
+                if (!subject || !body) {
+                    alert('Please fill in both subject and message fields.');
+                    return;
+                }
+
+                const originalText = btnText.textContent;
+                btnText.textContent = 'Sending...';
+                contactBtn.disabled = true;
+
+                // Formspree submission
+                // User provided Form ID: mrbnllab
+                const formId = 'mrbnllab';
+
+                fetch(`https://formspree.io/f/${formId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        subject: subject,
+                        message: body,
+                        _subject: `[PPTArena] ${subject}` // Formspree special field for email subject
+                    }),
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Email sent successfully!');
+                            subjectInput.value = '';
+                            messageInput.value = '';
+                        } else {
+                            response.json().then(data => {
+                                if (Object.hasOwn(data, 'errors')) {
+                                    alert(data["errors"].map(error => error["message"]).join(", "));
+                                } else {
+                                    alert('Oops! There was a problem submitting your form');
+                                }
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Network error. Please try again later.');
+                    })
+                    .finally(() => {
+                        btnText.textContent = originalText;
+                        contactBtn.disabled = false;
+                    });
+            });
+        }
 
         async function saveResultsToCSV(judgement) {
             try {

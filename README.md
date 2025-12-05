@@ -26,11 +26,10 @@ Building on this setting, we propose **PPTPilot**, a structure-aware slide-editi
 WebApp: https://ppt-arena.onrender.com/evaluation
 
 <div align="center">
-<img src="paper/figures/PPTPilotWebpage.jpg" alt="PPTPilot Web Interface" width="100%">
-
-<img src="paper/figures/PPTPilotChatDemo.jpg" alt="Chat Demo" width="80%">
-<p><em>Interactive Chat Interface for Slide Editing</em></p>
+<img src="src/pptarena_teaser.png" alt="PPTArena Teaser" width="100%">
 </div>
+
+
 
 ## Directory Structure
 
