@@ -463,7 +463,7 @@
   {
     "name": "Case 38: Flip Theme Scheme",
     "prompt": "Flip the theme of this presentation. Make dark light, and light dark. Make sure all text is readable against the new background.",
-    "style_target": "A dark theme is applied consistently across all slides, resulting in dark-colored backgrounds. All text elements, including titles, body content, and slide numbers, must be updated to a light color that provides high contrast and readability against the new backgrounds. Slide numbers should be enabled and clearly visible on each slide. The original content, images, and overall layout structure must be preserved.",
+    "style_target": "A flipped theme is applied consistently across all slides, resulting in correctly-colored backgrounds. All text elements, including titles, body content, and slide numbers, must be updated to a light color that provides high contrast and readability against the new backgrounds. Slide numbers should be enabled and clearly visible on each slide. The original content, images, and overall layout structure must be preserved.",
     "original": "Original/FixThemeScheme_TestA.pptx",
     "ground_truth": "GroundTruth/FlipThemeScheme_GroundTruthA.pptx",
     "category": [
