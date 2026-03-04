@@ -117,7 +117,7 @@ def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json
     progress.append(ppt_json_data.get('request_id',''), "Executing generated python-pptx code")
     modified_pptx_path = _securely_execute_generated_code(original_filepath, generated_code, generated_content)
     
-    return {"modified_pptx_filepath": modified_pptx_path}
+    return {"modified_pptx_filepath": modified_pptx_path, "generated_code": generated_code, "generated_content": generated_content}
 
 
 def _securely_execute_generated_code(original_pptx_path: str, code: str, content: dict) -> str:
@@ -126,7 +126,10 @@ def _securely_execute_generated_code(original_pptx_path: str, code: str, content
 
     # --- MODIFIED FILE HANDLING ---
     # 1. Determine the final path for the modified file upfront.
-    final_modified_path = MODIFIED_PPTX_FOLDER / f"modified_{int(time.time())}_{Path(original_pptx_path).name}"
+    # We are bypassing the default MODIFIED_PPTX_FOLDER because it runs into PermissionErrors on MacOS when run outside of the main app 
+    BENCHMARK_OUTPUT_DIR = Path("/Users/michaelofengenden/Desktop/PPTArena/benchmark_outputs")
+    BENCHMARK_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    final_modified_path = BENCHMARK_OUTPUT_DIR / f"modified_{int(time.time())}_{Path(original_pptx_path).name}"
 
     # 2. Copy the original file to its final destination. The script will modify this file in-place.
     shutil.copy(original_pptx_path, final_modified_path)

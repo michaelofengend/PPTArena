@@ -325,7 +325,7 @@ def plan_xml_edits_with_router(
     if use_openai:
         planner_model_id = "gpt-5-nano-2025-08-07"
     else:
-        planner_model_id = "gemini-2.5-flash"
+        planner_model_id = "gemini-3-flash-preview"
         
     _log(f"Planning XML edits with {'OpenAI' if use_openai else 'Gemini'} router ({planner_model_id})...", request_id)
 

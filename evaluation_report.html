@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PPTArena Evaluation Report</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; color: #333; }
+        .case { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        h2 { color: #0056b3; margin-top: 0; }
+        .metadata { font-size: 0.9em; color: #666; margin-bottom: 10px; }
+        .section { margin-top: 15px; }
+        .section-title { font-weight: bold; margin-bottom: 5px; }
+        pre { background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; font-size: 0.85em; }
+        .score { font-weight: bold; font-size: 1.2em; }
+        .high { color: green; }
+        .medium { color: orange; }
+        .low { color: red; }
+    </style>
+</head>
+<body>
+    <h1>PPTArena Evaluation Report</h1>
+    <p>Generated on: 2026-03-04 00:11:13</p>
+    <p>Judge Model: gpt-5.2-2025-12-11</p>
+    <p>Total Cases Evaluated: 86</p>
+    <hr>
+<div class='case'>
+    <h2>Case 1: Translate to English But Keep French</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/TranslateToEnglishButKeepallFrenchTestA_Bonjour mes amis!.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_1_modified_1772323521_TranslateToEnglishButKeepallFrenchTestA_Bonjour mes amis!.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score low'>1.0</span> / 5</p>
+        <p>Reason: Although the prediction translates the Kazakh into English in multiple places, it fails to preserve the required formatting/layout (many font names/sizes/alignments/runs are lost) and does not match the ground-truth outcomes such as Slide 4 where Kazakh after '=' should remain (ground truth keeps it) but prediction replaces it with English, indicating major deviations from the expected edits.</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score low'>0.0</span> / 5</p>
+        <p>Reason: No slide images available for comparison.</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 2: Fix Misspellings</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FixMisspellingsTestA_activities_ss_week_presentation.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_2_modified_1772323639_FixMisspellingsTestA_activities_ss_week_presentation.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score high'>4.0</span> / 5</p>
+        <p>Reason: The prediction correctly fixes all specified spelling errors on slides 1, 2, 3, 6, 7, and 8 (e.g., Buisneses→Businesses, saftey→safety, onhoing→ongoing), but it appears to have altered text run segmentation (missing original runs), which may indicate formatting was not perfectly preserved as required.</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score low'>0.0</span> / 5</p>
+        <p>Reason: No slide images available for comparison.</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 3: Add Footer Text Box</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddFooterSourceTestA_Q1-2025-Earnings-Call-update.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_3_modified_AddFooterSourceTestA_Q1-2025-Earnings-Call-update.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score low'>1.0</span> / 5</p>
+        <p>Reason: Although the prediction adds a bottom text box with the correct citation text, it makes extensive unrelated changes on slide 5 (multiple text content/spacing edits, missing bullet paragraphs, and several shapes converted/repositioned into lines/pictures/groups), violating the requirement that all other slide elements remain unchanged.</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score low'>0.0</span> / 5</p>
+        <p>Reason: No slide images available for comparison.</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 4: Increase Font Size on Slide 8</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FontSizePlus2Slide8TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_4_modified_FontSizePlus2Slide8TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score medium'>2.0</span> / 5</p>
+        <p>Reason: While the prediction generally applies the +2pt increase to many text boxes (e.g., 24→26 and 20→22), it diverges from the ground truth by altering slide structure (Group 42 shape count 20→8) and introducing unexpected font sizes where the ground truth has none (TextBox 43/44 set to 20.0), indicating extra/unintended edits beyond the requested font-size change.</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score low'>0.0</span> / 5</p>
+        <p>Reason: No slide images available for comparison.</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 5: Change Body Text Font to Arial</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/CalibriToTimesTestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_5_modified_1772324276_CalibriToTimesTestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score low'>1.0</span> / 5</p>
+        <p>Reason: The prediction sets many body-text runs to font_name=Arial across slides 2–20, but the ground truth leaves those font_name fields as None (i.e., not explicitly changed), so the prediction does not match the ground-truth outcome and applies widespread extra edits relative to it.</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score low'>0.0</span> / 5</p>
+        <p>Reason: No slide images available for comparison.</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 6: Update Quarter Two Data (A)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/QuarterTwoTestA___2302222_Presentation_Stats_SA_Q1_Q2_Q3_of_202223.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_6_modified_1772324351_QuarterTwoTestA___2302222_Presentation_Stats_SA_Q1_Q2_Q3_of_202223.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score medium'>2.0</span> / 5</p>
+        <p>Reason: The prediction changes 'Q2' to 'Second Quarter' on slides 5, 6, 7, and 12 as required, but it also makes additional replacements on slides 8 and 9 (not in the ground truth set) and still differs from ground truth overall, indicating extra/unmatched edits beyond the requested/expected changes.</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score low'>0.0</span> / 5</p>
+        <p>Reason: No slide images available for comparison.</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 7: Update Quarter Two Data (B)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/QuarterTwoTestB_7302020.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_7_modified_1772324458_QuarterTwoTestB_7302020.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 8: Summarize Paragraphs</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/SummarizeParagraphsTestA_.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_8_modified_1772324516_SummarizeParagraphsTestA_.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 9: Shorten Bullet Points</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ShortenBulletPointsTestB_Opioid-Addiction-Response-in-VA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_9_modified_1772324599_ShortenBulletPointsTestB_Opioid-Addiction-Response-in-VA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 10: Italicize Subheadings (A)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ItalicizeSubheadingsTestA_Career_Banding_Job_Description_Training.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_10_modified_1772324688_ItalicizeSubheadingsTestA_Career_Banding_Job_Description_Training.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 11: Italicize Subheadings (B)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ItalicizeSubheadingsTestB_COVID19-Healthcare-Tabletop-Facilitator-PPT.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_11_modified_1772324733_ItalicizeSubheadingsTestB_COVID19-Healthcare-Tabletop-Facilitator-PPT.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 12: Stock Photo Cleanup </h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/MatchStockPhotos_Test.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_12_modified_MatchStockPhotos_Test.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 13: Italicize Subheadings (D)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ItalicizeSubheadingsTestD_teachout.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_13_modified_1772324988_ItalicizeSubheadingsTestD_teachout.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 14: Bold Title (A)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/BoldTitleTestA_Game_theory_4.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_14_modified_1772325042_BoldTitleTestA_Game_theory_4.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 15: Bold Title (B)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/BoldTitleTestB_cse1300-ai.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_15_modified_1772325088_BoldTitleTestB_cse1300-ai.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 16: Curate Multi-Panel Photo Layout</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/OrderPhotosTest.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_16_modified_OrderPhotosTest.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 17: Build Ensemble Category Boards</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/EnsembleCategoryTest.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_17_modified_EnsembleCategoryTest.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 18: Shorten Text On Slides</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ShortenTextOnSlides_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_18_modified_1772325621_ShortenTextOnSlides_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 19: Translate Chinese</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/TranslateChineseTestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_19_modified_1772325773_TranslateChineseTestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 20: Remove Filler Words</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/RemoveFillerWords_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_20_modified_1772325924_RemoveFillerWords_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 21: Title Case Titles</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FixTitleCase_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_21_modified_1772325979_FixTitleCase_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 22: Center Align Title Placeholders</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/CenterAlignTitles_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_22_modified_1772326017_CenterAlignTitles_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 23: Add Thank You Slide</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddThankYouSlide_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_23_modified_1772326049_AddThankYouSlide_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 24: Add Agenda Slide After First</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddAgendaSlide_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_24_modified_AddAgendaSlide_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 25: Match Table Theme and Colors</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FixTableThemeColor_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_25_modified_FixTableThemeColor_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 26: Match Slide Colors to Theme</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FixSlideColorScheme_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_26_modified_FixSlideColorScheme_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 27: Correct Images</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FixImagePorportions_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_27_modified_FixImagePorportions_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 28: Fix Slide Order and Agenda</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FixAgendaAndOrder_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_28_modified_1772327073_FixAgendaAndOrder_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 29: Convert Bar Chart to Pie Chart</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/PieChart_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_29_modified_PieChart_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 30: Convert Text Data to a Line Chart</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/LineGraph_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_30_modified_LineGraph_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 31: Fix Text Overflow</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FixTextOverFlow_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_31_modified_FixTextOverFlow_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 32: Arrange Image and Text</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FixImage&TextOverFlow_TestB.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_32_modified_FixImage&TextOverFlow_TestB.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 36: Add Speaker Notes</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddSpeakerNotes_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_36_modified_1772327993_AddSpeakerNotes_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 39: Generate Conclusion Slide</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/GenerateCompConclusion_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_39_modified_1772328211_GenerateCompConclusion_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 40: Hindu Center Titles</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/HinduCenterTitles_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_40_modified_1772328247_HinduCenterTitles_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 41: Match Background to Picture</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/MatchBackgroundtoPicture_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_41_modified_MatchBackgroundtoPicture_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 43: Transitionary Slides</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/TransitionarySlides_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_43_modified_1772329102_TransitionarySlides_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 44: Match Flag to Text</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/MatchFlagtoText_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_44_modified_MatchFlagtoText_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 45: Lighter Colors</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/LighterColors_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_45_modified_LighterColors_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 46: Convert Text & Arrows to SmartArt</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ConvertText&Arrows2SmartArt_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_46_modified_ConvertText&Arrows2SmartArt_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 47: Change Line Graph to Bar Graph</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ChangeLineGraphtoBar_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_47_modified_ChangeLineGraphtoBar_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 48: Add Slide Numbers and Date</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddSlideNumber_TestB.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_48_modified_1772330017_AddSlideNumber_TestB.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 49: Normalize Thousand Separators</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/NormalizeThousandSeperators_Test.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_49_modified_1772330163_NormalizeThousandSeperators_Test.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 50: Normalize Date Format</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/NormalizeDate_Test.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_50_modified_1772330454_NormalizeDate_Test.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 51: Currency Symbol Swap (EUR→USD)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/CurrencySwap_Test.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_51_modified_1772330558_CurrencySwap_Test.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 52: Add Source</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddSource_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_52_modified_1772330602_AddSource_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 55: Highlight Important Words</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ HighlightImportantWords_GroundTestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_55_modified_ HighlightImportantWords_GroundTestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 57: Add Water Mark</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddWaterMark_Test.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_57_modified_1772333804_AddWaterMark_Test.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 58: Bullets Normalize Levels</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/BulletsNormalizeLevels_Test.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_58_modified_BulletsNormalizeLevels_Test.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 60: Fix Text Placement</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FixTextPlacement_Test.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_60_modified_FixTextPlacement_Test.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 61: Sort By Score And Crop Image 169</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/SortByScoreAndCropImage169_Test.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_61_modified_SortByScoreAndCropImage169_Test.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 63: Spatial Constraint Layout</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/SpatialLogicLayout_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_63_modified_SpatialLogicLayout_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 70: Format Python Code Blocks (Dark Theme, Multi-Slide)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/FormatPythonCodeBlock_DarkMulti_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_70_modified_FormatPythonCodeBlock_DarkMulti_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 72: Dynamic SmartArt Timeline with Image Integration</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/DynamicSmartArtTimeline_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_72_modified_DynamicSmartArtTimeline_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 73: Dynamic Data Label Placement</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/DynamicDataLabelPlacement_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_73_modified_DynamicDataLabelPlacement_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 74: Cross-Slide Data Consolidation</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/CrossSlideDataConsolidation_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_74_modified_CrossSlideDataConsolidation_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 75: 12-Column Grid & Baseline Rhythm Canonicalization (Multi-modal)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/GridBaselineReasoning_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_75_modified_GridBaselineReasoning_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 76: Aesthetic Slide Makeover</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AestheticMakeover_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_76_modified_AestheticMakeover_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 77: Educational Solar System Makeover</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/EducationalMakeoverSolarSystem_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_77_modified_1772348037_EducationalMakeoverSolarSystem_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 78: Rock Cycle Recognition</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/EducationalRockRecognition_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_78_modified_EducationalRockRecognition_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 79: Legend Placement Canonicalization</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/LegendBottomMultiTypes_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_79_modified_1772348298_LegendBottomMultiTypes_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 80: Update theme and slides backgrounds(A)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/updatetheme_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_80_modified_updatetheme_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 82: Add Slide Border</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddSlideBorderTestB_AccountantCVResume.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_82_modified_1772348963_AddSlideBorderTestB_AccountantCVResume.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 83: Bibliography Slide from Footers</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddBibliography_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_83_modified_1772349120_AddBibliography_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 84: Add Progress Bar</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddProgressBarTestC_ProjectManagementWorkflowInfographic.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_84_modified_1772349217_AddProgressBarTestC_ProjectManagementWorkflowInfographic.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 85: Arabic Translate LTR</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/TranslateArabicLTR_TestB.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_85_modified_1772349513_TranslateArabicLTR_TestB.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 86: Dash and Minus Normalization</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/DashMinusNormalization_TestEasy.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_86_modified_DashMinusNormalization_TestEasy.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 87: Merge Near-Duplicate Slides</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/DeleteDuplicate_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_87_modified_1772349600_DeleteDuplicate_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 88: Normalize images and objects on slides</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ObjectDistance_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_88_modified_ObjectDistance_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 89: Fill in Animal Research poster</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AnimalResearchPoster.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_89_modified_1772350304_AnimalResearchPoster.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 90: Screenshot-to-Editable Text (UB Title Slide)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/UB_Title_Screenshot_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_90_modified_UB_Title_Screenshot_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 91: Add QR Code</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AddQRCode_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_91_modified_AddQRCode_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 92: Avatar Circle Crop</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AvatarCircleCrop_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_92_modified_AvatarCircleCrop_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 93: Multi-Edit Cascade (Copernicus Climate Highlights)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/climate_original.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_93_modified_climate_original.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 94: Slide Size Conversion 4:3 → 16:9</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/Size43to169_DifferentContent_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_94_modified_1772351406_Size43to169_DifferentContent_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 95: Master & Layout Rebind</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/MasterRebind_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_95_modified_MasterRebind_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 96: Reading Order Fix (Complex Slides)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ReadingOrderComplex_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_96_modified_1772351648_ReadingOrderComplex_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 97: LaTeX to Office Math (OMML)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/LaTeXtoOMML_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_97_modified_LaTeXtoOMML_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 98: Cross-Slide Conditional Formatting (Status → Timeline)</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/CrossSlideStatusToTimeline_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_98_modified_CrossSlideStatusToTimeline_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 99: Embed & Configure Video Playback</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/EmbedVideoPlayback_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_99_modified_EmbedVideoPlayback_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 100: Animation Canonicalization & Bullet Sequencing</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AnimationCanonicalization_Bullets_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_100_modified_AnimationCanonicalization_Bullets_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 34: Lambda Replacement</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/1ea18Lamda_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_34_modified_1772353081_1ea18Lamda_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 35: Structural Fix</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/1ea18StructuralFix_TestA copy.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_35_modified_1772353196_1ea18StructuralFix_TestA copy.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 42: Organize Research Poster</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/OrganizeResearchPoster_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_42_modified_OrganizeResearchPoster_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 67: WCAG Accessibility & Master Cleanup</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/AccessibilityMasterCleanup_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_67_modified_1772403775_AccessibilityMasterCleanup_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+<div class='case'>
+    <h2>Case 69: Cross-Slide Image–Caption Correlation</h2>
+    <div class='metadata'>
+        <strong>Original:</strong> Original/ImageTextCorrelation_TestA.pptx<br>
+        <strong>Modified:</strong> benchmark_outputs/modified_case_69_modified_ImageTextCorrelation_TestA.pptx<br>
+        <strong>LLM Engine Used:</strong> gemini-3.1-pro-preview<br>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Instruction Following:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+    <div class='section'>
+        <div class='section-title'>Visual Quality / Preservation:</div>
+        <p>Score: <span class='score '>N/A</span> / 5</p>
+        <p>Reason: N/A</p>
+    </div>
+</div>
+</body>
+</html>
