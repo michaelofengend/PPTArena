@@ -16,6 +16,8 @@ from datetime import datetime
 import uuid
 import sys
 import tempfile
+import threading
+import queue
 
 # Import from new modules
 from ppt import (
@@ -147,6 +149,43 @@ def _get_slide_number_from_path(filepath):
 def index():
     """Redirect to the evaluation page by default."""
     return redirect(url_for('evaluation_page'))
+
+def stream_long_task(app_context, task_func, *args, **kwargs):
+    """
+    Runs a long-running function in a background thread and yields spaces 
+    to keep the connection alive (preventing proxy timeouts).
+    """
+    q = queue.Queue()
+
+    def run_task():
+        with app_context:
+            try:
+                result = task_func(*args, **kwargs)
+                q.put({"status": "success", "result": result})
+            except Exception as e:
+                app.logger.error(f"Error in background task: {e}", exc_info=True)
+                q.put({"status": "error", "error": str(e)})
+
+    thread = threading.Thread(target=run_task)
+    thread.start()
+
+    def generate():
+        while True:
+            try:
+                # Wait for up to 10 seconds for the task to complete
+                msg = q.get(timeout=10)
+                if msg["status"] == "success":
+                    yield json.dumps(msg["result"])
+                    break
+                else:
+                    yield json.dumps({"error": msg["error"]})
+                    break
+            except queue.Empty:
+                # Yield a space to keep the connection alive
+                yield " "
+
+    from flask import Response
+    return Response(generate(), mimetype='application/json')
 
 def build_evaluation_context(selected_pair_name=None, prediction_pptx_path=None):
     """Shared builder for evaluation/chat tabs so both routes render the same page."""
@@ -353,67 +392,71 @@ def process_eval_prediction():
         progress.start(request_id)
         progress.append(request_id, "Started processing evaluation request")
 
-        processing_result = orchestrator.process_presentation_hybrid(
-            original_filepath=str(original_filepath),
-            prompt_text=prompt_text,
-            selected_model_id=selected_model_id,
-            use_pre_analysis=use_pre_analysis,
-            request_id=request_id,
-            api_keys=api_keys,
-            force_python_pptx=force_python_pptx,
-            loop_mode=loop_mode,
-            loop_max_iterations=loop_iterations,
-        )
-
-        planning_plan = processing_result.get('planning_plan') if isinstance(processing_result, dict) else None
-        planning_model = processing_result.get('planning_model') if isinstance(processing_result, dict) else None
-        if isinstance(planning_plan, dict):
-            target_count = len(planning_plan.get('targets') or [])
-            progress.append(
-                request_id,
-                f"Planning via {planning_model or 'gpt-5-nano'} selected {target_count} target file(s)."
+        def background_processing():
+            processing_result = orchestrator.process_presentation_hybrid(
+                original_filepath=str(original_filepath),
+                prompt_text=prompt_text,
+                selected_model_id=selected_model_id,
+                use_pre_analysis=use_pre_analysis,
+                request_id=request_id,
+                api_keys=api_keys,
+                force_python_pptx=force_python_pptx,
+                loop_mode=loop_mode,
+                loop_max_iterations=loop_iterations,
             )
 
-        if processing_result.get('error'):
+            planning_plan = processing_result.get('planning_plan') if isinstance(processing_result, dict) else None
+            planning_model = processing_result.get('planning_model') if isinstance(processing_result, dict) else None
+            if isinstance(planning_plan, dict):
+                target_count = len(planning_plan.get('targets') or [])
+                progress.append(
+                    request_id,
+                    f"Planning via {planning_model or 'gpt-5-nano'} selected {target_count} target file(s)."
+                )
+
+            if processing_result.get('error'):
+                generation_time = round(time.time() - generation_start_time, 2)
+                processing_result['generation_time_seconds'] = generation_time
+                return processing_result
+
+            modified_pptx_path = processing_result.get('modified_pptx_filepath')
+            if not modified_pptx_path:
+                generation_time = round(time.time() - generation_start_time, 2)
+                reason = processing_result.get('reason_for_no_modification') or "No modified PPTX was produced by the pipeline."
+                progress.append(request_id, "No modified PPTX produced; skipping PDF conversion")
+                return {
+                    "error": reason,
+                    "request_id": request_id,
+                    "generation_time_seconds": generation_time,
+                }
+
+            pred_pdf = convert_pptx_to_pdf(modified_pptx_path, GENERATED_PDFS_FOLDER)
+            progress.append(request_id, "Converted prediction to PDF")
+
             generation_time = round(time.time() - generation_start_time, 2)
-            processing_result['generation_time_seconds'] = generation_time
-            return jsonify(processing_result), 500
+            progress.append(request_id, f"Finished processing (took {generation_time}s)")
+            # Always generate the public preview URL for the MS Viewer fallback
+            # The file is in MODIFIED_PPTX_FOLDER, so we use the 'public_modified' route
+            public_preview_url = url_for('public_modified', filename=Path(modified_pptx_path).name, _external=True)
 
-        modified_pptx_path = processing_result.get('modified_pptx_filepath')
-        if not modified_pptx_path:
-            generation_time = round(time.time() - generation_start_time, 2)
-            reason = processing_result.get('reason_for_no_modification') or "No modified PPTX was produced by the pipeline."
-            progress.append(request_id, "No modified PPTX produced; skipping PDF conversion")
-            return jsonify({
-                "error": reason,
-                "request_id": request_id,
-                "generation_time_seconds": generation_time,
-            }), 500
+            return {
+                'prediction_pdf_name': Path(pred_pdf).name if pred_pdf else None,
+                'prediction_pptx_name': Path(modified_pptx_path).name if modified_pptx_path else None,
+                'modified_pptx_filepath': str(modified_pptx_path) if modified_pptx_path else None,
+                'public_preview_url': public_preview_url,
+                'message': 'Processing successful!' if pred_pdf else 'Processing successful (PDF preview unavailable, using MS Viewer).',
+                'request_id': request_id,
+                'generation_time_seconds': generation_time,
+                'loop_mode_enabled': processing_result.get('loop_mode_enabled', False),
+                'loop_iterations_requested': processing_result.get('loop_iterations_requested'),
+                'loop_iterations_completed': processing_result.get('loop_iterations_completed'),
+                'loop_iteration_summaries': processing_result.get('loop_iteration_summaries'),
+                'planning_plan': processing_result.get('planning_plan'),
+                'planning_model': processing_result.get('planning_model'),
+            }
 
-        pred_pdf = convert_pptx_to_pdf(modified_pptx_path, GENERATED_PDFS_FOLDER)
-        progress.append(request_id, "Converted prediction to PDF")
-
-        generation_time = round(time.time() - generation_start_time, 2)
-        progress.append(request_id, f"Finished processing (took {generation_time}s)")
-        # Always generate the public preview URL for the MS Viewer fallback
-        # The file is in MODIFIED_PPTX_FOLDER, so we use the 'public_modified' route
-        public_preview_url = url_for('public_modified', filename=Path(modified_pptx_path).name, _external=True)
-
-        return jsonify({
-            'prediction_pdf_name': Path(pred_pdf).name if pred_pdf else None,
-            'prediction_pptx_name': Path(modified_pptx_path).name if modified_pptx_path else None,
-            'modified_pptx_filepath': str(modified_pptx_path) if modified_pptx_path else None,
-            'public_preview_url': public_preview_url,
-            'message': 'Processing successful!' if pred_pdf else 'Processing successful (PDF preview unavailable, using MS Viewer).',
-            'request_id': request_id,
-            'generation_time_seconds': generation_time,
-            'loop_mode_enabled': processing_result.get('loop_mode_enabled', False),
-            'loop_iterations_requested': processing_result.get('loop_iterations_requested'),
-            'loop_iterations_completed': processing_result.get('loop_iterations_completed'),
-            'loop_iteration_summaries': processing_result.get('loop_iteration_summaries'),
-            'planning_plan': processing_result.get('planning_plan'),
-            'planning_model': processing_result.get('planning_model'),
-        })
+        from flask import current_app
+        return stream_long_task(current_app._get_current_object().app_context(), background_processing)
     except AttributeError as e:
         # Explicitly catch the circular import error and return it as JSON
         error_message = {
@@ -562,50 +605,54 @@ def process_ppt_route():
     progress.start(request_id)
     progress.append(request_id, "Started processing presentation")
     
-    # Process the presentation
-    processing_result = orchestrator.process_presentation_hybrid(
-        original_filepath=str(original_filepath),
-        prompt_text=prompt_text,
-        selected_model_id=selected_model_id,
-        use_pre_analysis=use_pre_analysis,
-        request_id=request_id,
-        api_keys=api_keys,
-        session_id=session_id,
-        force_python_pptx=force_python_pptx
-    )
-    
-    if processing_result.get("error"):
-        return jsonify(processing_result), 500
-    
-    # Set up URLs for the response
-    processing_result["session_id"] = session_id
-    processing_result["original_pptx_download_url"] = f"/download_original/{session_id}/original.pptx"
-    processing_result["original_pptx_url"] = f"/preview_ppt/original/{session_id}/original.pptx"
-    
-    if processing_result.get("modified_pptx_filepath"):
-        modified_path = Path(processing_result["modified_pptx_filepath"])
-        if modified_path.exists():
-            # Copy to session directory only if it's a different file
-            session_modified_path = session_path / 'modified.pptx'
-            try:
-                if modified_path.resolve() != session_modified_path.resolve():
-                    shutil.copy(modified_path, session_modified_path)
-            except shutil.SameFileError:
-                # File is already in the right place, no need to copy
-                pass
-            
-            processing_result["modified_pptx_download_url"] = f"/download_modified/{session_id}/modified.pptx"
-            processing_result["modified_pptx_url"] = f"/preview_ppt/modified/{session_id}/modified.pptx"
-            # Generate public preview URL for Microsoft Live viewer
-            # Use preview_modified_ppt route which serves from session folder
-            processing_result["public_preview_url"] = url_for('preview_modified_ppt', session_id=session_id, filename='modified.pptx', _external=True)
-            pdf_url = generate_pdf_preview_url(session_modified_path)
-            if pdf_url:
-                processing_result["pdf_preview_url"] = pdf_url
-    
-    progress.append(request_id, "Finished processing")
-    processing_result["request_id"] = request_id
-    return jsonify(processing_result)
+    def background_processing():
+        # Process the presentation
+        processing_result = orchestrator.process_presentation_hybrid(
+            original_filepath=str(original_filepath),
+            prompt_text=prompt_text,
+            selected_model_id=selected_model_id,
+            use_pre_analysis=use_pre_analysis,
+            request_id=request_id,
+            api_keys=api_keys,
+            session_id=session_id,
+            force_python_pptx=force_python_pptx
+        )
+        
+        if processing_result.get("error"):
+            return processing_result
+        
+        # Set up URLs for the response
+        processing_result["session_id"] = session_id
+        processing_result["original_pptx_download_url"] = f"/download_original/{session_id}/original.pptx"
+        processing_result["original_pptx_url"] = f"/preview_ppt/original/{session_id}/original.pptx"
+        
+        if processing_result.get("modified_pptx_filepath"):
+            modified_path = Path(processing_result["modified_pptx_filepath"])
+            if modified_path.exists():
+                # Copy to session directory only if it's a different file
+                session_modified_path = session_path / 'modified.pptx'
+                try:
+                    if modified_path.resolve() != session_modified_path.resolve():
+                        shutil.copy(modified_path, session_modified_path)
+                except shutil.SameFileError:
+                    # File is already in the right place, no need to copy
+                    pass
+                
+                processing_result["modified_pptx_download_url"] = f"/download_modified/{session_id}/modified.pptx"
+                processing_result["modified_pptx_url"] = f"/preview_ppt/modified/{session_id}/modified.pptx"
+                # Generate public preview URL for Microsoft Live viewer
+                # Use preview_modified_ppt route which serves from session folder
+                processing_result["public_preview_url"] = url_for('preview_modified_ppt', session_id=session_id, filename='modified.pptx', _external=True)
+                pdf_url = generate_pdf_preview_url(session_modified_path)
+                if pdf_url:
+                    processing_result["pdf_preview_url"] = pdf_url
+        
+        progress.append(request_id, "Finished processing")
+        processing_result["request_id"] = request_id
+        return processing_result
+
+    from flask import current_app
+    return stream_long_task(current_app._get_current_object().app_context(), background_processing)
 
 @app.route('/save_evaluation_result', methods=['POST'])
 def save_evaluation_result():
@@ -811,55 +858,59 @@ def edit_existing_ppt_route():
     progress.start(request_id)
     progress.append(request_id, "Started editing session presentation")
     
-    # Process the presentation. This function is now the core logic.
-    processing_result = orchestrator.process_presentation_hybrid(
-        original_filepath=str(current_ppt_path),
-        prompt_text=prompt_text,
-        selected_model_id=selected_model_id,
-        use_pre_analysis=use_pre_analysis,
-        request_id=request_id,
-        api_keys=api_keys,
-        session_id=session_id, # Pass session_id to logic
-        force_python_pptx=force_python_pptx
-    )
+    def background_processing():
+        # Process the presentation. This function is now the core logic.
+        processing_result = orchestrator.process_presentation_hybrid(
+            original_filepath=str(current_ppt_path),
+            prompt_text=prompt_text,
+            selected_model_id=selected_model_id,
+            use_pre_analysis=use_pre_analysis,
+            request_id=request_id,
+            api_keys=api_keys,
+            session_id=session_id, # Pass session_id to logic
+            force_python_pptx=force_python_pptx
+        )
 
-    if processing_result.get("error"):
-        return jsonify(processing_result), 500
+        if processing_result.get("error"):
+            return processing_result
 
-    # Overwrite the 'modified.pptx' with the new version while keeping history
-    if processing_result.get("modified_pptx_filepath"):
-        newly_modified_path = Path(processing_result["modified_pptx_filepath"])
-        if newly_modified_path.exists():
-            # Save the previous version before overwriting
-            history_files = sorted(session_path.glob("history_*.pptx"))
-            next_idx = len(history_files) + 1
-            history_path = session_path / f"history_{next_idx}.pptx"
-            if current_ppt_path.exists() and current_ppt_path.resolve() != history_path.resolve():
-                shutil.copy(current_ppt_path, history_path)
+        # Overwrite the 'modified.pptx' with the new version while keeping history
+        if processing_result.get("modified_pptx_filepath"):
+            newly_modified_path = Path(processing_result["modified_pptx_filepath"])
+            if newly_modified_path.exists():
+                # Save the previous version before overwriting
+                history_files = sorted(session_path.glob("history_*.pptx"))
+                next_idx = len(history_files) + 1
+                history_path = session_path / f"history_{next_idx}.pptx"
+                if current_ppt_path.exists() and current_ppt_path.resolve() != history_path.resolve():
+                    shutil.copy(current_ppt_path, history_path)
 
-            # Replace the current modifiable file if different
-            if newly_modified_path.resolve() != current_ppt_path.resolve():
-                shutil.copy(newly_modified_path, current_ppt_path)
-
-
-            # Update URLs for frontend
-            processing_result["modified_pptx_download_url"] = f"/download_modified/{session_id}/modified.pptx"
-            processing_result["modified_pptx_url"] = f"/preview_ppt/modified/{session_id}/modified.pptx"
-            processing_result["original_pptx_download_url"] = f"/download_original/{session_id}/{history_path.name}"
-            processing_result["original_pptx_url"] = f"/preview_ppt/original/{session_id}/{history_path.name}"
-            # Generate public preview URL for Microsoft Live viewer
-            # History files are in session folder, served by preview_original_ppt? No, download_original serves from session.
-            # We need a route to serve history files publicly.
-            # preview_original_ppt serves from session folder.
-            processing_result["public_preview_url"] = url_for('preview_original_ppt', session_id=session_id, filename=history_path.name, _external=True)
-            pdf_url = generate_pdf_preview_url(current_ppt_path)
-            if pdf_url:
-                processing_result["pdf_preview_url"] = pdf_url
+                # Replace the current modifiable file if different
+                if newly_modified_path.resolve() != current_ppt_path.resolve():
+                    shutil.copy(newly_modified_path, current_ppt_path)
 
 
-    progress.append(request_id, "Finished processing")
-    processing_result["request_id"] = request_id
-    return jsonify(processing_result)
+                # Update URLs for frontend
+                processing_result["modified_pptx_download_url"] = f"/download_modified/{session_id}/modified.pptx"
+                processing_result["modified_pptx_url"] = f"/preview_ppt/modified/{session_id}/modified.pptx"
+                processing_result["original_pptx_download_url"] = f"/download_original/{session_id}/{history_path.name}"
+                processing_result["original_pptx_url"] = f"/preview_ppt/original/{session_id}/{history_path.name}"
+                # Generate public preview URL for Microsoft Live viewer
+                # History files are in session folder, served by preview_original_ppt? No, download_original serves from session.
+                # We need a route to serve history files publicly.
+                # preview_original_ppt serves from session folder.
+                processing_result["public_preview_url"] = url_for('preview_original_ppt', session_id=session_id, filename=history_path.name, _external=True)
+                pdf_url = generate_pdf_preview_url(current_ppt_path)
+                if pdf_url:
+                    processing_result["pdf_preview_url"] = pdf_url
+
+
+        progress.append(request_id, "Finished processing")
+        processing_result["request_id"] = request_id
+        return processing_result
+
+    from flask import current_app
+    return stream_long_task(current_app._get_current_object().app_context(), background_processing)
 
 @app.route('/progress', methods=['GET'])
 def get_progress():

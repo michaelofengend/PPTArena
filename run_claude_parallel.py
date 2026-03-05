@@ -25,6 +25,7 @@ def run_claude(case):
     except subprocess.CalledProcessError as e:
         print(f"❌ Failed: {case_name}")
         print(f"Error output: {e.stderr}")
+        print(f"Standard output: {e.stdout}")
 
 if __name__ == "__main__":
     # Load your JSON file

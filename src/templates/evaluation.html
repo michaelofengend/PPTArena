@@ -1698,6 +1698,12 @@
                 if (chatLoader) chatLoader.style.display = 'none';
                 if (response.ok) {
                     const data = await response.json();
+
+                    if (data.error) {
+                        displayChatMessage(`Error: ${data.error}`, 'error');
+                        return;
+                    }
+
                     document.getElementById('chat_prompt').value = '';
 
                     if (data.session_id && !currentSessionId) {
