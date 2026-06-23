@@ -15,6 +15,8 @@ We introduce **PPTArena**, a benchmark for PowerPoint editing that measures reli
 
 Building on this setting, we propose **PPTPilot**, a structure-aware slide-editing agent that plans semantic edit sequences, routes between high-level programmatic tools and deterministic XML operations for precise control, and verifies outputs through an iterative plan-edit-check loop against task-specific constraints. In our experiments, PPTPilot outperforms strong proprietary agents and frontier VLM systems by over 10 percentage points on compound, layout-sensitive, and cross-slide edits, with particularly large gains in visual fidelity and deck-wide consistency.
 
+Our benchmark is also available on hugging face: https://huggingface.co/datasets/mofengenden/PPTArena
+
 ## Features
 
 - **Agentic Editing**: Edit PowerPoint presentations using natural language instructions.
