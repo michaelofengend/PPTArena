@@ -548,7 +548,7 @@ def call_llm_router(
     if use_openai:
         router_model_id = "gpt-5-nano-2025-08-07"
     else:
-        router_model_id = "gemini-2.5-flash"
+        router_model_id = "gemini-3-flash-preview"
     
     _log(f"Calling LLM Router to decide editing strategy via {router_model_id} (User preferred: {preferred_model_id})...", request_id)
 

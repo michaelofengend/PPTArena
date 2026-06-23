@@ -12,6 +12,8 @@ from pathlib import Path
 import base64
 import re
 import subprocess
+import zipfile
+import shutil
 
 try:
     import aspose.slides as slides

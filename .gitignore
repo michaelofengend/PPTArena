@@ -6,3 +6,41 @@ __pycache__/
 .DS_Store
 credentials.env
 .env
+
+# Regenerable benchmark / evaluation outputs
+benchmark_outputs/
+benchmark_report.html
+benchmark_results.json
+evaluation_report.html
+evaluation_results_bulk.json
+claude_evaluation_report.html
+claude_evaluation_results.json
+processing_log.csv
+src/processing_log.csv
+src/25_sample.json
+25_sample_pptpilot.json
+
+# Dead/duplicate module (kept locally for legacy research scripts, not shipped)
+src/ppt_processor.py
+
+# Local research artifacts / model samples (not part of the public benchmark)
+claude_edits/
+ChatGPTVersions/
+ChatGPTAgentSamples/
+MiniMaxSamples/
+GPTAgent Predictions/
+PPTArenaSupplementaryUpdated/
+PPTArenaECCV2026/
+demo/
+DemoVideos_v1/
+human_eval/
+
+# Large media files (never commit to git; host externally)
+*.mov
+*.mp4
+*.zip
+
+# Research run outputs (regenerable; not part of the public benchmark)
+src/benchmark_runs/
+src/Main Results/
+src/*.csv

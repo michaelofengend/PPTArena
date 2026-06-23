@@ -125,8 +125,9 @@ def main():
     # Load API keys
     api_keys = llm_utils.load_api_keys()
     if "gemini" not in api_keys:
-        print("Warning: GEMINI_API_KEY not found in credentials.env or environment variables. Using fallback.")
-        api_keys["gemini"] = "AIzaSyDs_ZT-I97kC_cNtJixpqxyiPXnUfL0GVI"
+        print("Error: GEMINI_API_KEY not found in credentials.env or environment variables.")
+        print("Set GEMINI_API_KEY (and OPENAI_API_KEY) in credentials.env before running the benchmark.")
+        return
 
     # Load benchmark pairs
     try:

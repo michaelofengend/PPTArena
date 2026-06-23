@@ -36,7 +36,7 @@ WebApp: https://ppt-arena.onrender.com/evaluation
 - `src/`: Core application code (Flask app, LLM handlers, PPT processing) and configuration files (`requirements.txt`, `evaluation_pairs_refined.json`).
 - `Original/`: Benchmark dataset - Original PowerPoint files.
 - `GroundTruth/`: Benchmark dataset - Ground Truth PowerPoint files.
-- `paper/`: Contains the paper LaTeX source and figures.
+- `run_benchmark.py` / `run_evaluation.py`: Scripts to run the benchmark and score predictions with the LLM judge.
 
 ## Installation
 

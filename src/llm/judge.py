@@ -17,10 +17,12 @@ import numpy as np
 from llm.utils import (
     load_api_keys,
     _create_openai_client,
+    _create_kimi_client,
     _configure_gemini_client,
     _build_gemini_generation_config,
     extract_json_from_llm_response,
     _extract_text_from_openai_response,
+    _is_kimi_model,
     _is_openai_model,
     _log
 )
@@ -61,21 +63,34 @@ def call_llm_judge(
     if not judge_model:
         judge_model = "gemini-3-pro-preview"
 
-    use_openai = _is_openai_model(judge_model)
+    use_kimi = _is_kimi_model(judge_model)
+    use_openai = _is_openai_model(judge_model) and not use_kimi
     openai_client = None
+    kimi_client = None
     gemini_key = None
 
     # Resolve API key
     if not api_key and api_keys:
         if use_openai:
-            api_key = api_keys.get("openai")
+            api_key = api_keys.get("openai") or api_keys.get("openai_api_key")
+        elif use_kimi:
+            api_key = (
+                api_keys.get("moonshot")
+                or api_keys.get("moonshot_api_key")
+                or api_keys.get("kimi")
+                or api_keys.get("kimi_api_key")
+            )
         else:
-            api_key = api_keys.get("gemini")
+            api_key = api_keys.get("gemini") or api_keys.get("gemini_api_key")
 
     if use_openai:
         openai_client = _create_openai_client(api_key)
         if openai_client is None:
             return {"error": "OpenAI API key for judging not found."}
+    elif use_kimi:
+        kimi_client = _create_kimi_client(api_key)
+        if kimi_client is None:
+            return {"error": "Kimi/Moonshot API key for judging not found."}
     else:
         if not api_key:
             keys = load_api_keys()
@@ -97,6 +112,23 @@ def call_llm_judge(
     instruction_text, style_target_text = _split_instruction_and_style(user_prompt)
 
     print(f"Calling LLM Judge ({judge_model})...")
+
+    def _call_kimi_chat_json(system_prompt: str, user_content, max_tokens: int = 2048) -> dict:
+        response = kimi_client.chat.completions.create(
+            model=judge_model,
+            messages=[
+                {"role": "system", "content": system_prompt.strip()},
+                {"role": "user", "content": user_content},
+            ],
+            max_tokens=max_tokens,
+            extra_body={"thinking": {"type": "disabled"}},
+        )
+        response_text = (response.choices[0].message.content or "").strip()
+        parsed = extract_json_from_llm_response(response_text)
+        if not isinstance(parsed, dict):
+            raise ValueError(f"Failed to parse JSON from Kimi judge output: {response_text[:200]}")
+        return parsed
+
     # Alignment suggestion, quality of prediction criteria. 
     # The prompt is now the same for both modes, with a strict rubric emphasizing content preservation and deterministic, explicit scoring.
     # Split rubrics: one for instruction following and one for visual preservation
@@ -263,6 +295,9 @@ Ground Truth is ONE valid example - accept other valid approaches that fulfill t
                     ],
                 )
                 response_text = _extract_text_from_openai_response(response).strip()
+            elif use_kimi:
+                parsed = _call_kimi_chat_json(system_prompt_json, prompt.strip())
+                response_text = json.dumps(parsed)
             else:
                 _configure_gemini_client(judge_model, gemini_key)
                 base_config = {
@@ -372,19 +407,25 @@ Output a single JSON object with:
 
             style_block = style_target_text.strip() if style_target_text else "Not provided."
 
-            if use_openai:
-                def _send_openai(content_items):
-                    response = openai_client.responses.create(
-                        model=judge_model,
-                        input=[
-                            {"role": "system", "content": [{"type": "input_text", "text": system_prompt_visual.strip()}]},
-                            {"role": "user", "content": content_items},
-                        ],
-                    )
-                    response_text = _extract_text_from_openai_response(response).strip()
-                    parsed = extract_json_from_llm_response(response_text)
+            if use_openai or use_kimi:
+                provider_name = "OpenAI" if use_openai else "Kimi"
+                text_part_type = "input_text" if use_openai else "text"
+
+                def _send_openai_compatible(content_items):
+                    if use_openai:
+                        response = openai_client.responses.create(
+                            model=judge_model,
+                            input=[
+                                {"role": "system", "content": [{"type": "input_text", "text": system_prompt_visual.strip()}]},
+                                {"role": "user", "content": content_items},
+                            ],
+                        )
+                        response_text = _extract_text_from_openai_response(response).strip()
+                        parsed = extract_json_from_llm_response(response_text)
+                    else:
+                        parsed = _call_kimi_chat_json(system_prompt_visual, content_items, max_tokens=1024)
                     if not isinstance(parsed, dict):
-                        raise ValueError(f"Failed to parse JSON from GPT judge output: {response_text[:200]}")
+                        raise ValueError(f"Failed to parse JSON from {provider_name} judge output")
                     return parsed
 
                 def _extract_visual_fields(parsed: dict):
@@ -415,11 +456,14 @@ Output a single JSON object with:
                     for idx in indices:
                         if idx < len(images) and images[idx]:
                             data_url = f"data:image/png;base64,{images[idx]}"
-                            content.append({"type": "input_text", "text": f"{label}_SLIDE_{idx+1}"})
-                            content.append({"type": "input_image", "image_url": data_url})
+                            content.append({"type": text_part_type, "text": f"{label}_SLIDE_{idx+1}"})
+                            if use_openai:
+                                content.append({"type": "input_image", "image_url": data_url})
+                            else:
+                                content.append({"type": "image_url", "image_url": {"url": data_url}})
 
                 if total_slides < 5:
-                    _log(f"[VisualJudge] Small deck mode (OpenAI): GT={olen}, Pred={mlen}", request_id)
+                    _log(f"[VisualJudge] Small deck mode ({provider_name}): GT={olen}, Pred={mlen}", request_id)
                     prompt_text = f"""
 --- User Instruction ---
 {instruction_text or user_prompt}
@@ -443,12 +487,12 @@ Return only:
 - visual_quality_score (0-5)
 - visual_quality_reason (one sentence, specific evidence about visual differences)
 """
-                    content = [{"type": "input_text", "text": prompt_text.strip()}]
+                    content = [{"type": text_part_type, "text": prompt_text.strip()}]
                     _append_sequence("GROUND_TRUTH", original_list, list(range(olen)), content)
                     _append_sequence("PREDICTION", modified_list, list(range(mlen)), content)
-                    parsed = _send_openai(content)
+                    parsed = _send_openai_compatible(content)
                     vscore, vreason = _extract_visual_fields(parsed)
-                    _log(f"[VisualJudge] Small deck (OpenAI) result: score={vscore}, reason='{vreason}'", request_id)
+                    _log(f"[VisualJudge] Small deck ({provider_name}) result: score={vscore}, reason='{vreason}'", request_id)
                     return {"visual_quality_score": vscore, "visual_quality_reason": vreason}
 
                 SSIM_THRESHOLD = float(os.environ.get("VISUAL_SSIM_THRESH", "0.9995"))
@@ -514,19 +558,19 @@ Return only:
 - visual_quality_score (0-5)
 - visual_quality_reason (one sentence, specific evidence about visual differences)
 """
-                    content = [{"type": "input_text", "text": prompt_text.strip()}]
+                    content = [{"type": text_part_type, "text": prompt_text.strip()}]
                     _append_sequence("GROUND_TRUTH", original_list, batch, content)
                     _append_sequence("PREDICTION", modified_list, batch, content)
-                    parsed = _send_openai(content)
+                    parsed = _send_openai_compatible(content)
                     vscore, vreason = _extract_visual_fields(parsed)
                     batch_scores.append(vscore)
                     batch_reasons.append(vreason)
-                    _log(f"[VisualJudge] Batch slides {[i+1 for i in batch]} (OpenAI) → score={vscore}, reason='{vreason}'", request_id)
+                    _log(f"[VisualJudge] Batch slides {[i+1 for i in batch]} ({provider_name}) → score={vscore}, reason='{vreason}'", request_id)
 
                 if batch_scores:
                     min_score = round(min(batch_scores), 2)
                     reason_text = " | ".join([r for r in batch_reasons if r][:3])
-                    _log(f"[VisualJudge] Final visual score (OpenAI, min of batches) = {min_score}", request_id)
+                    _log(f"[VisualJudge] Final visual score ({provider_name}, min of batches) = {min_score}", request_id)
                     return {"visual_quality_score": min_score, "visual_quality_reason": reason_text}
                 return {"visual_quality_score": 0.0, "visual_quality_reason": "no_batches_evaluated"}
 

@@ -76,7 +76,7 @@ def decide_editing_strategy(
         preferred_model_id=selected_model_id,
     )
 
-def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json_data: dict, selected_model_id: str, api_key: str):
+def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json_data: dict, selected_model_id: str, api_key: str, trajectory=None):
     """
     Manages the two-step LLM chain for python-pptx editing.
     1. Generate content.
@@ -85,7 +85,7 @@ def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json
     """
     print("Orchestrator: Executing python-pptx edit path...")
     progress.append(ppt_json_data.get('request_id',''), "Orchestrator chose PYTHON_PPTX_EDIT")
-    
+
     # --- Step 1: Content Generation ---
     progress.append(ppt_json_data.get('request_id',''), "Calling content planning LLM (python-pptx)")
     generated_content = llm_handler.generate_content_for_python_pptx(
@@ -97,8 +97,19 @@ def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json
     )
 
     if not generated_content or "error" in generated_content:
-        return {"error": f"Failed to generate content: {generated_content.get('error', 'Unknown error')}"}
-    
+        err = f"Failed to generate content: {generated_content.get('error', 'Unknown error')}"
+        if trajectory:
+            trajectory.log("execute", "python_pptx", "content_gen_failed",
+                           "python-pptx content planning failed — escalating to XML path",
+                           error=err, badge_label="PY❌")
+        return {"error": err}
+
+    if trajectory:
+        trajectory.log("plan", "python_pptx", "content_plan",
+                       "python-pptx content plan generated",
+                       plan_text=json.dumps(generated_content, indent=2)[:2000],
+                       badge_label="PY PLAN")
+
     # --- Step 2: Code Generation ---
     progress.append(ppt_json_data.get('request_id',''), "Calling code generation LLM (python-pptx)")
     generated_code = llm_handler.generate_python_pptx_code(
@@ -111,12 +122,31 @@ def _execute_python_pptx_edit(original_filepath: str, user_prompt: str, ppt_json
     )
 
     if not generated_code or generated_code.strip().startswith("print('Error"):
-        return {"error": f"Failed to generate code: {generated_code}"}
+        err = f"Failed to generate code: {generated_code}"
+        if trajectory:
+            trajectory.log("execute", "python_pptx", "code_gen_failed",
+                           "python-pptx code generation failed — escalating to XML path",
+                           error=err, badge_label="PY❌")
+        return {"error": err}
 
     # --- Step 3: Secure Execution ---
     progress.append(ppt_json_data.get('request_id',''), "Executing generated python-pptx code")
     modified_pptx_path = _securely_execute_generated_code(original_filepath, generated_code, generated_content)
-    
+
+    if trajectory:
+        if modified_pptx_path:
+            trajectory.log("execute", "python_pptx", "code_executed",
+                           "python-pptx script executed — partial edits applied",
+                           before_pptx=original_filepath,
+                           after_pptx=modified_pptx_path,
+                           badge_label="PY EDIT",
+                           extra={"code_snippet": generated_code[:500]})
+        else:
+            trajectory.log("execute", "python_pptx", "exec_failed",
+                           "python-pptx execution failed — core theme edit needs XML",
+                           error="Script execution returned None",
+                           badge_label="PY❌")
+
     return {"modified_pptx_filepath": modified_pptx_path, "generated_code": generated_code, "generated_content": generated_content}
 
 
@@ -185,6 +215,7 @@ def _execute_xml_edit(
     session_id: str = None,
     edit_history=None,
     image_inputs=None,
+    trajectory=None,
 ):
     """
     The original XML processing logic, now housed in the orchestrator.
@@ -223,6 +254,10 @@ def _execute_xml_edit(
         llm_received_images = bool(image_inputs_for_llm)
 
         progress.append(request_id, "Planning XML edits with GPT router and calling main LLM")
+        if trajectory:
+            trajectory.log("plan", "xml", "xml_planning",
+                           "LLM analysing PPTX structure and planning XML edits",
+                           after_pptx=original_filepath, badge_label="XML PLAN")
         llm_result = llm_handler.get_llm_response(
             user_prompt=prompt_text,
             ppt_json_data=json_data,
@@ -235,6 +270,12 @@ def _execute_xml_edit(
             edit_history=edit_history,
         )
         actual_model_used = llm_result.get("model_used", selected_model_id)
+        if trajectory:
+            plan_txt = llm_result.get("planning_plan", "") or ""
+            trajectory.log("plan", "xml", "xml_plan_received",
+                           f"XML edit plan received ({len(plan_txt)} chars)",
+                           plan_text=plan_txt[:3000] if plan_txt else None,
+                           badge_label="XML PLAN")
         parsed_modified_xml_map = llm_handler.parse_llm_response_for_xml_changes(
             llm_result.get("text_response", "")
         )
@@ -303,6 +344,19 @@ def _execute_xml_edit(
                 modified_pptx_filepath = MODIFIED_PPTX_FOLDER / modified_pptx_filename_secure
             
             progress.append(request_id, "Applying XML modifications and creating modified PPTX")
+            if trajectory:
+                touched_slides = sorted(list(edited_slide_numbers))
+                changed_xml_files = list(parsed_modified_xml_map.keys())
+                summary = f"Patching {len(changed_xml_files)} XML file(s): {', '.join(changed_xml_files[:3])}"
+                if len(changed_xml_files) > 3:
+                    summary += f" … (+{len(changed_xml_files)-3} more)"
+                trajectory.log("execute", "xml", "xml_patch_applied",
+                               summary,
+                               after_pptx=None,  # filled after creation below
+                               before_pptx=original_filepath,
+                               slides_touched=touched_slides,
+                               badge_label="XML EDIT",
+                               extra={"xml_files_changed": changed_xml_files})
             time_pptx_modify_start = time.time()
             creation_success = create_modified_pptx(
                 original_filepath, 
@@ -312,6 +366,20 @@ def _execute_xml_edit(
             time_pptx_modify_end = time.time()
 
             if creation_success:
+                if trajectory:
+                    primary_xml = next(
+                        (f for f in parsed_modified_xml_map if "theme" in f or "slide" in f),
+                        next(iter(parsed_modified_xml_map), None)
+                    )
+                    xdiff = trajectory.xml_diff(original_filepath, str(modified_pptx_filepath), primary_xml) if primary_xml else ""
+                    trajectory.log("verify", "xml", "xml_verified",
+                                   f"Modified PPTX created — {len(edited_slide_numbers)} slide(s) changed",
+                                   before_pptx=original_filepath,
+                                   after_pptx=str(modified_pptx_filepath),
+                                   slides_touched=sorted(list(edited_slide_numbers)),
+                                   xml_diff_file=primary_xml,
+                                   verification={"pptx_valid": True, "slides_changed": len(edited_slide_numbers)},
+                                   badge_label="VERIFY")
                 if session_id:
                     modified_pptx_download_url = f"/download_modified/{session_id}/modified.pptx"
                 else:
@@ -421,6 +489,7 @@ def _process_single_iteration(
     session_id: str = None,
     edit_history=None,
     force_python_pptx: bool = False,
+    trajectory=None,
 ):
     """Run a single pass of the hybrid pipeline (XML vs python-pptx)."""
     print(f"[Orchestrator] Hybrid processing start (request_id={request_id})")
@@ -447,6 +516,7 @@ def _process_single_iteration(
                 ppt_json_data=ppt_json_data,
                 selected_model_id=selected_model_id,
                 api_key=api_key,
+                trajectory=trajectory,
             )
         return _execute_xml_edit(
             original_filepath=original_filepath,
@@ -458,17 +528,28 @@ def _process_single_iteration(
             session_id=session_id,
             edit_history=edit_history,
             image_inputs=image_inputs,
+            trajectory=trajectory,
         )
 
     if force_python_pptx:
         progress.append(request_id, "Router bypassed: python-pptx only toggle enabled")
         strategy = "PYTHON_PPTX_EDIT"
+        if trajectory:
+            trajectory.log("route", "router", "force_python_pptx",
+                           "Router bypassed — forced python-pptx path",
+                           after_pptx=original_filepath,
+                           badge_label="ROUTE")
     else:
         progress.append(request_id, "Routing: deciding editing strategy")
-        # For OpenAI models, force using credentials.env key inside the handler
         strategy = decide_editing_strategy(prompt_text, ppt_json_data, api_key, request_id, selected_model_id=selected_model_id)
         print(f"[Orchestrator] Strategy chosen → {strategy}")
         progress.append(request_id, f"Router decision: {strategy}")
+        if trajectory:
+            route_label = "python_pptx" if strategy == "PYTHON_PPTX_EDIT" else "xml"
+            trajectory.log("route", "router", "router_decision",
+                           f"Router decided: {strategy}",
+                           after_pptx=original_filepath,
+                           badge_label="ROUTE")
 
     result = _run_strategy(prompt_text, strategy)
 
@@ -500,6 +581,7 @@ def process_presentation_hybrid(
     force_python_pptx: bool = False,
     loop_mode: bool = False,
     loop_max_iterations: int = 1,
+    trajectory=None,
 ):
     """Execute the hybrid pipeline once or looped up to the requested iterations."""
 
@@ -519,6 +601,7 @@ def process_presentation_hybrid(
             session_id=session_id,
             edit_history=edit_history,
             force_python_pptx=force_python_pptx,
+            trajectory=trajectory,
         )
 
     iteration_summaries = []
@@ -530,6 +613,11 @@ def process_presentation_hybrid(
             request_id,
             f"Loop iteration {iteration_idx}/{normalized_iterations}: starting from {Path(current_input).name}",
         )
+        if trajectory:
+            trajectory.log("reflect", "xml", f"loop_iter_{iteration_idx}",
+                           f"Reflection pass {iteration_idx}/{normalized_iterations}: re-evaluating from {Path(current_input).name}",
+                           after_pptx=current_input,
+                           badge_label=f"LOOP {iteration_idx}")
         iteration_result = _process_single_iteration(
             original_filepath=current_input,
             prompt_text=prompt_text,
@@ -542,6 +630,7 @@ def process_presentation_hybrid(
             session_id=session_id,
             edit_history=edit_history,
             force_python_pptx=force_python_pptx,
+            trajectory=trajectory,
         )
 
         summary_entry = {

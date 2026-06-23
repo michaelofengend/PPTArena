@@ -8,8 +8,9 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 import openai
 from typing import Optional
 
-CREDENTIALS_FILE = "credentials.env"
+CREDENTIALS_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "credentials.env")
 API_KEYS = {}
+DEFAULT_MOONSHOT_BASE_URL = "https://api.moonshot.ai/v1"
 
 def _log(message, request_id=None):
     """Helper function for logging with an optional request ID."""
@@ -79,12 +80,20 @@ def load_api_keys():
                         line = line.strip()
                         if line and not line.startswith('#') and '=' in line:
                             key, value = line.split('=', 1)
+                            value = value.strip().strip('"').strip("'")
                             if key.strip().upper() == "OPENAI_API_KEY":
-                                API_KEYS["openai"] = value.strip()
+                                API_KEYS["openai"] = value
                             elif key.strip().upper() == "OPENAI_ORG_ID":
                                 API_KEYS["openai_org_id"] = value.strip()
                             elif key.strip().upper() == "GEMINI_API_KEY":
                                 API_KEYS["gemini"] = value.strip()
+                            elif key.strip().upper() == "MOONSHOT_API_KEY":
+                                API_KEYS["moonshot"] = value.strip()
+                                API_KEYS["kimi"] = value.strip()
+                            elif key.strip().upper() == "KIMI_API_KEY":
+                                API_KEYS["kimi"] = value.strip()
+                            elif key.strip().upper() == "MOONSHOT_BASE_URL":
+                                API_KEYS["moonshot_base_url"] = value.strip()
                 file_loaded = True
         except Exception as e:
             _log(f"Error loading {CREDENTIALS_FILE}: {e}")
@@ -94,12 +103,22 @@ def load_api_keys():
         env_openai = os.environ.get("OPENAI_API_KEY")
         env_openai_org = os.environ.get("OPENAI_ORG_ID")
         env_gemini = os.environ.get("GEMINI_API_KEY")
+        env_moonshot = os.environ.get("MOONSHOT_API_KEY")
+        env_kimi = os.environ.get("KIMI_API_KEY")
+        env_moonshot_base_url = os.environ.get("MOONSHOT_BASE_URL")
         if env_openai and "openai" not in API_KEYS:
             API_KEYS["openai"] = env_openai
         if env_openai_org and "openai_org_id" not in API_KEYS:
             API_KEYS["openai_org_id"] = env_openai_org
         if env_gemini and "gemini" not in API_KEYS:
             API_KEYS["gemini"] = env_gemini
+        if env_moonshot:
+            API_KEYS.setdefault("moonshot", env_moonshot)
+            API_KEYS.setdefault("kimi", env_moonshot)
+        if env_kimi and "kimi" not in API_KEYS:
+            API_KEYS["kimi"] = env_kimi
+        if env_moonshot_base_url and "moonshot_base_url" not in API_KEYS:
+            API_KEYS["moonshot_base_url"] = env_moonshot_base_url
 
         # Only warn if nothing was found anywhere
         if not API_KEYS and not file_loaded:
@@ -120,11 +139,29 @@ def _create_openai_client(api_key: Optional[str] = None):
         _log(f"Error creating OpenAI client: {e}", None)
         return None
 
+def _create_kimi_client(api_key: Optional[str] = None):
+    keys = load_api_keys()
+    resolved_key = api_key or keys.get("moonshot") or keys.get("kimi")
+    if not resolved_key:
+        return None
+    base_url = keys.get("moonshot_base_url") or DEFAULT_MOONSHOT_BASE_URL
+    try:
+        return openai.OpenAI(api_key=resolved_key, base_url=base_url)
+    except Exception as e:
+        _log(f"Error creating Kimi/Moonshot client: {e}", None)
+        return None
+
 def _is_openai_model(model_id: Optional[str]) -> bool:
     if not model_id:
         return False
     lowered = model_id.lower()
     return any(token in lowered for token in ["gpt", "openai", "o1", "o3", "o4", "gpt-5"])
+
+def _is_kimi_model(model_id: Optional[str]) -> bool:
+    if not model_id:
+        return False
+    lowered = model_id.lower()
+    return "kimi" in lowered or "moonshot" in lowered
 
 def _extract_text_from_openai_response(resp) -> str:
     text_out = getattr(resp, "output_text", None)
