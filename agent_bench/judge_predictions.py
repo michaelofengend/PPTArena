@@ -335,9 +335,9 @@ def main() -> None:
 
     keys = llm_handler.load_api_keys()
     if is_openai_judge(args.judge_model):
-        if not keys.get("openai_api_key"):
+        if not (keys.get("openai") or keys.get("openai_api_key")):
             sys.exit("OPENAI_API_KEY missing from credentials.env; required for gpt-* judges.")
-    elif not keys.get("gemini_api_key"):
+    elif not (keys.get("gemini") or keys.get("gemini_api_key")):
         sys.exit("GEMINI_API_KEY missing from credentials.env; required for gemini-* judges.")
 
     artifacts_cache = CaseArtifacts()
