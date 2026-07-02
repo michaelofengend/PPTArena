@@ -77,7 +77,26 @@ Consistency rules: identical 25-case subset for all agents; both metrics from th
 
 ---
 
-## 2. Deterministic scoring method
+## 2. Judging: Gemini 3.5 Flash as the standard judge
+
+Status: **active** (deterministic scoring below is parked — reference-anchored
+checks penalize valid alternate solutions too often).
+
+- `agent_bench/judge_predictions.py` now defaults to `gemini-3.5-flash`, with
+  ground-truth artifact caching (renders computed once per case, shared across
+  systems) and `--samples N` per-metric median aggregation for variance control.
+- **Comparability rule:** scores from different judges must not be ranked against
+  each other. Before the Flash-judged cohort lands on the main board, re-judge the
+  existing systems' predictions with the same Flash judge so the whole leaderboard
+  is single-judge. Validate first: run Flash over one already-judged prediction set
+  and check per-case correlation + ranking preservation vs the GPT-5.2 numbers.
+- **Rubric hygiene:** `src/audit_cases.py` runs deterministic integrity checks over
+  all 100 cases (deck/rubric mismatches, missing literals, slide-count changes) and
+  emits an HTML review report — run it before any large judging campaign. First run
+  found one broken rubric (Case 12 references slides the deck doesn't have) and a
+  ~25-case human-review queue.
+
+## 3. Deterministic scoring method (parked)
 
 ### Why
 

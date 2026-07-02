@@ -75,17 +75,30 @@ tail -f agent_bench/run.log
 
 ## 4. Score later (any machine with the repo)
 
-Needs `credentials.env` with `OPENAI_API_KEY` at the repo root and LibreOffice
-installed (slide rendering).
+Judging defaults to **Gemini 3.5 Flash**. Needs `credentials.env` at the repo root
+with `GEMINI_API_KEY` (or `OPENAI_API_KEY` if you pass a `gpt-*` judge) and
+LibreOffice installed (slide rendering).
 
 ```bash
-python3 agent_bench/judge_predictions.py --agents all --max-workers 4
+python3 agent_bench/judge_predictions.py --agents all              # single-sample
+python3 agent_bench/judge_predictions.py --agents all --samples 3  # median of 3 (steadier)
 ```
+
+Speed notes: ground-truth renders/JSON/XML are computed once per case and cached
+(`benchmark_outputs/judge_render_cache/`), then shared across all six agents and
+re-runs — only prediction decks are rendered per judgement. Flash is cheap enough
+that `--samples 3` is the recommended setting for leaderboard numbers.
 
 Writes `agent_bench/results/<agent_id>_judge_results.csv` (same schema as the
 existing judge runs; subset cases without a prediction get zero rows so coverage is
 always 25/25). Commit the CSVs and push — the leaderboard picks them up
 automatically, on the deployed site too.
+
+Before the first real scoring run, audit the benchmark data itself:
+
+```bash
+python3 src/audit_cases.py            # integrity checks + HTML review report
+```
 
 ## 5. Decision gate
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Score agent_bench predictions with the standard PPTArena arena judge.
+Score agent_bench predictions with the PPTArena arena judge (VLM-as-a-judge).
 
 Reads predictions from agent_bench/predictions/<agent_id>/<case_slug>.pptx
 (produced by run_agents.py), judges each against the ground truth, and writes
@@ -8,16 +8,27 @@ agent_bench/results/<agent_id>_judge_results.csv in the same schema as the
 existing judge scripts — the webapp leaderboard picks these files up
 automatically (sources are pre-registered in src/app.py).
 
+Judge model defaults to Gemini 3.5 Flash; any model id llm_handler knows
+(gemini-*, gpt-*, kimi-*) works via --judge-model. Two go-fast/go-steady
+features:
+
+- Ground-truth artifacts (slide renders, JSON, XML) are computed once per case
+  and cached — on disk for renders (benchmark_outputs/judge_render_cache/),
+  in memory for the rest — then reused across all agents and re-runs. Only
+  the prediction deck is rendered per judgement.
+- --samples N judges each case N times and takes the per-metric median,
+  reducing judge variance (cheap with Flash-class models).
+
 Cases in the split that have no prediction get zero-score rows, so every CSV
 always covers the full split (missing work is penalized, not hidden).
 
 Usage:
     python3 agent_bench/judge_predictions.py --agents all
-    python3 agent_bench/judge_predictions.py --agents codex_gpt55 --max-workers 4
+    python3 agent_bench/judge_predictions.py --agents codex_gpt55 --samples 3
 
-Requires credentials.env with OPENAI_API_KEY (judge model) and LibreOffice
-for slide rendering — scoring can run on any machine with the repo, it does
-not need the agent CLIs.
+Requires credentials.env at the repo root with GEMINI_API_KEY (default judge)
+or OPENAI_API_KEY (gpt-* judges), and LibreOffice for slide rendering. Scoring
+runs on any machine with the repo; it does not need the agent CLIs.
 """
 
 from __future__ import annotations
@@ -26,6 +37,7 @@ import argparse
 import base64
 import csv
 import json
+import statistics
 import sys
 import tempfile
 import time
@@ -52,8 +64,9 @@ SUBSET_PATH = AGENT_BENCH_DIR / "subset25.json"
 AGENTS_PATH = AGENT_BENCH_DIR / "agents.json"
 PREDICTIONS_ROOT = AGENT_BENCH_DIR / "predictions"
 RESULTS_ROOT = AGENT_BENCH_DIR / "results"
+RENDER_CACHE_ROOT = PROJECT_ROOT / "benchmark_outputs" / "judge_render_cache"
 
-DEFAULT_JUDGE_MODEL = "gpt-5.1-2025-11-13"
+DEFAULT_JUDGE_MODEL = "gemini-3.5-flash"
 
 CSV_FIELDS = [
     "case_index",
@@ -76,6 +89,11 @@ def image_to_base64(image_path: str) -> str | None:
             return base64.b64encode(fh.read()).decode("utf-8")
     except Exception:
         return None
+
+
+def is_openai_judge(model_id: str) -> bool:
+    lower = (model_id or "").lower()
+    return any(tok in lower for tok in ("gpt", "openai", "o1", "o3", "o4"))
 
 
 def extract_case_index(name: str) -> int:
@@ -104,7 +122,43 @@ def compose_prompt(prompt: str, style_target: str) -> str:
     return instruction
 
 
-def zero_row(case: dict, prediction: Path | None, reason: str, judge_model: str) -> dict:
+def render_cached(pptx_path: Path, cache_dir: Path) -> list[str]:
+    """Render slides to PNGs once; reuse the cache on subsequent calls."""
+    if cache_dir.is_dir():
+        cached = sorted(str(p) for p in cache_dir.glob("*.png"))
+        if cached:
+            return cached
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    return export_slides_to_images(str(pptx_path), str(cache_dir))
+
+
+class CaseArtifacts:
+    """Prediction-independent judge inputs, computed once per case."""
+
+    def __init__(self) -> None:
+        self._store: dict[str, dict] = {}
+        self._locks: dict[str, Lock] = {}
+        self._master = Lock()
+
+    def get(self, case: dict) -> dict:
+        name = case["name"]
+        with self._master:
+            lock = self._locks.setdefault(name, Lock())
+        with lock:
+            if name not in self._store:
+                initial_path = (PROJECT_ROOT / case["original"]).resolve()
+                gt_path = (PROJECT_ROOT / case["ground_truth"]).resolve()
+                gt_imgs = render_cached(gt_path, RENDER_CACHE_ROOT / slugify(name) / "gt")
+                self._store[name] = {
+                    "init_json": pptx_to_json(str(initial_path)),
+                    "gt_json": pptx_to_json(str(gt_path)),
+                    "gt_b64": [b for b in (image_to_base64(p) for p in gt_imgs) if b],
+                    "gt_xml": extract_specific_xml_from_pptx(str(gt_path), "ppt/slides/slide1.xml") or "",
+                }
+            return self._store[name]
+
+
+def zero_row(case: dict, prediction: Path | None, reason: str, judge_label: str) -> dict:
     return {
         "case_index": extract_case_index(case["name"]),
         "case_name": case["name"],
@@ -114,77 +168,95 @@ def zero_row(case: dict, prediction: Path | None, reason: str, judge_model: str)
         "visual_quality_score": "0.00",
         "instruction_following_reason": reason,
         "visual_quality_reason": reason,
-        "judge_model": judge_model,
+        "judge_model": judge_label,
         "judge_time_seconds": "0.000",
         "errors": reason,
     }
 
 
-def judge_case(case: dict, prediction_path: Path, api_key: str, judge_model: str) -> dict:
-    initial_path = (PROJECT_ROOT / case["original"]).resolve()
-    ground_truth_path = (PROJECT_ROOT / case["ground_truth"]).resolve()
+def call_judge_once(case: dict, artifacts: dict, pred_json: dict, pred_b64: list[str],
+                    pred_xml: str, api_keys: dict, judge_model: str) -> dict:
+    return llm_handler.call_llm_judge(
+        user_prompt=compose_prompt(case.get("prompt", ""), case.get("style_target", "")),
+        judge_model=judge_model,
+        initial_ppt_json=artifacts["init_json"],
+        original_ppt_json=artifacts["gt_json"],
+        modified_ppt_json=pred_json,
+        original_slide_images_b64=artifacts["gt_b64"],
+        modified_slide_images_b64=pred_b64,
+        original_slide_xml=artifacts["gt_xml"],
+        modified_slide_xml=pred_xml,
+        evaluation_mode="arena",
+        api_keys=api_keys,
+    )
 
+
+def judge_case(case: dict, prediction_path: Path, artifacts_cache: CaseArtifacts,
+               api_keys: dict, judge_model: str, samples: int, judge_label: str) -> dict:
     try:
-        init_json = pptx_to_json(str(initial_path))
-        gt_json = pptx_to_json(str(ground_truth_path))
+        artifacts = artifacts_cache.get(case)
         pred_json = pptx_to_json(str(prediction_path))
-
         with tempfile.TemporaryDirectory() as tmpdir:
-            tmp = Path(tmpdir)
-            gt_imgs = export_slides_to_images(str(ground_truth_path), str(tmp / "gt"))
-            pred_imgs = export_slides_to_images(str(prediction_path), str(tmp / "pred"))
-            gt_b64 = [b for b in (image_to_base64(p) for p in gt_imgs) if b]
+            pred_imgs = export_slides_to_images(str(prediction_path), str(Path(tmpdir) / "pred"))
             pred_b64 = [b for b in (image_to_base64(p) for p in pred_imgs) if b]
-
-        gt_xml = extract_specific_xml_from_pptx(str(ground_truth_path), "ppt/slides/slide1.xml") or ""
         pred_xml = extract_specific_xml_from_pptx(str(prediction_path), "ppt/slides/slide1.xml") or ""
     except Exception as exc:
-        return zero_row(case, prediction_path, f"Artifact prep error: {exc}", judge_model)
+        return zero_row(case, prediction_path, f"Artifact prep error: {exc}", judge_label)
 
     start = time.time()
-    try:
-        response = llm_handler.call_llm_judge(
-            user_prompt=compose_prompt(case.get("prompt", ""), case.get("style_target", "")),
-            judge_model=judge_model,
-            initial_ppt_json=init_json,
-            original_ppt_json=gt_json,
-            modified_ppt_json=pred_json,
-            original_slide_images_b64=gt_b64,
-            modified_slide_images_b64=pred_b64,
-            original_slide_xml=gt_xml,
-            modified_slide_xml=pred_xml,
-            evaluation_mode="arena",
-            api_key=api_key,
-        )
-    except Exception as exc:
-        return zero_row(case, prediction_path, f"Judge call failed: {exc}", judge_model)
-
+    valid: list[dict] = []
+    errors: list[str] = []
+    for _ in range(samples):
+        try:
+            response = call_judge_once(case, artifacts, pred_json, pred_b64, pred_xml,
+                                       api_keys, judge_model)
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"Judge call failed: {exc}")
+            continue
+        if isinstance(response, dict) and not response.get("error"):
+            valid.append(response)
+        else:
+            errors.append(response.get("error", "Invalid judge response.")
+                          if isinstance(response, dict) else "Invalid judge response.")
     judge_time = round(time.time() - start, 3)
-    if not isinstance(response, dict) or response.get("error"):
-        reason = response.get("error", "Invalid judge response.") if isinstance(response, dict) else "Invalid judge response."
-        row = zero_row(case, prediction_path, reason, judge_model)
+
+    if not valid:
+        row = zero_row(case, prediction_path, " | ".join(errors) or "No valid judge response.", judge_label)
         row["judge_time_seconds"] = f"{judge_time:.3f}"
         return row
+
+    if_scores = [float(r.get("instruction_following_score") or 0.0) for r in valid]
+    vq_scores = [float(r.get("visual_quality_score") or 0.0) for r in valid]
+    if_final = statistics.median(if_scores)
+    vq_final = statistics.median(vq_scores)
+    # Reasons come from the sample closest to the aggregated scores.
+    representative = min(
+        valid,
+        key=lambda r: abs(float(r.get("instruction_following_score") or 0.0) - if_final)
+        + abs(float(r.get("visual_quality_score") or 0.0) - vq_final),
+    )
 
     return {
         "case_index": extract_case_index(case["name"]),
         "case_name": case["name"],
         "category": normalize_category(case.get("category")),
         "prediction": str(prediction_path),
-        "instruction_following_score": f"{float(response.get('instruction_following_score') or 0.0):.2f}",
-        "visual_quality_score": f"{float(response.get('visual_quality_score') or 0.0):.2f}",
-        "instruction_following_reason": (response.get("instruction_following_reason") or "").strip()
+        "instruction_following_score": f"{if_final:.2f}",
+        "visual_quality_score": f"{vq_final:.2f}",
+        "instruction_following_reason": (representative.get("instruction_following_reason") or "").strip()
         or "No instruction reasoning returned.",
-        "visual_quality_reason": (response.get("visual_quality_reason") or "").strip()
+        "visual_quality_reason": (representative.get("visual_quality_reason") or "").strip()
         or "No visual reasoning returned.",
-        "judge_model": judge_model,
+        "judge_model": judge_label,
         "judge_time_seconds": f"{judge_time:.3f}",
-        "errors": "",
+        "errors": " | ".join(errors),
     }
 
 
-def judge_agent(agent_id: str, cases: list[dict], api_key: str, judge_model: str,
+def judge_agent(agent_id: str, cases: list[dict], artifacts_cache: CaseArtifacts,
+                api_keys: dict, judge_model: str, samples: int,
                 max_workers: int, resume: bool) -> None:
+    judge_label = judge_model if samples == 1 else f"{judge_model} (median of {samples})"
     output_path = RESULTS_ROOT / f"{agent_id}_judge_results.csv"
     RESULTS_ROOT.mkdir(parents=True, exist_ok=True)
 
@@ -197,7 +269,7 @@ def judge_agent(agent_id: str, cases: list[dict], api_key: str, judge_model: str
             csv.DictWriter(fh, fieldnames=CSV_FIELDS).writeheader()
 
     todo = [c for c in cases if c["name"] not in done]
-    print(f"\n=== {agent_id}: judging {len(todo)} case(s) "
+    print(f"\n=== {agent_id}: judging {len(todo)} case(s) with {judge_label} "
           f"({len(done)} already in {output_path.name}) ===")
     if not todo:
         return
@@ -215,8 +287,8 @@ def judge_agent(agent_id: str, cases: list[dict], api_key: str, judge_model: str
     def work(case: dict) -> dict:
         prediction = PREDICTIONS_ROOT / agent_id / f"{slugify(case['name'])}.pptx"
         if not prediction.exists():
-            return zero_row(case, prediction, "Prediction PPTX missing for this case.", judge_model)
-        return judge_case(case, prediction, api_key, judge_model)
+            return zero_row(case, prediction, "Prediction PPTX missing for this case.", judge_label)
+        return judge_case(case, prediction, artifacts_cache, api_keys, judge_model, samples, judge_label)
 
     with ThreadPoolExecutor(max_workers=max_workers) as pool:
         futures = {pool.submit(work, case): case for case in todo}
@@ -225,7 +297,7 @@ def judge_agent(agent_id: str, cases: list[dict], api_key: str, judge_model: str
             try:
                 row = future.result()
             except Exception as exc:  # noqa: BLE001
-                row = zero_row(case, None, f"Unhandled judge exception: {exc}", judge_model)
+                row = zero_row(case, None, f"Unhandled judge exception: {exc}", judge_label)
             emit(row)
 
 
@@ -237,11 +309,15 @@ def main() -> None:
                         help="Judge the matched 25-case subset (default) or all 100 cases.")
     parser.add_argument("--judge-model", default=DEFAULT_JUDGE_MODEL,
                         help=f"Judge model id (default: {DEFAULT_JUDGE_MODEL}).")
-    parser.add_argument("--max-workers", type=int, default=4,
-                        help="Concurrent judge calls per agent (default: 4).")
+    parser.add_argument("--samples", type=int, default=1,
+                        help="Judge each case N times and take the per-metric median (default: 1).")
+    parser.add_argument("--max-workers", type=int, default=6,
+                        help="Concurrent judge calls per agent (default: 6).")
     parser.add_argument("--no-resume", action="store_true",
                         help="Rewrite result CSVs from scratch instead of appending missing cases.")
     args = parser.parse_args()
+    if args.samples < 1:
+        parser.error("--samples must be at least 1.")
 
     agents = json.loads(AGENTS_PATH.read_text(encoding="utf-8"))
     agent_ids = list(agents) if args.agents == "all" else [a.strip() for a in args.agents.split(",")]
@@ -258,13 +334,16 @@ def main() -> None:
     pairs.sort(key=lambda c: extract_case_index(c["name"]))
 
     keys = llm_handler.load_api_keys()
-    api_key = keys.get("openai_api_key")
-    if not api_key:
-        sys.exit("OPENAI_API_KEY missing from credentials.env; required for judging.")
+    if is_openai_judge(args.judge_model):
+        if not keys.get("openai_api_key"):
+            sys.exit("OPENAI_API_KEY missing from credentials.env; required for gpt-* judges.")
+    elif not keys.get("gemini_api_key"):
+        sys.exit("GEMINI_API_KEY missing from credentials.env; required for gemini-* judges.")
 
+    artifacts_cache = CaseArtifacts()
     for agent_id in agent_ids:
-        judge_agent(agent_id, pairs, api_key, args.judge_model,
-                    args.max_workers, resume=not args.no_resume)
+        judge_agent(agent_id, pairs, artifacts_cache, keys, args.judge_model,
+                    args.samples, args.max_workers, resume=not args.no_resume)
 
     print("\nAll done. Result CSVs are in agent_bench/results/ — commit them and the "
           "leaderboard rows appear automatically (sources pre-registered in src/app.py).")
