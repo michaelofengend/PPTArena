@@ -43,6 +43,11 @@ src/benchmark_runs/
 src/Main Results/
 src/*.csv
 
+# Agent-bench heavy artifacts (predictions ship to HF, not git; results/ IS tracked)
+agent_bench/workdirs/
+agent_bench/predictions/
+agent_bench/run.log
+
 # EXCEPTION: leaderboard source data is tracked (force-added with `git add -f`)
 # because the deployed webapp reads these files to build the leaderboard:
 #   evaluation_results_bulk.json

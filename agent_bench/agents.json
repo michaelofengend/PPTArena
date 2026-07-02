@@ -1,0 +1,72 @@
+{
+  "codex_gpt55": {
+    "display_name": "Codex (GPT-5.5 xhigh)",
+    "run": [
+      "codex", "exec",
+      "--dangerously-bypass-approvals-and-sandbox",
+      "-m", "gpt-5.5",
+      "-c", "model_reasoning_effort=xhigh",
+      "{prompt}"
+    ],
+    "check": ["codex", "--version"],
+    "timeout_seconds": 2400,
+    "auth_hint": "Run `codex login` (ChatGPT account) or export OPENAI_API_KEY. Verify model id with `codex exec -m gpt-5.5 'say ok'`."
+  },
+  "claude_code_opus48": {
+    "display_name": "Claude Code (Opus 4.8 max)",
+    "run": [
+      "claude",
+      "-p", "{prompt}",
+      "--model", "claude-opus-4-8",
+      "--dangerously-skip-permissions"
+    ],
+    "check": ["claude", "--version"],
+    "timeout_seconds": 2400,
+    "auth_hint": "Run `claude` once to log in with the Max-plan account (or `claude setup-token`)."
+  },
+  "opencode_glm52": {
+    "display_name": "OpenCode (GLM-5.2 max)",
+    "run": [
+      "opencode", "run",
+      "-m", "zhipuai/glm-5.2",
+      "{prompt}"
+    ],
+    "check": ["opencode", "--version"],
+    "timeout_seconds": 2400,
+    "auth_hint": "Run `opencode auth login` and pick the Zhipu/Z.AI provider; confirm the exact model id with `opencode models | grep -i glm`."
+  },
+  "gemini_cli_35flash": {
+    "display_name": "Gemini CLI (3.5 Flash)",
+    "run": [
+      "gemini",
+      "-m", "gemini-3.5-flash",
+      "--yolo",
+      "-p", "{prompt}"
+    ],
+    "check": ["gemini", "--version"],
+    "timeout_seconds": 1800,
+    "auth_hint": "Run `gemini` once for the Google OAuth flow, or export GEMINI_API_KEY."
+  },
+  "opencode_minimax_m3": {
+    "display_name": "OpenCode (MiniMax-M3)",
+    "run": [
+      "opencode", "run",
+      "-m", "minimax/minimax-m3",
+      "{prompt}"
+    ],
+    "check": ["opencode", "--version"],
+    "timeout_seconds": 2400,
+    "auth_hint": "Run `opencode auth login` and pick MiniMax; confirm the exact model id with `opencode models | grep -i minimax`."
+  },
+  "opencode_deepseek_v4": {
+    "display_name": "OpenCode (DeepSeek V4 Pro)",
+    "run": [
+      "opencode", "run",
+      "-m", "deepseek/deepseek-v4-pro",
+      "{prompt}"
+    ],
+    "check": ["opencode", "--version"],
+    "timeout_seconds": 2400,
+    "auth_hint": "Run `opencode auth login` and pick DeepSeek; confirm the exact model id with `opencode models | grep -i deepseek`."
+  }
+}

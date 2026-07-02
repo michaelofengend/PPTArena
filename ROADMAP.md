@@ -27,7 +27,30 @@ Two tracks: (1) grow leaderboard coverage with more models, (2) add a determinis
 3. **Re-run Kimi K2.6 live** (25 cases) to replace the paper-reported entry with a run whose raw judge outputs live in the repo.
 4. **Re-score PPTPilot (Gemini 3.1 Pro)'s 3 missing full-set cases** so it's 100/100.
 
-### Wave 2 — new backbones through PPTPilot (API-driven, cheap to add)
+### Wave 2 — VM coding-agent cohort (scaffolded in `agent_bench/`, runs when the VM lands)
+
+Six CLI coding agents run headlessly over the benchmark on a dedicated VM, five
+processes at a time, with scoring decoupled (judge later, anywhere):
+
+| Agent | Backbone |
+|---|---|
+| Codex CLI | GPT-5.5, xhigh reasoning |
+| Claude Code | Opus 4.8 (Max plan) |
+| OpenCode | GLM-5.2 |
+| Gemini CLI | Gemini 3.5 Flash |
+| OpenCode | MiniMax-M3 |
+| OpenCode | DeepSeek V4 Pro |
+
+Workflow: `run_agents.py --check` → smoke test → `run_agents.py --parallel 5` on the
+25-case hard subset → download predictions → `judge_predictions.py` → commit CSVs to
+`agent_bench/results/` (leaderboard sources are pre-registered, rows appear on push).
+See [agent_bench/README.md](agent_bench/README.md) for the full VM playbook.
+
+**PPTPilot retirement gate:** if every agent in the cohort outscores both PPTPilot
+rows on the matched subset (38.8 and 30.4), PPTPilot moves off the headline
+leaderboard (kept in the paper and repo history as the reference system).
+
+### Wave 3 — new backbones through PPTPilot (API-driven, cheap to add)
 
 The `run_dual_model_benchmark.py` pattern (editor model + judge model → per-case CSV) works for any model `llm_handler` can call:
 
@@ -37,7 +60,7 @@ The `run_dual_model_benchmark.py` pattern (editor model + judge model → per-ca
 
 Subset first (25 cases) for every new backbone; promote to full 100 only if the subset score is competitive (>25) — this keeps judge cost proportional to signal.
 
-### Wave 3 — agent products (manual or scaffolded runs)
+### Wave 4 — agent products (manual or scaffolded runs)
 
 - **Microsoft Copilot in PowerPoint** — the most on-thesis competitor; runs are manual (upload deck, paste instruction, export), same protocol as the ChatGPT Agent / MiniMax samples.
 - **Claude Code / computer-use agents, Manus-style agents** — batch-scriptable where APIs allow.
