@@ -12,9 +12,7 @@ benchmark_outputs/
 benchmark_report.html
 benchmark_results.json
 evaluation_report.html
-evaluation_results_bulk.json
 claude_evaluation_report.html
-claude_evaluation_results.json
 processing_log.csv
 src/processing_log.csv
 src/25_sample.json
@@ -44,3 +42,13 @@ human_eval/
 src/benchmark_runs/
 src/Main Results/
 src/*.csv
+
+# EXCEPTION: leaderboard source data is tracked (force-added with `git add -f`)
+# because the deployed webapp reads these files to build the leaderboard:
+#   evaluation_results_bulk.json
+#   claude_evaluation_results.json
+#   src/Main Results/evaluation_results_rejudged.csv
+#   src/Main Results/chatgpt_judge_results.csv
+#   src/Main Results/chatgpt_agent_samples_judge_results1.csv
+#   src/benchmark_runs/minimax_agent_samples_judge_results.csv
+#   src/benchmark_runs/gemini_cli_subset25_rejudge_gpt51.csv
