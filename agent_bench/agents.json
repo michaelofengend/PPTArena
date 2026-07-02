@@ -15,6 +15,7 @@
   "claude_code_opus48": {
     "display_name": "Claude Code (Opus 4.8 max)",
     "run": [
+      "env", "IS_SANDBOX=1",
       "claude",
       "-p", "{prompt}",
       "--model", "claude-opus-4-8",
@@ -28,7 +29,7 @@
     "display_name": "OpenCode (GLM-5.2 max)",
     "run": [
       "opencode", "run",
-      "-m", "zhipuai/glm-5.2",
+      "-m", "zai-coding-plan/glm-5.2",
       "{prompt}"
     ],
     "check": ["opencode", "--version"],
@@ -51,7 +52,7 @@
     "display_name": "OpenCode (MiniMax-M3)",
     "run": [
       "opencode", "run",
-      "-m", "minimax/minimax-m3",
+      "-m", "minimax-coding-plan/MiniMax-M3",
       "{prompt}"
     ],
     "check": ["opencode", "--version"],
