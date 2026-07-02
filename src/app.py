@@ -359,6 +359,19 @@ LEADERBOARD_SOURCES = [
         "judge": "Gemini 3.5 Flash judge",
         "defines_subset": False,
     },
+    {
+        "name": "OpenCode (Kimi K2.7 Code)",
+        "model": "Kimi K2.7 Code",
+        "provider": "Moonshot AI · OpenCode",
+        "brand": "Kimi",
+        "icon": "K",
+        "color": "#16181d",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "opencode_kimi_k27code_judge_results.csv",
+        "judge": "Gemini 3.5 Flash judge",
+        "defines_subset": False,
+    },
 ]
 
 # Systems reported in the PPTArena paper for which no live result file exists in

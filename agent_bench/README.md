@@ -1,6 +1,6 @@
 # agent_bench — CLI coding agents on PPTArena
 
-Scaffolding for running six CLI coding agents across the PPTArena benchmark on a VM.
+Scaffolding for running seven CLI coding agents across the PPTArena benchmark on a VM.
 Generation and scoring are **decoupled**: the VM only generates predictions; judging
 can run later on any machine with the repo and an OpenAI key.
 
@@ -12,6 +12,7 @@ can run later on any machine with the repo and an OpenAI key.
 | `gemini_cli_35flash` | Gemini CLI | Gemini 3.5 Flash |
 | `opencode_minimax_m3` | OpenCode | MiniMax-M3 |
 | `opencode_deepseek_v4` | OpenCode | DeepSeek V4 Pro |
+| `opencode_kimi_k27code` | OpenCode | Kimi K2.7 Code (Moonshot key under the `moonshotai` provider) |
 
 Exact CLI flags and model ids live in [`agents.json`](agents.json) — tweak there if a
 CLI has drifted; no code changes needed. Leaderboard entries for all six are already

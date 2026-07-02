@@ -69,5 +69,16 @@
     "check": ["opencode", "--version"],
     "timeout_seconds": 2400,
     "auth_hint": "Run `opencode auth login` and pick DeepSeek; confirm the exact model id with `opencode models | grep -i deepseek`."
+  },
+  "opencode_kimi_k27code": {
+    "display_name": "OpenCode (Kimi K2.7 Code)",
+    "run": [
+      "opencode", "run",
+      "-m", "moonshotai/kimi-k2.7-code",
+      "{prompt}"
+    ],
+    "check": ["opencode", "--version"],
+    "timeout_seconds": 2400,
+    "auth_hint": "Moonshot platform key registered under the `moonshotai` provider (not `kimi-for-coding`); confirm with `opencode models | grep -i moonshot`."
   }
 }
