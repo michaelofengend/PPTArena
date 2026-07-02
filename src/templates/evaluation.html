@@ -4,881 +4,1805 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PPTPilot | Arena & Chat</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    <title>PPTArena — LLM PowerPoint Editing Benchmark</title>
+    <meta name="description"
+        content="PPTArena is a benchmark for agentic PowerPoint editing: 100 real decks, 1,300+ paired edit instructions, scored on instruction following and visual quality by VLM judges.">
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23111827'/%3E%3Ctext x='16' y='22' font-family='Arial' font-size='17' font-weight='800' fill='white' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700;800&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg: #f5f7fb;
-            --ink: #0f172a;
+            --ink: #111827;
+            --ink-2: #374151;
             --muted: #6b7280;
-            --card: rgba(255, 255, 255, 0.9);
+            --faint: #9ca3af;
             --border: #e5e7eb;
-            --accent: #4f46e5;
-            --accent-2: #0ea5e9;
+            --border-strong: #d1d5db;
+            --hairline: #f3f4f6;
+            --bg: #ffffff;
+            --bg-subtle: #f9fafb;
+            --accent: #2563eb;
+            --accent-soft: #eff6ff;
+            --green: #047857;
+            --red: #b91c1c;
+            --amber: #b45309;
         }
 
         * {
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
-            background: radial-gradient(120% 120% at 12% 20%, rgba(79, 70, 229, 0.12), transparent 40%), radial-gradient(120% 120% at 88% 0%, rgba(14, 165, 233, 0.14), transparent 42%), var(--bg);
-            color: var(--ink);
-            min-height: 100vh;
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 76px;
         }
 
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--ink);
+            background: var(--bg);
+            font-feature-settings: 'cv11' 1;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4 {
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .num {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ---------- Top bar ---------- */
         .topbar {
             position: sticky;
             top: 0;
-            z-index: 40;
-            backdrop-filter: saturate(180%) blur(10px);
-            background: rgba(255, 255, 255, 0.72);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
         }
 
-        .nav-link {
-            color: #475569;
-            font-weight: 600;
-        }
-
-        .nav-link:hover {
-            color: #0f172a;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.25rem 0.65rem;
-            border-radius: 9999px;
-            background: linear-gradient(120deg, rgba(79, 70, 229, 0.12), rgba(14, 165, 233, 0.1));
-            color: #1f2937;
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-
-        .page {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 1.75rem 1.5rem 2.5rem 1.5rem;
-        }
-
-        .hero {
-            background: linear-gradient(120deg, rgba(79, 70, 229, 0.08), rgba(14, 165, 233, 0.08));
-            border: 1px solid rgba(226, 232, 240, 0.9);
-            border-radius: 1.25rem;
-            padding: 1.6rem;
-            display: grid;
-            gap: 1rem;
-            grid-template-columns: 2fr 1.1fr;
-            box-shadow: 0 18px 38px -25px rgba(15, 23, 42, 0.35);
-        }
-
-        .hero h1 {
-            font-size: clamp(1.6rem, 2vw, 2.2rem);
-            letter-spacing: -0.02em;
-        }
-
-        .hero p {
-            color: var(--muted);
-            max-width: 46ch;
-        }
-
-        .hero-metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 0.65rem;
-        }
-
-        .metric {
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid var(--border);
-            border-radius: 0.9rem;
-            padding: 0.75rem;
+        .topbar-inner {
             display: flex;
             align-items: center;
-            gap: 0.65rem;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            justify-content: space-between;
+            gap: 24px;
+            height: 58px;
         }
 
-        .metric-icon {
-            height: 32px;
-            width: 32px;
-            border-radius: 0.75rem;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 15.5px;
+            letter-spacing: -0.01em;
+        }
+
+        .brand-mark {
+            width: 27px;
+            height: 27px;
+            border-radius: 7px;
+            background: var(--ink);
+            color: #fff;
             display: grid;
             place-items: center;
-            background: #eef2ff;
-            color: var(--accent);
-            font-weight: 700;
+            font-size: 13.5px;
+            font-weight: 800;
         }
 
-        .metric>div span {
-            color: var(--muted);
-            font-size: 0.78rem;
-            display: block;
-        }
-
-        .metric>div strong {
-            font-size: 1.05rem;
-        }
-
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 1rem;
-            padding: 1.1rem;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 20px 40px -30px rgba(15, 23, 42, 0.35);
-            transition: transform .15s ease, box-shadow .2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 28px 52px -34px rgba(15, 23, 42, 0.42);
-        }
-
-        .card h3 {
+        .topnav {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-            margin-bottom: 0.85rem;
+            gap: 26px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--muted);
         }
 
-        .eyebrow {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #4b5563;
-            font-weight: 700;
-        }
-
-        .input-field {
-            width: 100%;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.65rem;
-            padding: 0.7rem 0.85rem;
-            background: rgba(255, 255, 255, 0.9);
-            transition: border-color 0.2s, box-shadow 0.2s;
-            font-size: 0.95rem;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
-        }
-
-        .hint {
-            font-size: 0.82rem;
-            color: #6b7280;
-        }
-
-        .surface {
-            background: #f8fafc;
-            border: 1px dashed #e2e8f0;
-            border-radius: 0.9rem;
-            padding: 0.9rem;
-        }
-
-        .chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .chip {
-            background: #eef2ff;
-            color: #312e81;
-            padding: 0.35rem 0.7rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-
-        .btn {
-            position: relative;
-            padding: 0.78rem 1rem;
-            border-radius: 0.9rem;
-            font-weight: 700;
-            text-align: center;
-            border: 1px solid #dfe3ee;
-            background: linear-gradient(120deg, #111827, #0f172a);
-            color: white;
-            box-shadow: 0 12px 30px -16px rgba(15, 23, 42, 0.45), 0 2px 4px rgba(0, 0, 0, 0.08);
-            transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease;
-            overflow: hidden;
-        }
-
-        .btn.secondary {
-            background: white;
+        .topnav a:hover {
             color: var(--ink);
         }
 
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 20px 40px -25px rgba(15, 23, 42, 0.35);
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn:active {
-            transform: translateY(0);
+        .icon-link {
+            display: grid;
+            place-items: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            color: var(--muted);
+        }
+
+        .icon-link:hover {
+            color: var(--ink);
+            background: var(--hairline);
+        }
+
+        .icon-link svg {
+            width: 17px;
+            height: 17px;
+        }
+
+        /* API keys popover */
+        details.keys {
+            position: relative;
+        }
+
+        details.keys summary {
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        details.keys summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.keys summary:hover {
+            color: var(--ink);
+            border-color: var(--border-strong);
+        }
+
+        details.keys[open] summary {
+            color: var(--ink);
+        }
+
+        .keys-panel {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            width: 288px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 12px 32px -12px rgba(17, 24, 39, 0.18);
+            padding: 16px;
+            z-index: 60;
+        }
+
+        /* ---------- Buttons, inputs, misc primitives ---------- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 9px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--ink);
+            background: var(--ink);
+            color: #fff;
+            font-size: 13.5px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background .15s ease, border-color .15s ease, color .15s ease;
+        }
+
+        .btn:hover {
+            background: #000;
+        }
+
+        .btn.outline {
+            background: #fff;
+            color: var(--ink);
+            border-color: var(--border-strong);
+        }
+
+        .btn.outline:hover {
+            border-color: var(--faint);
+            background: var(--bg-subtle);
+        }
+
+        .btn.small {
+            padding: 6px 12px;
+            font-size: 12.5px;
+            border-radius: 7px;
+        }
+
+        .btn:disabled {
+            opacity: .55;
+            cursor: default;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--ink-2);
+            margin-bottom: 6px;
+        }
+
+        .input {
+            width: 100%;
+            font-family: inherit;
+            font-size: 13.5px;
+            color: var(--ink);
+            padding: 8px 10px;
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            background: #fff;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.13);
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 7px;
+            border: 1px solid var(--border-strong);
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            vertical-align: 2px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--bg-subtle);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--ink-2);
+        }
+
+        .chip .num {
+            color: var(--faint);
+        }
+
+        /* ---------- Hero ---------- */
+        .hero {
+            padding-top: 64px;
+            padding-bottom: 44px;
+        }
+
+        .kicker {
+            font-size: 11.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+        }
+
+        .hero h1 {
+            font-size: clamp(34px, 5vw, 50px);
+            font-weight: 800;
+            margin-top: 10px;
+        }
+
+        .hero .lede {
+            max-width: 640px;
+            margin-top: 16px;
+            font-size: 16.5px;
+            color: var(--muted);
+        }
+
+        .hero .authors {
+            margin-top: 14px;
+            font-size: 13.5px;
+            color: var(--muted);
+        }
+
+        .hero .authors b {
+            color: var(--ink-2);
+            font-weight: 500;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .hero-stats {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+
+        .hero-stat {
+            padding: 18px 40px 0 0;
+            margin-right: 40px;
+        }
+
+        .hero-stat+.hero-stat {
+            border-left: 1px solid var(--hairline);
+            padding-left: 40px;
+        }
+
+        .hero-stat strong {
+            display: block;
+            font-size: 23px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-stat span {
+            display: block;
+            margin-top: 2px;
+            font-size: 11.5px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--faint);
+        }
+
+        /* ---------- Sections ---------- */
+        .section {
+            padding: 52px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .section-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .section-head h2 {
+            font-size: 24px;
+        }
+
+        .section-head .sub {
+            margin-top: 6px;
+            font-size: 14px;
+            color: var(--muted);
+            max-width: 640px;
+        }
+
+        /* ---------- Leaderboard tabs ---------- */
+        .tabs {
+            display: flex;
+            gap: 2px;
+            padding: 3px;
+            background: var(--hairline);
+            border-radius: 10px;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        .tab {
+            flex: none;
+            padding: 6px 13px;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color .12s ease;
+        }
+
+        .tab:hover {
+            color: var(--ink);
+        }
+
+        .tab.active {
+            background: #fff;
+            color: var(--ink);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(17, 24, 39, 0.08), 0 0 0 1px var(--border);
+        }
+
+        .lb-panel {
+            display: none;
+        }
+
+        .lb-panel.active {
+            display: block;
+        }
+
+        .panel-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .panel-meta .counts {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ---------- Chart ---------- */
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fff;
+        }
+
+        .chart-card {
+            padding: 20px 22px 18px;
+            margin-bottom: 16px;
+        }
+
+        .chart-title {
+            font-size: 14.5px;
+            font-weight: 600;
+        }
+
+        .chart-sub {
+            font-size: 12.5px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .chart-scroll {
+            overflow-x: auto;
+        }
+
+        .chart {
+            min-width: 540px;
+            margin-top: 18px;
+        }
+
+        .chart-plot {
+            position: relative;
+            height: 250px;
+        }
+
+        .chart-grid {
+            position: absolute;
+            left: 40px;
+            right: 4px;
+            top: 22px;
+            bottom: 0;
+        }
+
+        .gridline {
+            position: absolute;
+            left: 0;
+            right: 0;
+            border-top: 1px solid var(--hairline);
+        }
+
+        .gridline.zero {
+            border-top-color: var(--border-strong);
+        }
+
+        .gridline>span {
+            position: absolute;
+            left: -36px;
+            top: -8px;
+            width: 28px;
+            text-align: right;
+            font-size: 10.5px;
+            color: var(--faint);
+        }
+
+        .chart-cols {
+            position: absolute;
+            left: 40px;
+            right: 4px;
+            top: 22px;
+            bottom: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            gap: 12px;
+        }
+
+        .chart-col {
+            flex: 1 1 0;
+            max-width: 88px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .chart-val {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--ink-2);
+        }
+
+        .chart-bar {
+            width: 58%;
+            max-width: 44px;
+            border-radius: 3px 3px 0 0;
+            min-height: 2px;
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-around;
+            gap: 12px;
+            margin: 10px 0 0 40px;
+            padding-right: 4px;
+        }
+
+        .chart-label {
+            flex: 1 1 0;
+            max-width: 88px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            text-align: center;
+            font-size: 11.5px;
+            line-height: 1.3;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        /* ---------- Model icons ---------- */
+        .micon {
+            display: inline-flex;
+            width: 22px;
+            height: 22px;
+            flex: none;
+        }
+
+        .micon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-label .micon {
+            width: 25px;
+            height: 25px;
+        }
+
+        /* ---------- Leaderboard table ---------- */
+        .table-card {
+            overflow: hidden;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table.lb-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            min-width: 760px;
+        }
+
+        .lb-table th {
+            padding: 11px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+            background: var(--bg-subtle);
+        }
+
+        .lb-table th.left {
+            text-align: left;
+        }
+
+        .lb-table th[data-sort] {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .lb-table th[data-sort]:hover {
+            color: var(--ink);
+        }
+
+        .lb-table th[data-sort]::after {
+            content: '↕';
+            margin-left: 4px;
+            font-size: 9px;
+            opacity: .55;
+        }
+
+        .lb-table th[data-sort][data-dir="desc"]::after {
+            content: '↓';
+            opacity: 1;
+        }
+
+        .lb-table th[data-sort][data-dir="asc"]::after {
+            content: '↑';
+            opacity: 1;
+        }
+
+        .lb-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--hairline);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .lb-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .lb-table tbody tr:hover {
+            background: var(--bg-subtle);
+        }
+
+        .lb-table td.left {
+            text-align: left;
+        }
+
+        td.rank {
+            width: 40px;
+            color: var(--faint);
+            font-weight: 600;
+            font-size: 12.5px;
+        }
+
+        tr.top td.rank {
+            color: var(--ink);
+        }
+
+        .model-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 210px;
+        }
+
+        .model-cell .names {
+            line-height: 1.3;
+        }
+
+        .model-cell .names strong {
+            font-weight: 600;
+            font-size: 13.5px;
+        }
+
+        .model-cell .names span {
+            display: block;
+            font-size: 11.5px;
+            color: var(--faint);
+        }
+
+        .score-cell {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .score-num {
+            font-weight: 700;
+            font-size: 13.5px;
+            min-width: 42px;
+        }
+
+        .score-bar {
+            width: 84px;
+            height: 5px;
+            border-radius: 99px;
+            background: var(--hairline);
+            overflow: hidden;
+        }
+
+        .score-bar>span {
+            display: block;
+            height: 100%;
+            border-radius: 99px;
+        }
+
+        td .dim {
+            color: var(--faint);
+        }
+
+        td.judge-col {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .table-foot {
+            padding: 12px 16px;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1px solid var(--hairline);
+            background: var(--bg-subtle);
+        }
+
+        .empty-panel {
+            padding: 40px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* ---------- Methodology ---------- */
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .method-col {
+            border-top: 2px solid var(--ink);
+            padding-top: 16px;
+        }
+
+        .method-col h3 {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .method-col p {
+            font-size: 13.5px;
+            color: var(--muted);
+        }
+
+        .method-col .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        /* ---------- Workspace ---------- */
+        .ws-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .ws-card {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .ws-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 14.5px;
+            margin-bottom: 16px;
+        }
+
+        .step-no {
+            display: grid;
+            place-items: center;
+            width: 21px;
+            height: 21px;
+            border-radius: 999px;
+            background: var(--ink);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            flex: none;
+        }
+
+        .ws-card .body {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            flex-grow: 1;
+        }
+
+        .ws-card .actions {
+            margin-top: 16px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .case-text {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .case-text b {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--ink-2);
+            margin-bottom: 3px;
+        }
+
+        .clamp {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .check-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--ink-2);
+        }
+
+        .check-row input {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--ink);
+        }
+
+        .time-note {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--green);
+        }
+
+        /* Judgement result */
+        .judgement-container {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            background: var(--bg-subtle);
+        }
+
+        .judge-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .judge-box {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .judge-box-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+
+        .judge-box-score {
+            font-size: 19px;
+            font-weight: 700;
+            margin: 2px 0 4px;
+        }
+
+        .judge-box-reason,
+        .judge-sub p {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+            white-space: normal;
+        }
+
+        .judge-sub {
+            margin-top: 10px;
+        }
+
+        .judge-sub b {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-2);
+        }
+
+        /* Status / log */
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 24px 0 10px;
+        }
+
+        .status-row .label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+        }
+
+        .log-area {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-subtle);
+            padding: 12px 14px;
+            min-height: 46px;
+            max-height: 220px;
+            overflow-y: auto;
+            font-size: 12.5px;
+        }
+
+        .log-line {
+            color: var(--muted);
+            font-size: 12px;
+            padding: 1.5px 0;
+        }
+
+        .msg {
+            border: 1px solid;
+            border-radius: 8px;
+            padding: 9px 12px;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .msg-success {
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+            color: var(--green);
+        }
+
+        .msg-error {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: var(--red);
+        }
+
+        .msg-info,
+        .msg-warning {
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: var(--amber);
         }
 
         .loader {
-            border: 3px solid #e5e7eb;
-            border-top: 3px solid var(--accent);
+            border: 2.5px solid var(--border);
+            border-top-color: var(--ink);
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            animation: spin 0.8s linear infinite;
+            width: 16px;
+            height: 16px;
+            animation: spin 0.7s linear infinite;
             display: none;
         }
 
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
+            to {
                 transform: rotate(360deg);
             }
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-4px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fadeIn {
-            animation: fadeIn 0.2s ease-out forwards;
-        }
-
-        .judgement-container {
-            margin-top: 0.85rem;
-            padding: 1rem;
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
-        }
-
+        /* Viewers */
         .viewer {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1.1rem;
-            margin-top: 1rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
         }
 
         .viewer-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 1rem;
-            padding: 1rem;
-            box-shadow: 0 18px 36px -28px rgba(15, 23, 42, 0.35);
+            overflow: hidden;
         }
 
-        .pdf-viewer {
-            width: 100%;
-            height: 75vh;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.9rem;
-            background-color: #f1f5f9;
-        }
-
-        .file-tag {
-            font-size: 0.8rem;
-            color: #475569;
-        }
-
-        .pill {
-            padding: 0.45rem 0.75rem;
-            background: #0f172a;
-            color: white;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-        }
-
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1.1fr 1fr 0.9fr;
-            gap: 1.1rem;
-            margin-top: 1.15rem;
-        }
-
-        .title-row {
+        .viewer-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 0.5rem;
+            gap: 10px;
+            padding: 13px 16px;
         }
 
-        .chat-pane {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
+        .viewer-head h3 {
+            font-size: 14px;
         }
 
-        .chat-history {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0.65rem;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.85rem;
-            min-height: 0;
+        .file-tag {
+            font-size: 11.5px;
+            color: var(--faint);
+            max-width: 260px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .chat-history-entry {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 0.75rem;
-        }
-
-        .chat-bubble-user {
-            background: #111827;
-            color: #fff;
-            border-radius: 1rem 1rem 0.6rem 1rem;
-            padding: 0.65rem 0.9rem;
-            margin-bottom: 0.55rem;
-            max-width: 85%;
-            align-self: flex-end;
-            box-shadow: 0 8px 18px -12px rgba(15, 23, 42, 0.35);
-        }
-
-        .chat-bubble-llm {
-            background: #eef2ff;
-            color: #0f172a;
-            border-radius: 1rem 1rem 1rem 0.6rem;
-            padding: 0.65rem 0.9rem;
-            margin-bottom: 1rem;
-            max-width: 85%;
-            align-self: flex-start;
-        }
-
-        .chat-input {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-        }
-
-        textarea {
-            border: 1px solid #e2e8f0;
-            border-radius: 0.85rem;
-            padding: 0.75rem 0.85rem;
-            resize: vertical;
-            min-height: 80px;
-            font-size: 0.98rem;
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
-        }
-
-        .history-entry {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.8rem;
-            padding: 0.8rem;
-        }
-
-        .tab-switch {
-            display: inline-flex;
-            gap: 0.6rem;
-            padding: 0.35rem;
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            box-shadow: 0 14px 30px -24px rgba(15, 23, 42, 0.35);
-        }
-
-        .tab-pill {
-            padding: 0.6rem 1.1rem;
-            border-radius: 999px;
-            font-weight: 700;
-            background: transparent;
-            border: none;
-            color: #475569;
+        .upload-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
             cursor: pointer;
         }
 
-        .tab-pill.active {
-            background: #0f172a;
-            color: white;
-            box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.4);
+        .upload-link:hover {
+            text-decoration: underline;
         }
 
-        .tab-panel {
-            display: none;
-        }
-
-        .tab-panel.active {
+        .pdf-viewer {
             display: block;
+            width: 100%;
+            height: 540px;
+            border: 0;
+            border-top: 1px solid var(--border);
+            background: var(--bg-subtle);
         }
 
-        .clamp-two {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        div.pdf-viewer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 13.5px;
         }
 
-        @media (max-width: 1160px) {
-            .main-grid {
+        /* ---------- Footer ---------- */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 44px 0 36px;
+            margin-top: 52px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.6fr 1.3fr;
+            gap: 40px;
+        }
+
+        .footer-grid h4 {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--faint);
+            margin-bottom: 12px;
+        }
+
+        .footer-desc {
+            font-size: 13px;
+            color: var(--muted);
+            max-width: 300px;
+            margin-top: 10px;
+        }
+
+        .footer-links {
+            display: grid;
+            gap: 8px;
+            font-size: 13.5px;
+            color: var(--ink-2);
+        }
+
+        .footer-links a:hover {
+            color: var(--ink);
+            text-decoration: underline;
+        }
+
+        .cite-box {
+            position: relative;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-subtle);
+            padding: 14px 76px 14px 16px;
+        }
+
+        .cite-box pre {
+            margin: 0;
+            font-size: 11.5px;
+            line-height: 1.55;
+            color: var(--ink-2);
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .footer-bottom {
+            margin-top: 36px;
+            padding-top: 18px;
+            border-top: 1px solid var(--hairline);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 12.5px;
+            color: var(--faint);
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 960px) {
+            .topnav {
+                display: none;
+            }
+
+            .method-grid,
+            .ws-grid,
+            .viewer,
+            .footer-grid {
                 grid-template-columns: 1fr;
             }
-        }
 
-        @media (max-width: 1024px) {
-            .hero {
-                grid-template-columns: 1fr;
+            .hero-stat {
+                margin-right: 24px;
+                padding-right: 0;
+            }
+
+            .hero-stat+.hero-stat {
+                padding-left: 24px;
+            }
+
+            .pdf-viewer {
+                height: 420px;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="topbar">
-        <div class="mx-auto max-w-[1600px] px-5 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div
-                    class="h-10 w-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-semibold text-lg shadow-sm">
-                    P</div>
-                <div>
-                    <div id="appTitle" class="text-base font-semibold text-slate-800 tracking-tight leading-tight">
-                        PPTArena</div>
-                    <div class="text-xs text-slate-500 font-medium">Evaluate and edit decks</div>
-                </div>
-            </div>
+    {% macro model_icon(entry) -%}
+    {%- set brand = entry.brand -%}
+    {%- if brand == 'OpenAI' -%}
+    <span class="micon" title="OpenAI">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#0f0f0f">
+            <path
+                d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.073zM13.2599 22.4306a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.645zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.8956zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997z" />
+        </svg>
+    </span>
+    {%- elif brand == 'Claude' -%}
+    <span class="micon" title="Anthropic Claude">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <path
+                d="M12 9.2V2.4M13.4 9.6 15.6 5.8M14.4 10.6 20.3 7.2M14.8 12H19.2M14.4 13.4 20.3 16.8M13.4 14.4 15.6 18.2M12 14.8V21.6M10.6 14.4 8.4 18.2M9.6 13.4 3.7 16.8M9.2 12H4.8M9.6 10.6 3.7 7.2M10.6 9.6 8.4 5.8"
+                stroke="#D97757" stroke-width="2" stroke-linecap="round" />
+        </svg>
+    </span>
+    {%- elif brand == 'Gemini' -%}
+    <span class="micon" title="Google Gemini">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M12 0c.7 6.3 5.7 11.3 12 12-6.3.7-11.3 5.7-12 12-.7-6.3-5.7-11.3-12-12C6.3 11.3 11.3 6.3 12 0Z"
+                fill="#4285f4" />
+        </svg>
+    </span>
+    {%- elif brand == 'Kimi' -%}
+    <span class="micon" title="Moonshot AI Kimi">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="22" height="22" rx="6" fill="#16181d" />
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" fill="#fff"
+                transform="translate(4.8 4.8) scale(0.6)" />
+        </svg>
+    </span>
+    {%- elif brand == 'MiniMax' -%}
+    <span class="micon" title="MiniMax">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <path d="M3.5 17.5 8 6.5l4 8 4-8 4.5 11" stroke="#6d5dfc" stroke-width="2.3" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </svg>
+    </span>
+    {%- elif brand == 'PPTPilot' -%}
+    <span class="micon" title="PPTPilot">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="22" height="22" rx="6" fill="{{ entry.color }}" />
+            <rect x="5.6" y="7.2" width="12.8" height="8.6" rx="1.4" fill="none" stroke="#fff" stroke-width="1.6" />
+            <path d="M8.1 10.3h7.8M8.1 12.9h4.6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+    </span>
+    {%- elif brand == 'PPTAgent' -%}
+    <span class="micon" title="PPTAgent">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="22" height="22" rx="6" fill="#f3f4f6" stroke="#e5e7eb" />
+            <text x="12" y="16.4" text-anchor="middle" font-size="11.5" font-weight="700" fill="#6b7280"
+                font-family="Inter, sans-serif">A</text>
+        </svg>
+    </span>
+    {%- else -%}
+    <span class="micon" title="{{ entry.provider }}">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="22" height="22" rx="6" fill="{{ entry.color }}" fill-opacity="0.14" />
+            <text x="12" y="16.4" text-anchor="middle" font-size="11.5" font-weight="700" fill="{{ entry.color }}"
+                font-family="Inter, sans-serif">{{ entry.icon }}</text>
+        </svg>
+    </span>
+    {%- endif -%}
+    {%- endmacro %}
 
-            <div class="flex items-center gap-4">
-                <div class="tab-switch">
-                    <button class="tab-pill" data-tab-target="evaluation">Evaluation</button>
-                    <button class="tab-pill" data-tab-target="chat">Chat</button>
-                </div>
-
-                <div class="relative">
-                    <details class="group relative">
-                        <summary
-                            class="flex items-center gap-2 cursor-pointer list-none font-semibold text-slate-600 text-sm hover:text-slate-900 transition-colors px-3 py-2 rounded-lg hover:bg-slate-100">
-                            <span>API Keys</span>
-                            <svg class="w-4 h-4 transition group-open:rotate-180" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </summary>
-                        <div
-                            class="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 p-4 z-50 group-open:animate-fadeIn origin-top-right">
-                            <label for="api_key_openai" class="font-semibold text-slate-800 block mb-1 text-xs">OpenAI
-                                API Key</label>
-                            <input type="password" id="api_key_openai" class="input-field mb-3 text-sm py-1.5"
-                                placeholder="sk-...">
-
-                            <label for="api_key_gemini" class="font-semibold text-slate-800 block mb-1 text-xs">Gemini
-                                API Key</label>
-                            <input type="password" id="api_key_gemini" class="input-field text-sm py-1.5"
-                                placeholder="AIza...">
-
-                            <p class="hint mt-2 text-xs text-slate-500">Keys are stored locally in your browser.</p>
-                        </div>
-                    </details>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <main class="page">
-        <div class="project-header text-center mb-8 pt-6">
-            <h1 class="text-3xl md:text-4xl font-bold mb-3 tracking-tight text-slate-900">PPTArena: A Benchmark for
-                Agentic PowerPoint Editing</h1>
-            <div class="text-base text-slate-600 mb-6 font-medium">
-                <span class="mr-4">Michael Ofengenden</span> <span class="mr-4">Yunze Man</span> <span class="mr-4">Ziqi
-                    Pang</span> <span>Yu-Xiong Wang</span>
-            </div>
-            <div class="flex justify-center gap-3 mb-8">
-                <a href="https://arxiv.org/abs/2512.03042" target="_blank"
-                    class="btn secondary flex items-center gap-2 hover:bg-slate-50 py-1.5 px-4 text-sm">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path
-                            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
-                    </svg>
-                    Paper
-                </a>
-                <a href="https://github.com/michaelofengend/PPTArena" target="_blank"
-                    class="btn secondary flex items-center gap-2 hover:bg-slate-50 py-1.5 px-4 text-sm">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a class="brand" href="#top">
+                <span class="brand-mark">P</span>
+                PPTArena
+            </a>
+            <nav class="topnav">
+                <a href="#leaderboard">Leaderboard</a>
+                <a href="#methodology">Methodology</a>
+                <a href="#workspace">Live evaluation</a>
+                <a href="https://arxiv.org/abs/2512.03042" target="_blank" rel="noopener">Paper</a>
+                <a href="https://huggingface.co/datasets/mofengenden/PPTArena" target="_blank"
+                    rel="noopener">Dataset</a>
+            </nav>
+            <div class="topbar-right">
+                <a class="icon-link" href="https://github.com/michaelofengend/PPTArena" target="_blank" rel="noopener"
+                    aria-label="GitHub repository" title="GitHub">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
                         <path
                             d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                     </svg>
-                    Code
                 </a>
-                <a href="https://arxiv.org/pdf/2512.03042" target="_blank"
-                    class="btn secondary flex items-center gap-2 hover:bg-slate-50 py-1.5 px-4 text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
-                        </path>
-                    </svg>
-                    PDF
-                </a>
+                <details class="keys">
+                    <summary>
+                        API keys
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </summary>
+                    <div class="keys-panel">
+                        <label for="api_key_openai" class="field-label">OpenAI API key</label>
+                        <input type="password" id="api_key_openai" class="input" placeholder="sk-..."
+                            style="margin-bottom:12px;">
+                        <label for="api_key_gemini" class="field-label">Gemini API key</label>
+                        <input type="password" id="api_key_gemini" class="input" placeholder="AIza...">
+                        <p class="hint" style="margin-top:10px;">Keys stay in your browser's local storage and are only
+                            sent with requests you run.</p>
+                    </div>
+                </details>
             </div>
         </div>
+    </header>
 
-        <div id="evaluationTab" class="tab-panel active">
-            <section id="controls" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <div class="card border-0 shadow-lg shadow-slate-200/50 ring-1 ring-slate-200">
-                    <h3 class="text-slate-800"><span
-                            class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">1</span>
-                        Select test case</h3>
-                    <div class="flex-grow flex flex-col gap-4">
-                        <div>
-                            <label for="evaluationPairSelector"
-                                class="font-semibold text-slate-700 text-sm block mb-1.5">Test case</label>
-                            <select id="evaluationPairSelector" class="input-field text-sm">
-                                {% for pair in evaluation_pairs %}
-                                <option value="{{ pair.name }}" {% if pair.name==selected_pair.name %}selected{% endif
-                                    %}>{{ pair.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="space-y-4 pt-2">
-                            <div>
-                                <p class="font-semibold text-slate-700 text-xs uppercase tracking-wider mb-1">Prompt</p>
-                                <p class="text-slate-600 text-sm leading-relaxed" id="promptDisplay">{{
-                                    selected_pair.prompt }}</p>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-slate-700 text-xs uppercase tracking-wider mb-1">Style
-                                    target</p>
-                                <p class="text-slate-600 text-sm leading-relaxed clamp-two" id="styleDisplay"
-                                    title="{{ selected_pair.style_target }}">{{ selected_pair.style_target }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card border-0 shadow-lg shadow-slate-200/50 ring-1 ring-slate-200">
-                    <h3 class="text-slate-800"><span
-                            class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">2</span>
-                        Generate prediction</h3>
-                    <form id="evalForm" class="flex-grow flex flex-col gap-4">
-                        <input type="hidden" id="eval_prompt" name="prompt" value="{{ selected_pair.prompt }}">
-                        <input type="hidden" id="eval_original_filepath" name="original_filepath"
-                            value="{{ selected_pair.original }}">
-                        <div>
-                            <label for="eval_llm_engine" class="font-semibold text-slate-700 text-sm block mb-1.5">LLM
-                                engine</label>
-                            <select id="eval_llm_engine" name="llm_engine" class="input-field text-sm">
-                                <optgroup label="Google Gemini">
-                                    <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
-                                    <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
-                                </optgroup>
-                                <optgroup label="OpenAI GPT">
-                                    <option value="gpt-4o">GPT-4o</option>
-                                    <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                                    <option value="gpt-5-2025-08-07" selected>GPT-5 (2025-08-07)</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div class="flex items-center gap-2.5 text-sm text-slate-600">
-                            <input type="checkbox" id="eval_force_python_pptx"
-                                class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-                            <label for="eval_force_python_pptx" class="select-none font-medium">Use python-pptx
-                                only</label>
-                        </div>
-                        <div>
-                            <label for="eval_loop_iterations"
-                                class="font-semibold text-slate-700 text-sm block mb-1.5">Max iterations</label>
-                            <input type="number" id="eval_loop_iterations" name="loop_iterations"
-                                class="input-field text-sm" min="1" max="10" value="3">
-                            <p class="hint mt-1">Used when running Loop for iterative refinement.</p>
-                        </div>
-                        <div id="generationTimeDisplay" class="text-xs text-slate-600 font-semibold"
-                            style="display:none;"></div>
-                        <div class="flex-grow"></div>
-                        <div class="grid grid-cols-1 gap-2.5">
-                            <button type="submit" class="btn text-sm py-2">Generate prediction</button>
-                            <button type="button" id="eval_loopButton" class="btn secondary text-sm py-2">Loop</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="card border-0 shadow-lg shadow-slate-200/50 ring-1 ring-slate-200">
-                    <h3 class="text-slate-800"><span
-                            class="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">3</span>
-                        LLM judge</h3>
-                    <div class="flex-grow flex flex-col">
-                        <p class="text-sm text-slate-500 mb-4 leading-relaxed">The judge compares <strong>Ground
-                                Truth</strong> vs <strong>Prediction</strong> with the original as baseline.</p>
-                        <label for="judge_model" class="font-semibold text-slate-700 text-sm block mb-1.5">Judge
-                            model</label>
-                        <select id="judge_model" class="input-field mb-4 text-sm">
-                            <optgroup label="Google Gemini">
-                                <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
-                                <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
-                            </optgroup>
-                            <optgroup label="OpenAI GPT">
-                                <option value="gpt-4o">GPT-4o</option>
-                                <option value="gpt-5-2025-08-07" selected>GPT-5 (2025-08-07)</option>
-                            </optgroup>
-                        </select>
-                        <div id="judgeTimeDisplay" class="text-xs text-slate-600 font-semibold mb-2"
-                            style="display:none;"></div>
-                        <div id="judgementDisplay" class="judgement-container" style="display:none;"></div>
-                    </div>
-                    <button id="judgeButton" class="btn secondary mt-4 text-sm py-2">Call LLM Judge</button>
-                </div>
-            </section>
-
-            <section class="mb-6">
-                <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
-                    <div class="flex items-center gap-2 text-slate-700">
-                        <div id="evalLoader" class="loader"></div>
-                        <span class="font-semibold">Status & progress</span>
-                    </div>
-                    <span class="hint">Live poller stops automatically after ~2 minutes.</span>
-                </div>
-                <div id="evalMessageArea" class="border border-slate-200 rounded-xl bg-white/80 p-3 min-h-[48px]"></div>
-            </section>
-
-            <section class="viewer">
-                <div class="viewer-card">
-                    <h2 class="text-lg font-semibold mb-1 text-slate-900">Ground Truth</h2>
-                    <p class="file-tag mb-3 truncate" title="{{ selected_pair.ground_truth }}">{{
-                        selected_pair.ground_truth.split('/')[-1] }}</p>
-                    {% if test_pdf_name %}
-                    <iframe id="testPdfViewer" src="{{ url_for('view_pdf', pdf_path=test_pdf_name) }}"
-                        class="pdf-viewer"></iframe>
-                    {% elif public_gt_url %}
-                    <iframe id="testPdfViewer"
-                        src="https://view.officeapps.live.com/op/embed.aspx?src={{ public_gt_url }}"
-                        class="pdf-viewer"></iframe>
-                    {% else %}
-                    <div class="pdf-viewer flex items-center justify-center text-slate-500">PDF not available.</div>
-                    {% endif %}
-                </div>
-                <div class="viewer-card">
-                    <div class="flex items-center justify-between mb-1">
-                        <h2 class="text-lg font-semibold text-slate-900">
-                            {% if is_prediction %}
-                            Prediction
-                            {% else %}
-                            Original
-                            {% endif %}
-                        </h2>
-                        <div class="flex items-center gap-2">
-                            <label for="manualPredictionUpload"
-                                class="text-xs font-semibold text-indigo-600 cursor-pointer hover:text-indigo-800 transition-colors">
-                                Upload Prediction
-                                <input type="file" id="manualPredictionUpload" accept=".pptx" class="hidden">
-                            </label>
-                            <span class="badge">Side-by-side view</span>
-                        </div>
-                    </div>
-                    <p class="file-tag mb-3 truncate" id="predictionFilenameDisplay"
-                        title="{{ prediction_pptx_name or '' }}">
-                        {% if is_prediction %}
-                        {{ prediction_pptx_name or 'No prediction generated yet' }}
-                        {% else %}
-                        {{ selected_pair.original.split('/')[-1] }}
-                        {% endif %}
-                    </p>
-                    {% if prediction_pdf_name %}
-                    <iframe id="predictionPdfViewer" src="{{ url_for('view_pdf', pdf_path=prediction_pdf_name) }}"
-                        class="pdf-viewer"></iframe>
-                    {% elif public_pred_url %}
-                    <iframe id="predictionPdfViewer"
-                        src="https://view.officeapps.live.com/op/embed.aspx?src={{ public_pred_url }}"
-                        class="pdf-viewer"></iframe>
-                    {% else %}
-                    <div id="predictionPdfViewer" class="pdf-viewer flex items-center justify-center text-slate-500">No
-                        prediction generated yet.</div>
-                    {% endif %}
-                </div>
-            </section>
-        </div>
-
-        <div id="chatTab" class="tab-panel">
-            <section class="main-grid">
-                <div class="card">
-                    <div class="title-row">
-                        <div>
-                            <p class="eyebrow">Workspace</p>
-                            <h2 class="text-xl font-semibold">Upload & authenticate</h2>
-                        </div>
-                    </div>
-                    <form id="chatPptForm" enctype="multipart/form-data" class="flex flex-col gap-4">
-                        <div class="surface">
-                            <div class="flex items-center justify-between gap-3 flex-wrap">
-                                <div>
-                                    <p class="font-semibold text-slate-900">Upload PPTX</p>
-                                    <p class="text-sm text-slate-600">Drop in your starting deck to begin editing.</p>
-                                </div>
-                                <label for="chat_ppt_file" class="btn secondary" style="padding:0.65rem 0.9rem;">Choose
-                                    file<input type="file" id="chat_ppt_file" name="file" accept=".pptx" required
-                                        class="sr-only"></label>
-                            </div>
-                            <p class="text-xs text-slate-500 mt-2">Shared API key above powers this tab.</p>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                                <label for="chat_llm_engine" class="font-medium text-slate-800 block mb-1">LLM
-                                    model</label>
-                                <select id="chat_llm_engine" name="llm_engine" class="input-field">
-                                    <optgroup label="Google Gemini">
-                                        <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
-                                        <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
-                                    </optgroup>
-                                    <optgroup label="OpenAI GPT">
-                                        <option value="gpt-5.1-2025-11-13">GPT-5.1 (2025-11-13)</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
-                    <div>
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="loader" id="chatLoader"></div>
-                            <span class="font-semibold text-slate-800">Live status</span>
-                        </div>
-                        <div id="chatMessageArea" class="surface"></div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="title-row">
-                        <div>
-                            <p class="eyebrow">Preview</p>
-                            <h2 class="text-xl font-semibold">Current file</h2>
-                        </div>
-                        <a id="chatModifiedPptxDownload" href="#" target="_blank"
-                            class="text-indigo-600 font-semibold text-sm">Download latest</a>
-                    </div>
-                    <section id="chatPreviewSection" class="flex flex-col gap-2" style="display:none;">
-                        <iframe id="chatModifiedPptIframe" class="pdf-viewer" style="height:520px;"></iframe>
-                    </section>
-                    <section class="flex flex-col gap-3">
-                        <div class="title-row">
-                            <h3 class="font-semibold text-slate-900">Edit history</h3>
-                            <span class="text-xs text-slate-500">Every save is downloadable</span>
-                        </div>
-                        <div id="chatEditHistoryContainer" class="flex flex-col gap-3"></div>
-                    </section>
-                </div>
-
-                <aside id="chatSidebar" class="card chat-pane">
-                    <div class="title-row">
-                        <div>
-                            <p class="eyebrow">Chat</p>
-                            <h2 class="text-xl font-semibold">Talk to PPTPilot</h2>
-                        </div>
-                        <span class="text-xs text-slate-500">Session stays while tab is open</span>
-                    </div>
-                    <div class="chat-history" id="chatHistory"></div>
-                    <form id="chatForm" class="chat-input">
-                        <textarea id="chat_prompt" rows="3" placeholder="Explain the change you want..."
-                            class="w-full"></textarea>
-                        <button type="submit" class="btn w-full">Send instruction</button>
-                    </form>
-                    <p class="text-xs text-slate-500">Upload a deck to start a session. Shared API key above powers
-                        edits.</p>
-                </aside>
-            </section>
-        </div>
-
-        <section class="mt-12 mb-8 text-center border-t border-slate-200 pt-8">
-            <h2 class="text-xl font-semibold text-slate-800 mb-4">Contact Us</h2>
-            <p class="text-slate-600 mb-6 max-w-2xl mx-auto">
-                Have questions, feedback, or want to contribute? Send us a message!
+    <main id="top">
+        <!-- ================= Hero ================= -->
+        <section class="hero container">
+            <p class="kicker">Benchmark · Agentic PowerPoint editing</p>
+            <h1>PPTArena</h1>
+            <p class="lede">
+                A benchmark for evaluating how well LLM agents edit real PowerPoint decks. Each case pairs a natural
+                instruction with a human-made ground truth, and predictions are scored on
+                <b>instruction following</b> and <b>visual quality</b> by VLM judges.
             </p>
-            <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <div class="mb-4 text-left">
-                    <label for="contact_subject" class="block text-sm font-medium text-slate-700 mb-1">Subject</label>
-                    <input type="text" id="contact_subject" class="input-field" placeholder="What is this regarding?">
-                </div>
-                <div class="mb-4 text-left">
-                    <label for="contact_message" class="block text-sm font-medium text-slate-700 mb-1">Message</label>
-                    <textarea id="contact_message" rows="4" class="input-field w-full"
-                        placeholder="Your message here..."></textarea>
-                </div>
-                <button id="contactSubmitBtn" class="btn w-full flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                        </path>
-                    </svg>
-                    <span id="contactBtnText">Send Email</span>
-                </button>
-
+            <p class="authors">
+                <b>Michael Ofengenden</b> · <b>Yunze Man</b> · <b>Ziqi Pang</b> · <b>Liang-Yan Gui</b> · <b>Yu-Xiong
+                    Wang</b>
+            </p>
+            <div class="hero-actions">
+                <a class="btn" href="https://arxiv.org/abs/2512.03042" target="_blank" rel="noopener">Read the
+                    paper</a>
+                <a class="btn outline" href="https://github.com/michaelofengend/PPTArena" target="_blank"
+                    rel="noopener">GitHub</a>
+                <a class="btn outline" href="https://huggingface.co/datasets/mofengenden/PPTArena" target="_blank"
+                    rel="noopener">Dataset</a>
+                <a class="btn outline" href="#leaderboard">View leaderboard ↓</a>
             </div>
-
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <strong class="num">100</strong>
+                    <span>Real decks</span>
+                </div>
+                <div class="hero-stat">
+                    <strong class="num">2,125</strong>
+                    <span>Slides</span>
+                </div>
+                <div class="hero-stat">
+                    <strong class="num">1,300+</strong>
+                    <span>Paired edits</span>
+                </div>
+                <div class="hero-stat">
+                    <strong>IF + VQ</strong>
+                    <span>Judge metrics</span>
+                </div>
+            </div>
         </section>
 
+        <!-- ================= Leaderboard ================= -->
+        <section id="leaderboard" class="section">
+            <div class="container">
+                <div class="section-head">
+                    <div>
+                        <h2>Leaderboard</h2>
+                        <p class="sub">
+                            Systems ranked by PPTArena score — the mean of (instruction following + visual quality) / 10
+                            per case, as a percentage. Unscored cases count as 0.
+                        </p>
+                    </div>
+                    <div class="tabs" role="tablist" aria-label="Leaderboard split">
+                        {% for split in leaderboard_data.split_list %}
+                        <button type="button"
+                            class="tab {% if split.key == leaderboard_data.default_split %}active{% endif %}"
+                            data-leaderboard-target="{{ split.key }}"
+                            aria-pressed="{% if split.key == leaderboard_data.default_split %}true{% else %}false{% endif %}">
+                            {{ split.label }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% for split in leaderboard_data.split_list %}
+                <div class="lb-panel {% if split.key == leaderboard_data.default_split %}active{% endif %}"
+                    data-leaderboard-panel="{{ split.key }}">
+                    <div class="panel-meta">
+                        <span>{{ split.description }}</span>
+                        <span class="counts num">{{ split.system_count }} systems · {{ split.case_count }} cases ·
+                            higher is better</span>
+                    </div>
+
+                    {% if split.entries %}
+                    <div class="card chart-card">
+                        <p class="chart-title">PPTArena score</p>
+                        <p class="chart-sub">Combined instruction following + visual quality, normalized to 100</p>
+                        <div class="chart-scroll">
+                            <div class="chart">
+                                <div class="chart-plot">
+                                    <div class="chart-grid" aria-hidden="true">
+                                        <div class="gridline" style="bottom:100%"><span>100</span></div>
+                                        <div class="gridline" style="bottom:75%"><span>75</span></div>
+                                        <div class="gridline" style="bottom:50%"><span>50</span></div>
+                                        <div class="gridline" style="bottom:25%"><span>25</span></div>
+                                        <div class="gridline zero" style="bottom:0%"><span>0</span></div>
+                                    </div>
+                                    <div class="chart-cols">
+                                        {% for entry in split.entries %}
+                                        <div class="chart-col" title="{{ entry.name }} — {{ '%.1f'|format(entry.score_pct) }}">
+                                            <span class="chart-val num">{{ "%.1f"|format(entry.score_pct) }}</span>
+                                            <div class="chart-bar"
+                                                style="height:{{ entry.bar_pct }}%;background:{{ entry.color }};">
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="chart-labels">
+                                    {% for entry in split.entries %}
+                                    <div class="chart-label">
+                                        {{ model_icon(entry) }}
+                                        <span>{{ entry.name }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card table-card">
+                        <div class="table-scroll">
+                            <table class="lb-table">
+                                <thead>
+                                    <tr>
+                                        <th class="left">#</th>
+                                        <th class="left">Model</th>
+                                        <th data-sort="score" data-dir="desc" class="sorted"
+                                            title="Mean of (IF + VQ) / 10 across all expected cases, as a percentage">
+                                            Score</th>
+                                        <th data-sort="ifp" title="Instruction following, normalized to 100">IF</th>
+                                        <th data-sort="vqp" title="Visual quality, normalized to 100">VQ</th>
+                                        <th data-sort="cases" title="Scored cases / expected cases in this split">Cases
+                                        </th>
+                                        <th data-sort="avg" title="Mean score over scored cases only">Avg scored</th>
+                                        <th class="left" style="text-align:left;">Judge</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in split.entries %}
+                                    <tr class="{% if loop.index <= 3 %}top{% endif %}"
+                                        data-score="{{ entry.score_pct }}" data-ifp="{{ entry.if_pct }}"
+                                        data-vqp="{{ entry.vq_pct }}" data-cases="{{ entry.coverage_pct }}"
+                                        data-avg="{{ entry.mean_scored_pct }}">
+                                        <td class="left rank num">{{ loop.index }}</td>
+                                        <td class="left">
+                                            <div class="model-cell">
+                                                {{ model_icon(entry) }}
+                                                <div class="names">
+                                                    <strong>{{ entry.name }}</strong>
+                                                    {% if entry.paper_reported %}<span class="tag"
+                                                        title="Score reported in the PPTArena paper; no live run in this repo."
+                                                        style="margin-left:6px;">paper</span>{% endif %}
+                                                    <span>{{ entry.provider }}{% if entry.model != entry.name %} · {{
+                                                        entry.model }}{% endif %}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="score-cell">
+                                                <span class="score-num num">{{ "%.1f"|format(entry.score_pct) }}</span>
+                                                <span class="score-bar"><span
+                                                        style="width:{{ entry.bar_pct }}%;background:{{ entry.color }};"></span></span>
+                                            </span>
+                                        </td>
+                                        <td class="num">{{ "%.1f"|format(entry.if_pct) }}</td>
+                                        <td class="num">{{ "%.1f"|format(entry.vq_pct) }}</td>
+                                        <td class="num">{{ entry.scored_cases }}<span class="dim">/{{
+                                                entry.expected_cases }}</span></td>
+                                        <td class="num">{{ "%.1f"|format(entry.mean_scored_pct) }}</td>
+                                        <td class="left judge-col">{{ entry.judge.replace(' judge', '') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-foot">
+                            IF = instruction following, VQ = visual quality; each judged 0–5 per case by a VLM judge
+                            and normalized to 100. Click a column to sort. Entries tagged
+                            <span class="tag">paper</span> are reported from the PPTArena paper.
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="card empty-panel">No scored runs found for this split.</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- ================= Methodology ================= -->
+        <section id="methodology" class="section">
+            <div class="container">
+                <div class="section-head">
+                    <div>
+                        <h2>Methodology</h2>
+                        <p class="sub">What PPTArena measures and how systems are scored.</p>
+                    </div>
+                </div>
+                <div class="method-grid">
+                    <div class="method-col">
+                        <h3>Task suite</h3>
+                        <p>
+                            100 real-world decks with 2,125 slides and 1,300+ paired edit instructions. Every case
+                            ships the original deck, a natural-language instruction, and a human-made ground truth,
+                            spanning five edit categories.
+                        </p>
+                        <div class="chips">
+                            {% for split in leaderboard_data.split_list %}
+                            {% if split.key.startswith('category_') %}
+                            <span class="chip">{{ split.label }} <span class="num">{{ split.case_count }}</span></span>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="method-col">
+                        <h3>Scoring</h3>
+                        <p>
+                            A VLM judge compares each prediction against the ground truth and scores
+                            <b>instruction following</b> and <b>visual quality</b> from 0–5. The case score is
+                            (IF + VQ) / 10 as a percentage; a system's split score is the mean over all expected
+                            cases, with missing or unscored cases counted as 0.
+                        </p>
+                    </div>
+                    <div class="method-col">
+                        <h3>Splits &amp; judges</h3>
+                        <p>
+                            The <b>full set</b> covers all 100 cases; the <b>hard subset</b> is a matched 25-case
+                            slice used for cost-sensitive agent comparisons. Runs are judged with GPT-5.2 or
+                            Gemini 3.1 Pro, and every case can be re-run and re-judged live below.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= Live evaluation workspace ================= -->
+        <section id="workspace" class="section">
+            <div class="container">
+                <div class="section-head">
+                    <div>
+                        <h2>Live evaluation</h2>
+                        <p class="sub">Pick any benchmark case, generate a prediction with your own API keys, and score
+                            it with the same VLM judge used for the leaderboard.</p>
+                    </div>
+                    <span class="chip">Case: <b id="activePairLabel">{{ selected_pair.name }}</b></span>
+                </div>
+
+                <div id="evaluationWorkspace">
+                    <div class="ws-grid">
+                        <div class="card ws-card">
+                            <h3><span class="step-no">1</span> Select test case</h3>
+                            <div class="body">
+                                <div>
+                                    <label for="evaluationPairSelector" class="field-label">Test case</label>
+                                    <select id="evaluationPairSelector" class="input">
+                                        {% for pair in evaluation_pairs %}
+                                        <option value="{{ pair.name }}" {% if pair.name==selected_pair.name
+                                            %}selected{% endif %}>{{ pair.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="case-text">
+                                    <b>Prompt</b>
+                                    <span id="promptDisplay">{{ selected_pair.prompt }}</span>
+                                </div>
+                                <div class="case-text">
+                                    <b>Style target</b>
+                                    <span id="styleDisplay" class="clamp" title="{{ selected_pair.style_target }}">{{
+                                        selected_pair.style_target }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card ws-card">
+                            <h3><span class="step-no">2</span> Generate prediction</h3>
+                            <form id="evalForm" class="body">
+                                <input type="hidden" id="eval_prompt" name="prompt" value="{{ selected_pair.prompt }}">
+                                <input type="hidden" id="eval_original_filepath" name="original_filepath"
+                                    value="{{ selected_pair.original }}">
+                                <div>
+                                    <label for="eval_llm_engine" class="field-label">LLM engine</label>
+                                    <select id="eval_llm_engine" name="llm_engine" class="input">
+                                        <optgroup label="Google Gemini">
+                                            <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+                                            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
+                                        </optgroup>
+                                        <optgroup label="OpenAI GPT">
+                                            <option value="gpt-4o">GPT-4o</option>
+                                            <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                            <option value="gpt-5-2025-08-07" selected>GPT-5 (2025-08-07)</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <label class="check-row" for="eval_force_python_pptx">
+                                    <input type="checkbox" id="eval_force_python_pptx">
+                                    Use python-pptx only
+                                </label>
+                                <div>
+                                    <label for="eval_loop_iterations" class="field-label">Max iterations</label>
+                                    <input type="number" id="eval_loop_iterations" name="loop_iterations" class="input"
+                                        min="1" max="10" value="3">
+                                    <p class="hint" style="margin-top:5px;">Used when running Loop for iterative
+                                        refinement.</p>
+                                </div>
+                                <div id="generationTimeDisplay" class="time-note" style="display:none;"></div>
+                                <div class="actions" style="margin-top:auto;">
+                                    <button type="submit" class="btn">Generate prediction</button>
+                                    <button type="button" id="eval_loopButton" class="btn outline">Loop</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="card ws-card">
+                            <h3><span class="step-no">3</span> LLM judge</h3>
+                            <div class="body">
+                                <p class="case-text">The judge compares <b style="display:inline;text-transform:none;">ground truth</b> vs
+                                    <b style="display:inline;text-transform:none;">prediction</b>, with the original deck as baseline.</p>
+                                <div>
+                                    <label for="judge_model" class="field-label">Judge model</label>
+                                    <select id="judge_model" class="input">
+                                        <optgroup label="Google Gemini">
+                                            <option value="gemini-3-pro-preview">Gemini 3 Pro Preview</option>
+                                            <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
+                                        </optgroup>
+                                        <optgroup label="OpenAI GPT">
+                                            <option value="gpt-4o">GPT-4o</option>
+                                            <option value="gpt-5-2025-08-07" selected>GPT-5 (2025-08-07)</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div id="judgeTimeDisplay" class="time-note" style="display:none;"></div>
+                                <div id="judgementDisplay" class="judgement-container" style="display:none;"></div>
+                                <div class="actions" style="margin-top:auto;">
+                                    <button id="judgeButton" class="btn outline">Call LLM judge</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-row">
+                        <div class="label">
+                            <div id="evalLoader" class="loader"></div>
+                            Status &amp; progress
+                        </div>
+                        <span class="hint">Live poller stops automatically after ~2 minutes.</span>
+                    </div>
+                    <div id="evalMessageArea" class="log-area"></div>
+
+                    <div class="viewer">
+                        <div class="card viewer-card">
+                            <div class="viewer-head">
+                                <h3>Ground truth</h3>
+                                <span class="file-tag" title="{{ selected_pair.ground_truth }}">{{
+                                    selected_pair.ground_truth.split('/')[-1] }}</span>
+                            </div>
+                            {% if test_pdf_name %}
+                            <iframe id="testPdfViewer" src="{{ url_for('view_pdf', pdf_path=test_pdf_name) }}"
+                                class="pdf-viewer"></iframe>
+                            {% elif public_gt_url %}
+                            <iframe id="testPdfViewer"
+                                src="https://view.officeapps.live.com/op/embed.aspx?src={{ public_gt_url }}"
+                                class="pdf-viewer"></iframe>
+                            {% else %}
+                            <div class="pdf-viewer">PDF not available.</div>
+                            {% endif %}
+                        </div>
+                        <div class="card viewer-card">
+                            <div class="viewer-head">
+                                <h3>
+                                    {% if is_prediction %}Prediction{% else %}Original{% endif %}
+                                </h3>
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <span class="file-tag" id="predictionFilenameDisplay"
+                                        title="{{ prediction_pptx_name or '' }}">
+                                        {% if is_prediction %}
+                                        {{ prediction_pptx_name or 'No prediction generated yet' }}
+                                        {% else %}
+                                        {{ selected_pair.original.split('/')[-1] }}
+                                        {% endif %}
+                                    </span>
+                                    <label for="manualPredictionUpload" class="upload-link">
+                                        Upload prediction
+                                        <input type="file" id="manualPredictionUpload" accept=".pptx" hidden>
+                                    </label>
+                                </div>
+                            </div>
+                            {% if prediction_pdf_name %}
+                            <iframe id="predictionPdfViewer"
+                                src="{{ url_for('view_pdf', pdf_path=prediction_pdf_name) }}"
+                                class="pdf-viewer"></iframe>
+                            {% elif public_pred_url %}
+                            <iframe id="predictionPdfViewer"
+                                src="https://view.officeapps.live.com/op/embed.aspx?src={{ public_pred_url }}"
+                                class="pdf-viewer"></iframe>
+                            {% else %}
+                            <div id="predictionPdfViewer" class="pdf-viewer">No prediction generated yet.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
+    <!-- ================= Footer ================= -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a class="brand" href="#top">
+                        <span class="brand-mark">P</span>
+                        PPTArena
+                    </a>
+                    <p class="footer-desc">
+                        A benchmark for PowerPoint editing — measuring how well LLM agents follow real edit
+                        instructions on real decks.
+                    </p>
+                </div>
+                <div>
+                    <h4>Resources</h4>
+                    <div class="footer-links">
+                        <a href="https://arxiv.org/abs/2512.03042" target="_blank" rel="noopener">Paper (arXiv)</a>
+                        <a href="https://arxiv.org/pdf/2512.03042" target="_blank" rel="noopener">PDF</a>
+                        <a href="https://github.com/michaelofengend/PPTArena" target="_blank" rel="noopener">GitHub</a>
+                        <a href="https://huggingface.co/datasets/mofengenden/PPTArena" target="_blank"
+                            rel="noopener">Dataset (Hugging&nbsp;Face)</a>
+                    </div>
+                </div>
+                <div>
+                    <h4>Citation</h4>
+                    <div class="cite-box">
+                        <button type="button" id="copyCitation" class="btn outline small copy-btn">Copy</button>
+                        <pre id="citationText">@article{ofengenden2025pptarena,
+  title   = {PPTArena: A Benchmark for PowerPoint Editing},
+  author  = {Ofengenden, Michael and Man, Yunze and Pang, Ziqi and Gui, Liang-Yan and Wang, Yu-Xiong},
+  journal = {arXiv preprint arXiv:2512.03042},
+  year    = {2025}
+}</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>PPTArena · Michael Ofengenden, Yunze Man, Ziqi Pang, Liang-Yan Gui, Yu-Xiong Wang</span>
+                <span>Scores update as new runs land in the repo.</span>
+            </div>
+        </div>
+    </footer>
+
     <script id="evaluationPairsData" type="application/json">{{ evaluation_pairs | tojson | safe }}</script>
-
-    <script id="defaultTabData" type="application/json">{{ (active_tab or 'evaluation') | tojson | safe }}</script>
-    <script>
-        const defaultTab = JSON.parse(document.getElementById('defaultTabData').textContent);
-        const tabButtons = document.querySelectorAll('[data-tab-target]');
-        const tabPanels = {
-            evaluation: document.getElementById('evaluationTab'),
-            chat: document.getElementById('chatTab'),
-        };
-
-        function activateTab(name) {
-            const target = name === 'chat' ? 'chat' : 'evaluation';
-            tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.tabTarget === target));
-            Object.entries(tabPanels).forEach(([key, el]) => {
-                if (!el) return;
-                el.classList.toggle('active', key === target);
-                el.style.display = key === target ? 'block' : 'none';
-            });
-
-            const metricPair = document.getElementById('metricPair');
-            const metricLoop = document.getElementById('metricLoop');
-            const chipLoop = document.getElementById('loopIterationsPreview');
-            if (metricPair) metricPair.style.display = target === 'evaluation' ? 'flex' : 'none';
-            if (metricLoop) metricLoop.style.display = target === 'evaluation' ? 'flex' : 'none';
-            updateEnginePreview(target);
-            const url = new URL(window.location.href);
-            url.searchParams.set('tab', target);
-            window.history.replaceState({}, '', url);
-
-            const appTitle = document.getElementById('appTitle');
-            if (appTitle) {
-                appTitle.textContent = target === 'chat' ? 'PPTPilot' : 'PPTArena';
-            }
-        }
-        tabButtons.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tabTarget)));
-        activateTab(defaultTab);
-    </script>
     <script id="pageStateData" type="application/json">
     {
         "predictionPptxName": {{ (prediction_pptx_name or "") | tojson | safe }},
         "selectedPairName": {{ selected_pair.name | tojson | safe }}
     }
     </script>
+
+    <script>
+        // ----- Leaderboard split tabs -----
+        const leaderboardButtons = document.querySelectorAll('[data-leaderboard-target]');
+        const leaderboardPanels = document.querySelectorAll('[data-leaderboard-panel]');
+        function activateLeaderboardSplit(name) {
+            leaderboardButtons.forEach(btn => {
+                const active = btn.dataset.leaderboardTarget === name;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+            leaderboardPanels.forEach(panel => {
+                panel.classList.toggle('active', panel.dataset.leaderboardPanel === name);
+            });
+        }
+        leaderboardButtons.forEach(btn => {
+            btn.addEventListener('click', () => activateLeaderboardSplit(btn.dataset.leaderboardTarget));
+        });
+
+        // ----- Sortable leaderboard tables -----
+        document.querySelectorAll('table.lb-table').forEach(table => {
+            const tbody = table.querySelector('tbody');
+            table.querySelectorAll('th[data-sort]').forEach(th => {
+                th.addEventListener('click', () => {
+                    const key = th.dataset.sort;
+                    const dir = th.dataset.dir === 'desc' ? 'asc' : 'desc';
+                    table.querySelectorAll('th[data-sort]').forEach(h => h.removeAttribute('data-dir'));
+                    th.dataset.dir = dir;
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    rows.sort((a, b) => (parseFloat(a.dataset[key]) || 0) - (parseFloat(b.dataset[key]) || 0));
+                    if (dir === 'desc') rows.reverse();
+                    rows.forEach(r => tbody.appendChild(r));
+                });
+            });
+        });
+
+        // ----- Copy citation -----
+        const copyCitationBtn = document.getElementById('copyCitation');
+        if (copyCitationBtn) {
+            copyCitationBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(document.getElementById('citationText').textContent);
+                    copyCitationBtn.textContent = 'Copied';
+                    setTimeout(() => { copyCitationBtn.textContent = 'Copy'; }, 1600);
+                } catch (_) { }
+            });
+        }
+    </script>
+
     <script>
         // Shared references
         const apiKeyOpenAIInput = document.getElementById('api_key_openai');
@@ -917,7 +1841,7 @@
             return { valid: true };
         }
 
-        // Evaluation tab elements
+        // Evaluation workspace elements
         const pairSelector = document.getElementById('evaluationPairSelector');
         const evalForm = document.getElementById('evalForm');
         const judgeButton = document.getElementById('judgeButton');
@@ -952,7 +1876,7 @@
         const generationTimeFromUrl = urlParams.get('generation_time');
         const llmEngineFromUrl = urlParams.get('llm_engine');
         if (generationTimeFromUrl) {
-            generationTimeDisplay.textContent = `⏱️ Generation time: ${generationTimeFromUrl}s`;
+            generationTimeDisplay.textContent = `Generation time: ${generationTimeFromUrl}s`;
             generationTimeDisplay.style.display = 'block';
             currentGenerationTime = parseFloat(generationTimeFromUrl);
         }
@@ -960,18 +1884,11 @@
             currentLLMEngine = llmEngineFromUrl;
         }
 
-        function updateEnginePreview(activeTabName) {
+        function updateEnginePreview() {
             if (!enginePreview) return;
-            const targetTab = activeTabName || (tabButtons && Array.from(tabButtons).find(btn => btn.classList.contains('active'))?.dataset.tabTarget) || 'evaluation';
-            if (targetTab === 'chat') {
-                const chatSelect = document.getElementById('chat_llm_engine');
-                const sel = chatSelect ? chatSelect.options[chatSelect.selectedIndex] : null;
-                enginePreview.textContent = sel ? sel.textContent : '—';
-            } else {
-                if (!llmEngineSelect) return;
-                const selected = llmEngineSelect.options[llmEngineSelect.selectedIndex];
-                enginePreview.textContent = selected ? selected.textContent : '—';
-            }
+            if (!llmEngineSelect) return;
+            const selected = llmEngineSelect.options[llmEngineSelect.selectedIndex];
+            enginePreview.textContent = selected ? selected.textContent : '—';
         }
 
         function updateLoopPreview() {
@@ -989,8 +1906,8 @@
             const exists = Array.from(llmEngineSelect.options).some(opt => opt.value === llmEngineFromUrl);
             if (exists) llmEngineSelect.value = llmEngineFromUrl;
         }
-        updateEnginePreview(defaultTab);
-        if (llmEngineSelect) llmEngineSelect.addEventListener('change', () => updateEnginePreview('evaluation'));
+        updateEnginePreview();
+        if (llmEngineSelect) llmEngineSelect.addEventListener('change', updateEnginePreview);
         updateLoopPreview();
         updateActivePairLabel(selectedPairName);
 
@@ -1121,14 +2038,14 @@
                         startProgressPolling(currentRequestId);
                     }
                     if (result.generation_time_seconds !== undefined) {
-                        generationTimeDisplay.textContent = `⏱️ Generation time: ${result.generation_time_seconds}s`;
+                        generationTimeDisplay.textContent = `Generation time: ${result.generation_time_seconds}s`;
                         generationTimeDisplay.style.display = 'block';
                         currentGenerationTime = result.generation_time_seconds;
                     }
 
                     currentLLMEngine = llmEngineSelect.value;
 
-                    const notifTitle = result.loop_mode_enabled ? 'PPTPilot - Loop Complete' : 'PPTPilot - Prediction Complete';
+                    const notifTitle = result.loop_mode_enabled ? 'PPTArena - Loop Complete' : 'PPTArena - Prediction Complete';
                     const notifChunks = [];
                     if (result.loop_mode_enabled) {
                         notifChunks.push(`Iterations: ${result.loop_iterations_completed || '?'} / ${result.loop_iterations_requested || '?'}`);
@@ -1161,11 +2078,11 @@
                     }
                 } else {
                     displayEvalMessage(`Error: ${result.error || 'Failed to process.'}`, 'error');
-                    showNotification('PPTPilot - Prediction Failed', result.error || 'Failed to process', false);
+                    showNotification('PPTArena - Prediction Failed', result.error || 'Failed to process', false);
                 }
             } catch (error) {
                 displayEvalMessage(`Network error: ${error.message}`, 'error');
-                showNotification('PPTPilot - Prediction Failed', error.message, false);
+                showNotification('PPTArena - Prediction Failed', error.message, false);
             } finally {
                 if (evalLoader) evalLoader.style.display = 'none';
             }
@@ -1201,21 +2118,21 @@
                 if (response.ok) {
                     if (judgement.error) {
                         displayEvalMessage(`Judging error: ${judgement.error}`, 'error');
-                        showNotification('PPTPilot - Judging Failed', judgement.error, false);
+                        showNotification('PPTArena - Judging Failed', judgement.error, false);
                     } else {
                         if (judgementDisplay) {
                             judgementDisplay.innerHTML = formatJudgementHTML(judgement);
                             judgementDisplay.style.display = 'block';
                         }
                         if (judgement.judge_time_seconds !== undefined) {
-                            judgeTimeDisplay.textContent = `⏱️ Judge time: ${judgement.judge_time_seconds}s`;
+                            judgeTimeDisplay.textContent = `Judge time: ${judgement.judge_time_seconds}s`;
                             judgeTimeDisplay.style.display = 'block';
                         }
                         const ifScore = judgement.instruction_following_score ?? 'N/A';
                         const vpScore = judgement.visual_quality_score ?? 'N/A';
                         appendEvalProgress(`Judge result → IF: ${ifScore}/5, VQ: ${vpScore}/5`);
                         showNotification(
-                            'PPTPilot - Judging Complete',
+                            'PPTArena - Judging Complete',
                             `IF: ${ifScore}/5, VQ: ${vpScore}/5 (${judgement.judge_time_seconds || '?'}s)`,
                             true
                         );
@@ -1223,78 +2140,15 @@
                     }
                 } else {
                     displayEvalMessage(`Server error during judging: ${judgement.error}`, 'error');
-                    showNotification('PPTPilot - Judging Failed', judgement.error, false);
+                    showNotification('PPTArena - Judging Failed', judgement.error, false);
                 }
             } catch (error) {
                 displayEvalMessage(`Network error during judging: ${error.message}`, 'error');
-                showNotification('PPTPilot - Judging Failed', error.message, false);
+                showNotification('PPTArena - Judging Failed', error.message, false);
             } finally {
                 if (evalLoader) evalLoader.style.display = 'none';
             }
         });
-
-        // Contact Form Logic
-        const contactBtn = document.getElementById('contactSubmitBtn');
-        if (contactBtn) {
-            contactBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const subjectInput = document.getElementById('contact_subject');
-                const messageInput = document.getElementById('contact_message');
-                const btnText = document.getElementById('contactBtnText');
-
-                const subject = subjectInput.value.trim();
-                const body = messageInput.value.trim();
-
-                if (!subject || !body) {
-                    alert('Please fill in both subject and message fields.');
-                    return;
-                }
-
-                const originalText = btnText.textContent;
-                btnText.textContent = 'Sending...';
-                contactBtn.disabled = true;
-
-                // Formspree submission
-                // User provided Form ID: mrbnllab
-                const formId = 'mrbnllab';
-
-                fetch(`https://formspree.io/f/${formId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        subject: subject,
-                        message: body,
-                        _subject: `[PPTArena] ${subject}` // Formspree special field for email subject
-                    }),
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            alert('Email sent successfully!');
-                            subjectInput.value = '';
-                            messageInput.value = '';
-                        } else {
-                            response.json().then(data => {
-                                if (Object.hasOwn(data, 'errors')) {
-                                    alert(data["errors"].map(error => error["message"]).join(", "));
-                                } else {
-                                    alert('Oops! There was a problem submitting your form');
-                                }
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Network error. Please try again later.');
-                    })
-                    .finally(() => {
-                        btnText.textContent = originalText;
-                        contactBtn.disabled = false;
-                    });
-            });
-        }
 
         async function saveResultsToCSV(judgement) {
             try {
@@ -1331,36 +2185,37 @@
             const improvement = judgement.suggested_improvement || 'None';
 
             const reasoningSection = hasReasoning ? `
-                <div class="mt-2">
-                    <p class="font-semibold text-slate-700 text-sm">Overall reasoning</p>
-                    <p class="text-xs text-slate-600">${judgement.reasoning}</p>
+                <div class="judge-sub">
+                    <b>Overall reasoning</b>
+                    <p>${judgement.reasoning}</p>
                 </div>
             ` : '';
 
             return `
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                    <div class="p-3 border border-slate-200 rounded-md bg-white">
-                        <p class="text-xs font-medium text-slate-700">Instruction Following</p>
-                        <p class="text-xl font-bold text-slate-900">${ifScore}/5</p>
-                        <p class="mt-1 text-xs text-slate-600">${ifReason}</p>
+                <div class="judge-grid">
+                    <div class="judge-box">
+                        <p class="judge-box-label">Instruction following</p>
+                        <p class="judge-box-score num">${ifScore}/5</p>
+                        <p class="judge-box-reason">${ifReason}</p>
                     </div>
-                    <div class="p-3 border border-slate-200 rounded-md bg-white">
-                        <p class="text-xs font-medium text-slate-700">Visual Quality</p>
-                        <p class="text-xl font-bold text-slate-900">${vpScore}/5</p>
-                        <p class="mt-1 text-xs text-slate-600">${vpReason}</p>
+                    <div class="judge-box">
+                        <p class="judge-box-label">Visual quality</p>
+                        <p class="judge-box-score num">${vpScore}/5</p>
+                        <p class="judge-box-reason">${vpReason}</p>
                     </div>
                 </div>
                 ${reasoningSection}
-                <div class="mt-2">
-                    <p class="font-semibold text-slate-700 text-sm">Suggested improvement</p>
-                    <p class="text-xs text-slate-600">${improvement}</p>
+                <div class="judge-sub">
+                    <b>Suggested improvement</b>
+                    <p>${improvement}</p>
                 </div>
             `;
         }
 
         function displayEvalMessage(message, type) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `p-3 rounded-md text-sm border ${type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`;
+            const cls = type === 'success' ? 'msg-success' : (type === 'error' ? 'msg-error' : 'msg-info');
+            messageDiv.className = `msg ${cls}`;
             messageDiv.textContent = message;
             evalMessageArea.innerHTML = '';
             evalMessageArea.appendChild(messageDiv);
@@ -1368,7 +2223,7 @@
 
         function appendEvalProgress(message) {
             const row = document.createElement('div');
-            row.className = 'text-xs text-slate-600';
+            row.className = 'log-line';
             row.textContent = message;
             evalMessageArea.appendChild(row);
             evalMessageArea.scrollTop = evalMessageArea.scrollHeight;
@@ -1489,7 +2344,6 @@
         }
     </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         // Helper functions for Microsoft Live viewer with fallbacks
         function toAbsoluteUrl(u) {
@@ -1517,274 +2371,6 @@
         function joinUrl(base, path) {
             return new URL(path, base).href;
         }
-
-        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-            console.warn('Office preview cannot load files from localhost. Use a public URL via ngrok/Cloudflare Tunnel or deploy to staging.');
-            setTimeout(() => {
-                if (typeof displayChatMessage === 'function') {
-                    displayChatMessage('Office preview cannot load files from localhost. Use ngrok/Cloudflare Tunnel or deploy to staging for full functionality.', 'error');
-                }
-            }, 1000);
-        }
-    </script>
-    <script>
-        // Chat tab logic
-        const chatPptForm = document.getElementById('chatPptForm');
-        const chatForm = document.getElementById('chatForm');
-        const chatLoader = document.getElementById('chatLoader');
-        const chatMessageArea = document.getElementById('chatMessageArea');
-        const chatHistory = document.getElementById('chatHistory');
-        const chatModifiedPptIframe = document.getElementById('chatModifiedPptIframe');
-        const chatModifiedPptxDownload = document.getElementById('chatModifiedPptxDownload');
-        const chatEditHistoryContainer = document.getElementById('chatEditHistoryContainer');
-        const chatFileInput = document.getElementById('chat_ppt_file');
-        const chatLLMSelect = document.getElementById('chat_llm_engine');
-        const chatPreviewSection = document.getElementById('chatPreviewSection');
-        const BACKEND_URL = window.location.origin;
-        let chatProgressInterval = null;
-        let chatProgressIndex = 0;
-        let currentSessionId = null;
-        let chatHistoryData = [];
-        let editHistoryData = [];
-
-        function displayChatMessage(message, type) {
-            const div = document.createElement('div');
-            div.className = `p-3 rounded-md text-sm border ${type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`;
-            div.textContent = message;
-            chatMessageArea.innerHTML = '';
-            chatMessageArea.appendChild(div);
-        }
-
-        function appendChatProgress(message) {
-            const row = document.createElement('div');
-            row.className = 'text-xs text-slate-600';
-            row.textContent = message;
-            chatMessageArea.appendChild(row);
-            chatMessageArea.scrollTop = chatMessageArea.scrollHeight;
-        }
-
-        async function pollChatProgress(requestId) {
-            try {
-                const res = await fetch(`/progress?request_id=${encodeURIComponent(requestId)}&since=${chatProgressIndex}`);
-                const data = await res.json();
-                const msgs = data.messages || [];
-                msgs.forEach(m => appendChatProgress(m));
-                chatProgressIndex = data.next_index || chatProgressIndex;
-            } catch (_) { }
-        }
-
-        function startChatProgressPolling(requestId) {
-            if (chatProgressInterval) clearInterval(chatProgressInterval);
-            chatProgressIndex = 0;
-            appendChatProgress('Starting live progress...');
-            chatProgressInterval = setInterval(() => pollChatProgress(requestId), 800);
-            setTimeout(() => { if (chatProgressInterval) { clearInterval(chatProgressInterval); appendChatProgress('Progress ended.'); } }, 120000);
-        }
-
-        function renderChatHistory() {
-            chatHistory.innerHTML = '';
-            chatHistoryData.forEach(entry => {
-                const entryDiv = document.createElement('div');
-                entryDiv.className = 'chat-history-entry';
-                const userBubble = document.createElement('div');
-                userBubble.className = 'chat-bubble-user';
-                userBubble.textContent = entry.prompt;
-                entryDiv.appendChild(userBubble);
-                const llmBubble = document.createElement('div');
-                llmBubble.className = 'chat-bubble-llm';
-                llmBubble.textContent = entry.response || 'No response.';
-                entryDiv.appendChild(llmBubble);
-                if (entry.downloadUrl) {
-                    const link = document.createElement('a');
-                    link.href = entry.downloadUrl;
-                    link.target = '_blank';
-                    link.rel = 'noopener';
-                    link.className = 'text-blue-600 underline mt-1';
-                    link.textContent = 'Download this version';
-                    entryDiv.appendChild(link);
-                }
-                chatHistory.appendChild(entryDiv);
-            });
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        function renderEditHistory() {
-            chatEditHistoryContainer.innerHTML = '';
-            if (editHistoryData.length === 0) {
-                chatEditHistoryContainer.innerHTML = '<div class="text-gray-500">No previous edits yet.</div>';
-                return;
-            }
-            editHistoryData.forEach((edit, idx) => {
-                const entryDiv = document.createElement('div');
-                entryDiv.className = 'history-entry';
-                entryDiv.innerHTML = `
-                <div class="font-semibold mb-1">Edit #${idx + 1}</div>
-                <div class="mb-1 text-sm text-gray-700"><span class="font-medium">Prompt:</span> ${edit.prompt}</div>
-                <div class="mb-1 text-sm text-gray-700"><span class="font-medium">LLM Response:</span> ${edit.response || 'No response.'}</div>
-                <div class="flex gap-3 mt-1">
-                    <a href="${edit.downloadUrl}" target="_blank" rel="noopener" class="text-blue-600 underline">Download PPTX</a>
-                    <a href="${edit.previewUrl}" target="_blank" rel="noopener" class="text-blue-600 underline">Preview</a>
-                </div>
-            `;
-                chatEditHistoryContainer.appendChild(entryDiv);
-            });
-        }
-
-
-
-        chatLLMSelect?.addEventListener('change', () => updateEnginePreview('chat'));
-
-        chatFileInput.addEventListener('change', async () => {
-            const file = chatFileInput.files[0];
-            if (!file) return;
-            const formData = new FormData();
-            formData.append('file', file);
-            try {
-                const backend = BACKEND_URL.replace(/\/+$/, '');
-                const response = await fetch(`${BACKEND_URL}/upload_only`, { method: 'POST', body: formData });
-                if (response.ok) {
-                    const data = await response.json();
-                    const pdfUrl = data.pdf_preview_url ? joinUrl(backend, data.pdf_preview_url) : null;
-                    const publicUrl = data.public_preview_url ? (data.public_preview_url.startsWith('http') ? data.public_preview_url : toAbsoluteUrl(data.public_preview_url)) : toAbsoluteUrl(data.preview_url);
-                    if (pdfUrl) {
-                        chatModifiedPptIframe.src = pdfUrl;
-                    } else if (publicUrl) {
-                        setIframeWithFallback(chatModifiedPptIframe, publicUrl);
-                    }
-                    chatPreviewSection.style.display = 'flex';
-                    chatModifiedPptxDownload.href = data.preview_url ? joinUrl(backend, data.preview_url) : '#';
-                }
-            } catch (err) {
-                console.error('Preview upload failed', err);
-            }
-        });
-
-        chatForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const modelId = chatLLMSelect.value;
-            const validation = validateApiKeys(modelId);
-            if (!validation.valid) {
-                displayChatMessage(`Error: ${validation.provider} API Key is required for model '${modelId}'. Please enter it in the top bar.`, 'error');
-                return;
-            }
-
-            if (chatLoader) chatLoader.style.display = 'block';
-            const prompt = document.getElementById('chat_prompt').value;
-
-            if (!currentSessionId && !chatFileInput.files[0]) {
-                displayChatMessage('Please upload a PPTX file first before sending instructions.', 'error');
-                if (chatLoader) chatLoader.style.display = 'none';
-                return;
-            }
-
-            const formData = new FormData(chatPptForm);
-            formData.append('prompt', prompt);
-            formData.append('openai_api_key', apiKeyOpenAIInput ? apiKeyOpenAIInput.value : '');
-            formData.append('gemini_api_key', apiKeyGeminiInput ? apiKeyGeminiInput.value : '');
-
-            let endpoint = '';
-            if (currentSessionId) {
-                endpoint = `${BACKEND_URL}/api/edit`;
-                formData.append('session_id', currentSessionId);
-                formData.delete('file');
-            } else {
-                endpoint = `${BACKEND_URL}/process_ppt`;
-            }
-
-            try {
-                const backend = BACKEND_URL.replace(/\/+$/, '');
-                const response = await fetch(endpoint, { method: 'POST', body: formData });
-                if (chatLoader) chatLoader.style.display = 'none';
-                if (response.ok) {
-                    const data = await response.json();
-
-                    if (data.error) {
-                        displayChatMessage(`Error: ${data.error}`, 'error');
-                        return;
-                    }
-
-                    document.getElementById('chat_prompt').value = '';
-
-                    if (data.session_id && !currentSessionId) {
-                        currentSessionId = data.session_id;
-                        chatFileInput.disabled = true;
-                        displayChatMessage(`Session started: ${currentSessionId}`, 'success');
-                    } else {
-                        displayChatMessage(data.message || 'Processing successful!', 'success');
-                    }
-
-                    if (data.request_id) startChatProgressPolling(data.request_id);
-
-                    if (data.modified_pptx_url) {
-                        const pdfUrl = data.pdf_preview_url ? joinUrl(backend, data.pdf_preview_url) : null;
-                        const publicUrl = data.public_preview_url || toAbsoluteUrl(`${backend}${data.modified_pptx_url}`);
-                        if (pdfUrl) {
-                            chatModifiedPptIframe.src = pdfUrl;
-                        } else {
-                            // Ensure publicUrl is absolute for MS Viewer
-                            const absPublicUrl = publicUrl.startsWith('http') ? publicUrl : toAbsoluteUrl(publicUrl);
-                            setIframeWithFallback(chatModifiedPptIframe, absPublicUrl);
-                        }
-                        chatPreviewSection.style.display = 'flex';
-                        chatModifiedPptxDownload.href = `${backend}${data.modified_pptx_download_url}`;
-                    }
-
-                    chatHistoryData.push({
-                        prompt: prompt,
-                        response: data.summary || data.message || (data.reason_for_no_modification ? `No modifications: ${data.reason_for_no_modification}` : 'Success'),
-                        downloadUrl: data.modified_pptx_download_url ? `${backend}${data.modified_pptx_download_url}` : null
-                    });
-                    renderChatHistory();
-
-                    if (data.session_id) {
-                        editHistoryData = [];
-                        for (let i = 1; i < chatHistoryData.length; i++) {
-                            const editNum = i;
-                            const promptText = chatHistoryData[i - 1].prompt;
-                            const responseText = chatHistoryData[i - 1].response;
-                            const downloadUrl = joinUrl(backend, `/download_original/${currentSessionId}/history_${editNum}.pptx`);
-                            const previewUrl = buildOfficeViewerUrl(downloadUrl);
-                            editHistoryData.push({
-                                prompt: promptText, response: responseText, downloadUrl, previewUrl
-                            });
-                        }
-                        renderEditHistory();
-                    }
-                } else {
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('text/html')) {
-                        const htmlText = await response.text();
-                        displayChatMessage(`Server error: Received HTML instead of JSON. Check server logs.`, 'error');
-                        console.error('Server returned HTML:', htmlText.substring(0, 200));
-                    } else {
-                        try {
-                            const errorData = await response.json();
-                            displayChatMessage(`Error: ${errorData.error || 'Failed to process the presentation.'}`, 'error');
-                        } catch (jsonError) {
-                            displayChatMessage(`Server error: Invalid JSON response`, 'error');
-                            console.error('JSON parse error:', jsonError);
-                        }
-                    }
-                }
-            } catch (error) {
-                if (chatLoader) chatLoader.style.display = 'none';
-                displayChatMessage(`Network error: ${error.message}`, 'error');
-                console.error('Network error details:', error);
-            }
-        });
-
-        window.onload = () => {
-            chatHistoryData = [];
-            editHistoryData = [];
-            renderChatHistory();
-            renderEditHistory();
-            chatModifiedPptIframe.src = '';
-            chatModifiedPptxDownload.href = '#';
-            chatPreviewSection.style.display = 'none';
-            chatFileInput.disabled = false;
-            currentSessionId = null;
-        };
     </script>
 </body>
 

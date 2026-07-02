@@ -187,8 +187,414 @@ def stream_long_task(app_context, task_func, *args, **kwargs):
     from flask import Response
     return Response(generate(), mimetype='application/json')
 
+LEADERBOARD_SOURCES = [
+    {
+        "name": "PPTPilot (Gemini 3.1 Pro)",
+        "model": "Gemini 3.1 Pro",
+        "provider": "PPTPilot",
+        "brand": "PPTPilot",
+        "icon": "P",
+        "color": "#2563eb",
+        "split": "full",
+        "expected_cases": 100,
+        "path": SCRIPT_DIR.parent / "evaluation_results_bulk.json",
+        "judge": "Gemini 3.1 Pro judge",
+        "include_subset": True,
+    },
+    {
+        "name": "PPTPilot (GPT-5.2)",
+        "model": "GPT-5.2",
+        "provider": "PPTPilot",
+        "brand": "PPTPilot",
+        "icon": "P",
+        "color": "#0d9488",
+        "split": "full",
+        "expected_cases": 100,
+        "path": SCRIPT_DIR / "Main Results" / "evaluation_results_rejudged.csv",
+        "judge": "GPT-5.2 judge",
+        "include_subset": True,
+    },
+    {
+        "name": "ChatGPT",
+        "model": "ChatGPT",
+        "provider": "OpenAI",
+        "brand": "OpenAI",
+        "icon": "◎",
+        "color": "#10a37f",
+        "split": "full",
+        "expected_cases": 100,
+        "path": SCRIPT_DIR / "Main Results" / "chatgpt_judge_results.csv",
+        "judge": "GPT-5.2 judge",
+    },
+    {
+        "name": "Claude",
+        "model": "Claude 3.7 Sonnet",
+        "provider": "Anthropic",
+        "brand": "Claude",
+        "icon": "✶",
+        "color": "#d97757",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR.parent / "claude_evaluation_results.json",
+        "judge": "Gemini 3.1 Pro judge",
+    },
+    {
+        "name": "ChatGPT Agent",
+        "model": "ChatGPT Agent",
+        "provider": "OpenAI",
+        "brand": "OpenAI",
+        "icon": "◎",
+        "color": "#0f0f0f",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR / "Main Results" / "chatgpt_agent_samples_judge_results1.csv",
+        "judge": "GPT-5.2 judge",
+    },
+    {
+        "name": "MiniMax Agent",
+        "model": "MiniMax Agent",
+        "provider": "MiniMax",
+        "brand": "MiniMax",
+        "icon": "M",
+        "color": "#6d5dfc",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR / "benchmark_runs" / "minimax_agent_samples_judge_results.csv",
+        "judge": "GPT-5.2 judge",
+    },
+    {
+        "name": "Gemini CLI",
+        "model": "Gemini 3.1 Pro",
+        "provider": "Google",
+        "brand": "Gemini",
+        "icon": "G",
+        "color": "#4285f4",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR / "benchmark_runs" / "gemini_cli_subset25_rejudge_gpt51.csv",
+        "judge": "GPT-5.2 judge",
+        # This run covers a slightly different 25 (includes "Case 100", missing
+        # "Case 21"), so it must not redefine the canonical matched subset.
+        "defines_subset": False,
+    },
+]
+
+# Systems reported in the PPTArena paper for which no live result file exists in
+# this repo. Scores are the paper's published subset (25-case) IF/VQ averages and
+# are surfaced as static, paper-reported leaderboard entries.
+LEADERBOARD_STATIC_ENTRIES = [
+    {
+        "name": "Kimi K2.6",
+        "model": "Kimi K2.6",
+        "provider": "Moonshot AI",
+        "brand": "Kimi",
+        "icon": "K",
+        "color": "#16181d",
+        "split": "subset",
+        "expected_cases": 25,
+        "judge": "GPT-5.2 judge",
+        "if_score": 1.68,
+        "vq_score": 1.00,
+    },
+    {
+        "name": "PPTAgent",
+        "model": "PPTAgent",
+        "provider": "PPTAgent",
+        "brand": "PPTAgent",
+        "icon": "A",
+        "color": "#9ca3af",
+        "split": "subset",
+        "expected_cases": 25,
+        "judge": "GPT-5.2 judge",
+        "if_score": 0.00,
+        "vq_score": 0.00,
+    },
+]
+
+LEADERBOARD_BASE_SPLITS = [
+    {
+        "key": "subset",
+        "label": "Hard Subset",
+        "description": "Matched 25-case hard subset used for cost-sensitive agent comparisons.",
+    },
+    {
+        "key": "full",
+        "label": "Full Set",
+        "description": "All 100 PPTArena cases, with unscored cases counted as 0.",
+    },
+]
+
+LEADERBOARD_CATEGORY_SPLITS = [
+    {
+        "key": "category_content",
+        "label": "Content",
+        "category": "Content",
+        "description": "Cases tagged for content and semantic editing.",
+    },
+    {
+        "key": "category_layout",
+        "label": "Layout",
+        "category": "Layout",
+        "description": "Layout, positioning, and spatial-reasoning cases.",
+    },
+    {
+        "key": "category_styling",
+        "label": "Styling",
+        "category": "Styling",
+        "description": "Visual styling, theme, and typography-sensitive cases.",
+    },
+    {
+        "key": "category_structure",
+        "label": "Structure",
+        "category": "Structure",
+        "description": "Structural, cross-slide, and document-level edits.",
+    },
+    {
+        "key": "category_interactivity",
+        "label": "Interactivity",
+        "category": "Interactivity",
+        "description": "Transitions, animations, actions, and interactive features.",
+    },
+]
+
+LEADERBOARD_SPLITS = LEADERBOARD_BASE_SPLITS + LEADERBOARD_CATEGORY_SPLITS
+
+
+def _score_to_float(value):
+    try:
+        if value in (None, ""):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _get_case_name(row):
+    for key in ("pair_name", "name", "case_name", "Case", "case"):
+        value = row.get(key)
+        if value:
+            return str(value).strip()
+    return None
+
+
+def _read_leaderboard_rows(path):
+    """Read rows with IF/VQ judge scores from CSV or JSON result files."""
+    if not path.exists():
+        return []
+
+    if path.suffix.lower() == ".json":
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            return []
+        if isinstance(data, dict):
+            rows = list(data.values()) if all(isinstance(v, dict) for v in data.values()) else [data]
+        elif isinstance(data, list):
+            rows = data
+        else:
+            rows = []
+        return [row for row in rows if isinstance(row, dict)]
+
+    try:
+        with open(path, newline="", encoding="utf-8-sig") as f:
+            return list(csv.DictReader(f))
+    except OSError:
+        return []
+
+
+def _load_case_metadata():
+    pairs = get_evaluation_pairs()
+    by_name = {}
+    by_category = {}
+    for pair in pairs:
+        name = pair.get("name")
+        if not name:
+            continue
+        by_name[name] = pair
+        for category in pair.get("category", []):
+            by_category.setdefault(category, set()).add(name)
+    return by_name, by_category
+
+
+def _collect_source_scores(source):
+    rows = _read_leaderboard_rows(source["path"])
+    source_case_names = []
+    scored = []
+    for row in rows:
+        case_name = _get_case_name(row)
+        if case_name:
+            source_case_names.append(case_name)
+
+        if_score = _score_to_float(row.get("instruction_following_score"))
+        vq_score = _score_to_float(row.get("visual_quality_score"))
+        if if_score is None or vq_score is None:
+            continue
+        scored.append({
+            "case_name": case_name,
+            "if_score": if_score,
+            "vq_score": vq_score,
+        })
+
+    return scored, source_case_names
+
+
+def _build_leaderboard_entry(source, split_key, expected_cases, scored):
+    scored_cases = len(scored)
+    if not scored or expected_cases <= 0:
+        return None
+
+    total_if_pct = sum(row["if_score"] / 5 * 100 for row in scored)
+    total_vq_pct = sum(row["vq_score"] / 5 * 100 for row in scored)
+    total_case_pct = sum(
+        ((row["if_score"] + row["vq_score"]) / 10) * 100
+        for row in scored
+    )
+
+    mean_scored_pct = total_case_pct / scored_cases
+    # Conservative leaderboard metric: missing or unscored cases count as 0.
+    score_pct = total_case_pct / expected_cases
+    if_pct = total_if_pct / expected_cases
+    vq_pct = total_vq_pct / expected_cases
+
+    return {
+        "name": source["name"],
+        "model": source.get("model", source["name"]),
+        "provider": source.get("provider", ""),
+        "brand": source.get("brand", source.get("provider", "")),
+        "icon": source.get("icon", source["name"][:1]),
+        "color": source.get("color", "#3457d5"),
+        "split": split_key,
+        "score_pct": round(score_pct, 1),
+        "bar_pct": round(max(0, min(score_pct, 100)), 1),
+        "mean_scored_pct": round(mean_scored_pct, 1),
+        "if_pct": round(if_pct, 1),
+        "vq_pct": round(vq_pct, 1),
+        "scored_cases": scored_cases,
+        "expected_cases": expected_cases,
+        "judge": source["judge"],
+        "coverage_pct": round(scored_cases / expected_cases * 100, 1),
+    }
+
+
+def _build_static_entry(entry):
+    """Build a leaderboard entry from paper-reported IF/VQ averages (no result file)."""
+    expected = entry.get("expected_cases", 0)
+    if expected <= 0:
+        return None
+    synthetic = [
+        {"case_name": None, "if_score": entry["if_score"], "vq_score": entry["vq_score"]}
+        for _ in range(expected)
+    ]
+    built = _build_leaderboard_entry(entry, entry["split"], expected, synthetic)
+    if built:
+        built["paper_reported"] = True
+    return built
+
+
+def get_leaderboard_data():
+    splits = {
+        split["key"]: {
+            "label": split["label"],
+            "description": split["description"],
+            "case_count": 0,
+            "entries": [],
+        }
+        for split in LEADERBOARD_SPLITS
+    }
+
+    case_meta, cases_by_category = _load_case_metadata()
+    all_case_names = set(case_meta)
+    splits["full"]["case_count"] = len(all_case_names)
+    source_payloads = []
+    subset_case_names = set()
+    for source in LEADERBOARD_SOURCES:
+        scored, source_case_names = _collect_source_scores(source)
+        source_payloads.append((source, scored, source_case_names))
+        if source["split"] == "subset" and source.get("defines_subset", True):
+            subset_case_names.update(source_case_names)
+
+    splits["subset"]["case_count"] = len(subset_case_names) or 25
+    for split in LEADERBOARD_CATEGORY_SPLITS:
+        splits[split["key"]]["case_count"] = len(cases_by_category.get(split["category"], set()))
+
+    for source, scored, source_case_names in source_payloads:
+        base_entry = _build_leaderboard_entry(
+            source,
+            source["split"],
+            source["expected_cases"],
+            scored,
+        )
+        if base_entry:
+            splits[source["split"]]["entries"].append(base_entry)
+
+        if source.get("include_subset") and subset_case_names:
+            subset_scores = [
+                row for row in scored
+                if row["case_name"] in subset_case_names
+            ]
+            subset_entry = _build_leaderboard_entry(
+                source,
+                "subset",
+                len(subset_case_names),
+                subset_scores,
+            )
+            if subset_entry:
+                splits["subset"]["entries"].append(subset_entry)
+
+        if source["split"] == "full":
+            source_expected_names = all_case_names
+        else:
+            source_expected_names = set(source_case_names)
+
+        for split in LEADERBOARD_CATEGORY_SPLITS:
+            category_names = cases_by_category.get(split["category"], set())
+            expected_names = source_expected_names & category_names
+            if not expected_names:
+                continue
+            category_scores = [
+                row for row in scored
+                if row["case_name"] in expected_names
+            ]
+            entry = _build_leaderboard_entry(
+                source,
+                split["key"],
+                len(expected_names),
+                category_scores,
+            )
+            if entry:
+                splits[split["key"]]["entries"].append(entry)
+
+    for entry in LEADERBOARD_STATIC_ENTRIES:
+        built = _build_static_entry(entry)
+        if built and entry["split"] in splits:
+            splits[entry["split"]]["entries"].append(built)
+
+    for split in splits.values():
+        split["entries"].sort(key=lambda row: row["score_pct"], reverse=True)
+        split["system_count"] = len(split["entries"])
+
+    split_list = [
+        {
+            "key": key,
+            "label": split["label"],
+            "description": split["description"],
+            "case_count": split["case_count"],
+            "system_count": split["system_count"],
+            "entries": split["entries"],
+        }
+        for key, split in splits.items()
+    ]
+
+    return {
+        "default_split": "subset",
+        "splits": splits,
+        "split_list": split_list,
+    }
+
+
 def build_evaluation_context(selected_pair_name=None, prediction_pptx_path=None):
-    """Shared builder for evaluation/chat tabs so both routes render the same page."""
+    """Build the evaluation page context."""
     evaluation_pairs = get_evaluation_pairs()
     selected_pair = next(
         (p for p in evaluation_pairs if p['name'] == selected_pair_name),
@@ -249,20 +655,17 @@ def build_evaluation_context(selected_pair_name=None, prediction_pptx_path=None)
         prediction_pptx_name=prediction_pptx_name,
         is_prediction=is_prediction,
         public_gt_url=public_gt_url,
-        public_pred_url=public_pred_url
+        public_pred_url=public_pred_url,
+        leaderboard_data=get_leaderboard_data()
     )
     return context, None
 
 @app.route('/app')
 def app_page():
-    """Chat/editor entry point. Renders the shared tabbed page with Chat as default."""
-    selected_pair_name = request.args.get('pair')
-    prediction_path = request.args.get('prediction_pptx_path')
-    active_tab = request.args.get('tab') or 'chat'
-    context, error = build_evaluation_context(selected_pair_name, prediction_path)
-    if error:
-        return error, 500
-    return render_template('evaluation.html', active_tab=active_tab, **context)
+    """Legacy entry point; the site is evaluation-only now."""
+    args = request.args.to_dict(flat=True)
+    args.pop('tab', None)
+    return redirect(url_for('evaluation_page', **args))
 
 
 def get_evaluation_pairs():
@@ -275,14 +678,13 @@ def get_evaluation_pairs():
 
 @app.route('/evaluation', methods=['GET'])
 def evaluation_page():
-    """Render comparison/judge tab (same HTML as chat)."""
+    """Render the evaluation workspace."""
     selected_pair_name = request.args.get('pair')
     prediction_path = request.args.get('prediction_pptx_path')
-    active_tab = request.args.get('tab') or 'evaluation'
     context, error = build_evaluation_context(selected_pair_name, prediction_path)
     if error:
         return error, 500
-    return render_template('evaluation.html', active_tab=active_tab, **context)
+    return render_template('evaluation.html', active_tab='evaluation', **context)
 
 @app.route('/download_original/<session_id>/<filename>')
 def download_original_file(session_id, filename):
