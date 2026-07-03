@@ -41,10 +41,9 @@ PROJECT_ROOT = AGENT_BENCH_DIR.parent
 PAIRS_PATH = PROJECT_ROOT / "src" / "evaluation_pairs_refined.json"
 SUBSET_PATH = AGENT_BENCH_DIR / "subset25.json"
 AGENTS_PATH = AGENT_BENCH_DIR / "agents.json"
-# Workdirs must live OUTSIDE the repo tree: OpenCode resolves its project to
-# the TOPMOST enclosing git repo (not the nearest .git), so workdirs nested in
-# PPTArena all mapped to the repo-root project and concurrent sessions edited
-# each other's decks. Outside the repo, each git-init'd workdir is its own top.
+# Workdirs live OUTSIDE the repo tree so agent sessions can never touch the
+# benchmark repo itself (GroundTruth decks, manifests) even if their project
+# resolution goes wrong — see the PWD note in run_task for how it once did.
 WORKDIRS_ROOT = Path(os.environ.get("AGENT_BENCH_WORKDIRS")
                      or Path.home() / "agent_bench_workdirs")
 PREDICTIONS_ROOT = AGENT_BENCH_DIR / "predictions"
@@ -188,19 +187,23 @@ def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool
         prediction_hash = ""
 
         command = build_command(task.agent, TASK_PROMPT)
-        env = None
+        # subprocess(cwd=...) changes the real working directory but NOT the
+        # inherited $PWD, and OpenCode trusts $PWD over the process cwd when
+        # resolving its project: with the runner launched from the repo root,
+        # every session bootstrapped at /root/PPTArena and edited decks there
+        # instead of its own workdir. Pin PWD to the workdir for all agents.
+        env = dict(os.environ, PWD=str(task.workdir))
+        env.pop("OLDPWD", None)
         if task.agent_id.startswith("opencode"):
-            # OpenCode persists project/session state in XDG_DATA_HOME and
-            # re-attaches new sessions to stored projects by path prefix, so
-            # concurrent runs sharing state edit each other's decks (git-root
-            # isolation alone does not stop re-attachment). Give every task a
-            # throwaway data dir seeded with only the auth file.
+            # OpenCode also persists project/session state in XDG_DATA_HOME;
+            # a throwaway per-task data dir seeded with only the auth file
+            # keeps concurrent sessions from sharing any state.
             xdg = task.workdir / ".xdg"
             (xdg / "opencode").mkdir(parents=True)
             real_auth = Path.home() / ".local" / "share" / "opencode" / "auth.json"
             if real_auth.exists():
                 shutil.copy2(real_auth, xdg / "opencode" / "auth.json")
-            env = dict(os.environ, XDG_DATA_HOME=str(xdg))
+            env["XDG_DATA_HOME"] = str(xdg)
         log_path = task.workdir / "agent_output.log"
         timeout = int(task.agent.get("timeout_seconds", 1800))
 
