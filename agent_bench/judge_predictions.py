@@ -91,8 +91,15 @@ def image_to_base64(image_path: str) -> str | None:
         return None
 
 
+def is_kimi_judge(model_id: str) -> bool:
+    lower = (model_id or "").lower()
+    return "kimi" in lower or "moonshot" in lower
+
+
 def is_openai_judge(model_id: str) -> bool:
     lower = (model_id or "").lower()
+    if is_kimi_judge(lower):
+        return False
     return any(tok in lower for tok in ("gpt", "openai", "o1", "o3", "o4"))
 
 
@@ -334,7 +341,10 @@ def main() -> None:
     pairs.sort(key=lambda c: extract_case_index(c["name"]))
 
     keys = llm_handler.load_api_keys()
-    if is_openai_judge(args.judge_model):
+    if is_kimi_judge(args.judge_model):
+        if not (keys.get("moonshot") or keys.get("kimi") or keys.get("kimi_api_key")):
+            sys.exit("MOONSHOT_API_KEY missing from credentials.env; required for kimi-* judges.")
+    elif is_openai_judge(args.judge_model):
         if not (keys.get("openai") or keys.get("openai_api_key")):
             sys.exit("OPENAI_API_KEY missing from credentials.env; required for gpt-* judges.")
     elif not (keys.get("gemini") or keys.get("gemini_api_key")):
