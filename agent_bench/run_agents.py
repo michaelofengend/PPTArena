@@ -156,7 +156,8 @@ def build_command(agent: dict, prompt: str) -> list[str]:
     return [arg.replace("{prompt}", prompt) for arg in agent["run"]]
 
 
-def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool) -> str:
+def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool,
+             timeout_override: int | None = None) -> str:
     original_path = (PROJECT_ROOT / task.case["original"]).resolve()
     notes: list[str] = []
     exit_code: int | None = None
@@ -205,7 +206,7 @@ def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool
                 shutil.copy2(real_auth, xdg / "opencode" / "auth.json")
             env["XDG_DATA_HOME"] = str(xdg)
         log_path = task.workdir / "agent_output.log"
-        timeout = int(task.agent.get("timeout_seconds", 1800))
+        timeout = timeout_override or int(task.agent.get("timeout_seconds", 1800))
 
         try:
             with log_path.open("w", encoding="utf-8") as log_file:
@@ -322,6 +323,8 @@ def main() -> None:
                         help="Only run the first N cases per agent (smoke tests).")
     parser.add_argument("--force", action="store_true",
                         help="Re-run tasks even if a prediction already exists.")
+    parser.add_argument("--timeout", type=int, default=None,
+                        help="Override every agent's timeout_seconds (straggler-sweep retries).")
     parser.add_argument("--check", action="store_true",
                         help="Only verify that each agent CLI is installed and exits cleanly.")
     parser.add_argument("--dry-run", action="store_true",
@@ -371,7 +374,8 @@ def main() -> None:
     statuses: dict[str, int] = {}
     started = time.time()
     with ThreadPoolExecutor(max_workers=args.parallel) as pool:
-        futures = {pool.submit(run_task, t, manifest_lock, manifest_path, False): t for t in tasks}
+        futures = {pool.submit(run_task, t, manifest_lock, manifest_path, False,
+                               args.timeout): t for t in tasks}
         for future in as_completed(futures):
             task = futures[future]
             try:
