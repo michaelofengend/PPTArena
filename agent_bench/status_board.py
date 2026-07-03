@@ -18,13 +18,16 @@ import argparse
 import csv
 import html
 import json
+import os
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 BENCH = Path(__file__).resolve().parent
 MANIFEST = BENCH / "predictions" / "manifest.csv"
-WORKDIRS = BENCH / "workdirs"
+# Must match run_agents.WORKDIRS_ROOT (workdirs live outside the repo tree).
+WORKDIRS = Path(os.environ.get("AGENT_BENCH_WORKDIRS")
+                or Path.home() / "agent_bench_workdirs")
 AGENTS_PATH = BENCH / "agents.json"
 SUBSET_PATH = BENCH / "subset25.json"
 

@@ -23,6 +23,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -40,7 +41,12 @@ PROJECT_ROOT = AGENT_BENCH_DIR.parent
 PAIRS_PATH = PROJECT_ROOT / "src" / "evaluation_pairs_refined.json"
 SUBSET_PATH = AGENT_BENCH_DIR / "subset25.json"
 AGENTS_PATH = AGENT_BENCH_DIR / "agents.json"
-WORKDIRS_ROOT = AGENT_BENCH_DIR / "workdirs"
+# Workdirs must live OUTSIDE the repo tree: OpenCode resolves its project to
+# the TOPMOST enclosing git repo (not the nearest .git), so workdirs nested in
+# PPTArena all mapped to the repo-root project and concurrent sessions edited
+# each other's decks. Outside the repo, each git-init'd workdir is its own top.
+WORKDIRS_ROOT = Path(os.environ.get("AGENT_BENCH_WORKDIRS")
+                     or Path.home() / "agent_bench_workdirs")
 PREDICTIONS_ROOT = AGENT_BENCH_DIR / "predictions"
 
 MANIFEST_FIELDS = [
@@ -167,9 +173,9 @@ def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool
         if task.workdir.exists():
             shutil.rmtree(task.workdir)
         task.workdir.mkdir(parents=True)
-        # Each workdir must be its own git root: OpenCode resolves its project by
-        # walking up to the nearest .git, so without this all workdirs inside the
-        # repo share one project and concurrent sessions edit each other's decks.
+        # Each workdir is its own git root so OpenCode (and any git-aware CLI)
+        # treats it as a standalone project; WORKDIRS_ROOT lives outside the
+        # repo so there is no enclosing repo to resolve to instead.
         subprocess.run(["git", "init", "-q", str(task.workdir)], check=False,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         deck_path = task.workdir / "deck.pptx"
@@ -189,7 +195,6 @@ def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool
             # concurrent runs sharing state edit each other's decks (git-root
             # isolation alone does not stop re-attachment). Give every task a
             # throwaway data dir seeded with only the auth file.
-            import os
             xdg = task.workdir / ".xdg"
             (xdg / "opencode").mkdir(parents=True)
             real_auth = Path.home() / ".local" / "share" / "opencode" / "auth.json"
