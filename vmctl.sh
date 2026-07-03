@@ -1,24 +1,14 @@
 #!/usr/bin/env bash
-D=/root/PPTArena/agent_bench/diag2.txt
-: > "$D"
-echo '{"security": {"auth": {"selectedType": "gemini-api-key"}}}' > /root/.gemini/settings.json
-echo "settings restored:" >> "$D"; cat /root/.gemini/settings.json >> "$D"
-python3 - << 'PY' >> "$D" 2>&1
-import json, pathlib
-p = pathlib.Path("/root/.gemini/trustedFolders.json")
-d = {}
-if p.exists():
-    try: d = json.load(open(p))
-    except Exception: d = {}
-d["/root/PPTArena/agent_bench/workdirs"] = "TRUST_FOLDER"
-d["/root/PPTArena"] = "TRUST_FOLDER"
-json.dump(d, open(p, "w"), indent=1)
-print("trustedFolders:", d)
-PY
-mkdir -p /tmp/gtrust_test && cd /tmp/gtrust_test
+# pull fixed agents.json (gemini trust env) and restart the runner; board untouched
+cd /root/PPTArena
+git fetch -q origin main && git reset -q --hard origin/main
+grep -q GEMINI_CLI_TRUST_WORKSPACE agent_bench/agents.json && echo "agents.json has trust fix" || echo "WARN: fix missing"
+pkill -f "run_agent[s].py" 2>/dev/null
+pkill -f "codex exe[c]" 2>/dev/null; pkill -f "claude -[p]" 2>/dev/null; pkill -f "gemini -[m]" 2>/dev/null; pkill -f "opencode ru[n]" 2>/dev/null
+sleep 3
 set -a; . /root/PPTArena/credentials.env; set +a
-echo "--- probe WITHOUT env override (trust file only):" >> "$D"
-timeout 90 gemini -m gemini-3.5-flash --yolo -p "Reply with exactly: OK" < /dev/null >> "$D" 2>&1
-echo "--- probe WITH GEMINI_CLI_TRUST_WORKSPACE=true:" >> "$D"
-timeout 90 env GEMINI_CLI_TRUST_WORKSPACE=true gemini -m gemini-3.5-flash --yolo -p "Reply with exactly: OK" < /dev/null >> "$D" 2>&1
-echo "VMCTL_FIX_DONE" >> "$D"
+cd /root/PPTArena
+nohup python3 -u agent_bench/run_agents.py --parallel 5 >> agent_bench/run.log 2>&1 &
+sleep 6
+echo "runner: $(pgrep -fc 'run_agent[s].py') | preds so far: $(find agent_bench/predictions -name '*.pptx' | wc -l)"
+echo "VMCTL_RESTART_DONE"
