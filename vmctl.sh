@@ -1,27 +1,15 @@
 #!/usr/bin/env bash
+# EMERGENCY: stop all generation (opencode retries still failing); start judging done agents
+pkill -f "run_agent[s].py" 2>/dev/null
+pkill -f "opencode ru[n]" 2>/dev/null; pkill -f "codex exe[c]" 2>/dev/null; pkill -f "gemini -[m]" 2>/dev/null; pkill -f "claude -[p]" 2>/dev/null
+sleep 2
+echo "stopped: runner=$(pgrep -fc 'run_agent[s].py' || true) agents=$(pgrep -fc 'opencode ru[n]|codex exe[c]|gemini -[m]|claude -[p]' || true)"
 cd /root/PPTArena
 git fetch -q origin main && git reset -q --hard origin/main
-python3 - << 'PY'
-import csv, os
-from pathlib import Path
-m = Path("agent_bench/predictions/manifest.csv")
-latest = {}
-with m.open() as fh:
-    for r in csv.DictReader(fh):
-        latest[(r["agent"], r["slug"])] = r
-removed = 0
-for (agent, slug), r in latest.items():
-    if r["status"] == "no_change":
-        p = Path("agent_bench/predictions") / agent / f"{slug}.pptx"
-        if p.exists():
-            p.unlink(); removed += 1
-print("deleted", removed, "no_change placeholder predictions")
-PY
-pkill -f "run_agent[s].py" 2>/dev/null
-pkill -f "codex exe[c]" 2>/dev/null; pkill -f "claude -[p]" 2>/dev/null; pkill -f "gemini -[m]" 2>/dev/null; pkill -f "opencode ru[n]" 2>/dev/null
-sleep 3
-set -a; . /root/PPTArena/credentials.env; set +a
-nohup python3 -u agent_bench/run_agents.py --parallel 5 >> agent_bench/run.log 2>&1 &
-sleep 6
-echo "runner: $(pgrep -fc 'run_agent[s].py') | git: $(git log --oneline -1 | cut -c1-40)"
-echo "VMCTL_ISOFIX_DONE"
+set -a; . ./credentials.env; set +a
+rm -f agent_bench/results/*_judge_results.csv
+nohup python3 -u agent_bench/judge_predictions.py --agents claude_code_opus48,codex_gpt55 --samples 3 > agent_bench/judge.log 2>&1 &
+pkill -f "status_boar[d].py" 2>/dev/null; sleep 1
+nohup python3 agent_bench/status_board.py --host 0.0.0.0 --port 80 > agent_bench/board.log 2>&1 &
+echo "judge: $(pgrep -fc 'judge_prediction[s].py') board: $(pgrep -fc 'status_boar[d].py')"
+echo "VMCTL_STOP_AND_JUDGE_DONE"
