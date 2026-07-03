@@ -167,6 +167,11 @@ def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool
         if task.workdir.exists():
             shutil.rmtree(task.workdir)
         task.workdir.mkdir(parents=True)
+        # Each workdir must be its own git root: OpenCode resolves its project by
+        # walking up to the nearest .git, so without this all workdirs inside the
+        # repo share one project and concurrent sessions edit each other's decks.
+        subprocess.run(["git", "init", "-q", str(task.workdir)], check=False,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         deck_path = task.workdir / "deck.pptx"
         shutil.copy2(original_path, deck_path)
         (task.workdir / "INSTRUCTION.md").write_text(
