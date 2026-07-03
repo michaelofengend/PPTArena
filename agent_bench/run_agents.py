@@ -182,6 +182,20 @@ def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool
         prediction_hash = ""
 
         command = build_command(task.agent, TASK_PROMPT)
+        env = None
+        if task.agent_id.startswith("opencode"):
+            # OpenCode persists project/session state in XDG_DATA_HOME and
+            # re-attaches new sessions to stored projects by path prefix, so
+            # concurrent runs sharing state edit each other's decks (git-root
+            # isolation alone does not stop re-attachment). Give every task a
+            # throwaway data dir seeded with only the auth file.
+            import os
+            xdg = task.workdir / ".xdg"
+            (xdg / "opencode").mkdir(parents=True)
+            real_auth = Path.home() / ".local" / "share" / "opencode" / "auth.json"
+            if real_auth.exists():
+                shutil.copy2(real_auth, xdg / "opencode" / "auth.json")
+            env = dict(os.environ, XDG_DATA_HOME=str(xdg))
         log_path = task.workdir / "agent_output.log"
         timeout = int(task.agent.get("timeout_seconds", 1800))
 
@@ -196,6 +210,7 @@ def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool
                     stderr=subprocess.STDOUT,
                     timeout=timeout,
                     check=False,
+                    env=env,
                 )
             exit_code = proc.returncode
             if exit_code != 0:
