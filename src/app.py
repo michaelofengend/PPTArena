@@ -342,6 +342,35 @@ LEADERBOARD_SOURCES = [
         "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
+    # --- PPTPilot (our system) with alternative pilot models ---
+    # Generated with run_xml_loop_subsample.py --collect-dir, judged via
+    # agent_bench/judge_predictions.py like the CLI-agent cohort.
+    {
+        "name": "PPTPilot (Kimi K2.6)",
+        "model": "Kimi K2.6",
+        "provider": "PPTPilot",
+        "brand": "PPTPilot",
+        "icon": "P",
+        "color": "#2563eb",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "pptpilot_kimi_k26_judge_results.csv",
+        "judge": "Kimi K2.6 judge",
+        "defines_subset": False,
+    },
+    {
+        "name": "PPTPilot (Gemma 4 31B)",
+        "model": "Gemma 4 31B IT",
+        "provider": "PPTPilot",
+        "brand": "PPTPilot",
+        "icon": "P",
+        "color": "#7c3aed",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "pptpilot_gemma431_judge_results.csv",
+        "judge": "Kimi K2.6 judge",
+        "defines_subset": False,
+    },
     # --- CUA (computer-use agent) cohort ---
     # Product agents driving a browser/desktop rather than a CLI; judged in an
     # earlier era, labels kept truthful. None redefine the canonical subset.

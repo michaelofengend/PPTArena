@@ -328,7 +328,10 @@ def main() -> None:
 
     agents = json.loads(AGENTS_PATH.read_text(encoding="utf-8"))
     agent_ids = list(agents) if args.agents == "all" else [a.strip() for a in args.agents.split(",")]
-    unknown = [a for a in agent_ids if a not in agents]
+    # Accept any id with a predictions directory, so non-CLI systems (e.g.
+    # PPTPilot runs collected via run_xml_loop_subsample --collect-dir) can be
+    # judged through the same pipeline without an agents.json entry.
+    unknown = [a for a in agent_ids if a not in agents and not (PREDICTIONS_ROOT / a).is_dir()]
     if unknown:
         sys.exit(f"Unknown agent id(s): {', '.join(unknown)}. Known: {', '.join(agents)}")
 

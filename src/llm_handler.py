@@ -16,7 +16,9 @@ from llm.utils import (
     load_api_keys,
     _log,
     _create_openai_client,
+    _create_kimi_client,
     _is_openai_model,
+    _is_kimi_model,
     _extract_text_from_openai_response,
     extract_json_from_llm_response,
     _configure_gemini_client,
@@ -53,23 +55,29 @@ def call_openai_api(
     edit_history=None,
     edit_plan=None,
 ):
+    # Kimi/Moonshot models ride the same OpenAI-compatible code path with the
+    # Moonshot client and key; everything else uses the real OpenAI client.
+    use_kimi = _is_kimi_model(model_id)
     # Prefer caller-provided key, fall back to credentials.env/environment
     if api_key:
         resolved_api_key = api_key
         key_source = "frontend"
     else:
         keys = load_api_keys()
-        resolved_api_key = keys.get("openai") or keys.get("openai_api_key")
+        if use_kimi:
+            resolved_api_key = keys.get("moonshot") or keys.get("kimi") or keys.get("kimi_api_key")
+        else:
+            resolved_api_key = keys.get("openai") or keys.get("openai_api_key")
         key_source = "credentials.env/env"
-    _log(f"Using OPENAI_API_KEY from {key_source} for OpenAI call", request_id)
+    _log(f"Using {'MOONSHOT' if use_kimi else 'OPENAI'}_API_KEY from {key_source} for {'Kimi' if use_kimi else 'OpenAI'} call", request_id)
     response_data = {"text_response": "", "model_used": model_id, "inference_time_seconds": None}
 
     if not resolved_api_key:
-        response_data["text_response"] = f"Error: OpenAI API key not provided (set in UI or {CREDENTIALS_FILE})."
+        response_data["text_response"] = f"Error: {'Moonshot' if use_kimi else 'OpenAI'} API key not provided (set in UI or {CREDENTIALS_FILE})."
         return response_data
 
     try:
-        client = _create_openai_client(resolved_api_key)
+        client = _create_kimi_client(resolved_api_key) if use_kimi else _create_openai_client(resolved_api_key)
         if client is None:
             response_data["text_response"] = "Error: Failed to initialize OpenAI client (missing API key?)."
             return response_data
@@ -494,7 +502,8 @@ def get_llm_response(
 
     # --- STAGE 2: CALL MAIN LLM WITH REFINED FILE LIST ---
     llm_response_data = {}
-    if "gemini" in engine_or_model_id.lower() or "google" in engine_or_model_id.lower():
+    if any(s in engine_or_model_id.lower() for s in ["gemini", "google", "gemma"]):
+        # Gemma models are served by the same AI Studio API/key as Gemini.
         llm_response_data = call_gemini_api(
             user_prompt,
             ppt_json_data,
@@ -506,7 +515,7 @@ def get_llm_response(
             edit_history=edit_history,
             edit_plan=edit_plan,
         )
-    elif any(s in engine_or_model_id.lower() for s in ["gpt", "openai", "o3", "o1", "o4", "gpt-5"]):
+    elif _is_kimi_model(engine_or_model_id) or any(s in engine_or_model_id.lower() for s in ["gpt", "openai", "o3", "o1", "o4", "gpt-5"]):
         llm_response_data = call_openai_api(
             user_prompt,
             ppt_json_data,
