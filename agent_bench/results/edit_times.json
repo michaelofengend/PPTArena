@@ -22,29 +22,29 @@
   },
   "opencode_glm52": {
     "n": 24,
-    "mean_s": 646.6,
-    "median_s": 445.0,
-    "max_s": 2133.9,
+    "mean_s": 775.2,
+    "median_s": 443.2,
+    "max_s": 2794.0,
     "source": "manifest"
   },
   "opencode_minimax_m3": {
-    "n": 16,
-    "mean_s": 434.3,
+    "n": 18,
+    "mean_s": 464.9,
     "median_s": 202.6,
     "max_s": 1736.8,
     "source": "manifest"
   },
   "opencode_deepseek_v4": {
-    "n": 24,
-    "mean_s": 618.7,
-    "median_s": 253.4,
+    "n": 25,
+    "mean_s": 690.1,
+    "median_s": 319.2,
     "max_s": 3242.0,
     "source": "manifest"
   },
   "opencode_kimi_k27code": {
     "n": 19,
-    "mean_s": 1012.7,
-    "median_s": 734.1,
+    "mean_s": 1042.7,
+    "median_s": 749.3,
     "max_s": 3346.9,
     "source": "manifest"
   },
