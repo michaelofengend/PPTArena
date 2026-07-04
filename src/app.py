@@ -187,7 +187,10 @@ def stream_long_task(app_context, task_func, *args, **kwargs):
     from flask import Response
     return Response(generate(), mimetype='application/json')
 
-LEADERBOARD_SOURCES = [
+# Earlier-era systems (Gemini 3.1 Pro / GPT-5.2 judges, mixed splits), parked
+# while the leaderboard shows only the Kimi-K2.6-judged hard-subset cohort.
+# Move an entry back into LEADERBOARD_SOURCES below to restore it.
+LEADERBOARD_SOURCES_ARCHIVED = [
     {
         "name": "PPTPilot (Gemini 3.1 Pro)",
         "model": "Gemini 3.1 Pro",
@@ -227,42 +230,6 @@ LEADERBOARD_SOURCES = [
         "judge": "GPT-5.2 judge",
     },
     {
-        "name": "Claude",
-        "model": "Claude 3.7 Sonnet",
-        "provider": "Anthropic",
-        "brand": "Claude",
-        "icon": "✶",
-        "color": "#d97757",
-        "split": "subset",
-        "expected_cases": 25,
-        "path": SCRIPT_DIR.parent / "claude_evaluation_results.json",
-        "judge": "Gemini 3.1 Pro judge",
-    },
-    {
-        "name": "ChatGPT Agent",
-        "model": "ChatGPT Agent",
-        "provider": "OpenAI",
-        "brand": "OpenAI",
-        "icon": "◎",
-        "color": "#0f0f0f",
-        "split": "subset",
-        "expected_cases": 25,
-        "path": SCRIPT_DIR / "Main Results" / "chatgpt_agent_samples_judge_results1.csv",
-        "judge": "GPT-5.2 judge",
-    },
-    {
-        "name": "MiniMax Agent",
-        "model": "MiniMax Agent",
-        "provider": "MiniMax",
-        "brand": "MiniMax",
-        "icon": "M",
-        "color": "#6d5dfc",
-        "split": "subset",
-        "expected_cases": 25,
-        "path": SCRIPT_DIR / "benchmark_runs" / "minimax_agent_samples_judge_results.csv",
-        "judge": "GPT-5.2 judge",
-    },
-    {
         "name": "Gemini CLI",
         "model": "Gemini 3.1 Pro",
         "provider": "Google",
@@ -277,10 +244,13 @@ LEADERBOARD_SOURCES = [
         # "Case 21"), so it must not redefine the canonical matched subset.
         "defines_subset": False,
     },
+]
+
+LEADERBOARD_SOURCES = [
     # --- agent_bench cohort (see agent_bench/README.md) ---
     # Pre-registered sources: each entry appears on the leaderboard automatically
-    # once its judged CSV lands in agent_bench/results/. None of these runs
-    # redefine the canonical matched subset.
+    # once its judged CSV lands in agent_bench/results/. The Codex run defines
+    # the canonical matched subset (subset25).
     {
         "name": "Codex (GPT-5.5 xhigh)",
         "model": "GPT-5.5 xhigh",
@@ -292,7 +262,7 @@ LEADERBOARD_SOURCES = [
         "expected_cases": 25,
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "codex_gpt55_judge_results.csv",
         "judge": "Kimi K2.6 judge",
-        "defines_subset": False,
+        "defines_subset": True,
     },
     {
         "name": "Claude Code (Opus 4.8)",
@@ -372,12 +342,54 @@ LEADERBOARD_SOURCES = [
         "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
+    # --- CUA (computer-use agent) cohort ---
+    # Product agents driving a browser/desktop rather than a CLI; judged in an
+    # earlier era, labels kept truthful. None redefine the canonical subset.
+    {
+        "name": "Claude (CUA)",
+        "model": "Claude 3.7 Sonnet",
+        "provider": "Anthropic",
+        "brand": "Claude",
+        "icon": "✶",
+        "color": "#d97757",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR.parent / "claude_evaluation_results.json",
+        "judge": "Gemini 3.1 Pro judge",
+        "defines_subset": False,
+    },
+    {
+        "name": "ChatGPT Agent (CUA)",
+        "model": "ChatGPT Agent",
+        "provider": "OpenAI",
+        "brand": "OpenAI",
+        "icon": "◎",
+        "color": "#0f0f0f",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR / "Main Results" / "chatgpt_agent_samples_judge_results1.csv",
+        "judge": "GPT-5.2 judge",
+        "defines_subset": False,
+    },
+    {
+        "name": "MiniMax Agent (CUA)",
+        "model": "MiniMax Agent",
+        "provider": "MiniMax",
+        "brand": "MiniMax",
+        "icon": "M",
+        "color": "#6d5dfc",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR / "benchmark_runs" / "minimax_agent_samples_judge_results.csv",
+        "judge": "GPT-5.2 judge",
+        "defines_subset": False,
+    },
 ]
 
 # Systems reported in the PPTArena paper for which no live result file exists in
-# this repo. Scores are the paper's published subset (25-case) IF/VQ averages and
-# are surfaced as static, paper-reported leaderboard entries.
-LEADERBOARD_STATIC_ENTRIES = [
+# this repo (paper-published subset IF/VQ averages). Parked with the other
+# non-Kimi-judged entries for now.
+LEADERBOARD_STATIC_ENTRIES_ARCHIVED = [
     {
         "name": "Kimi K2.6",
         "model": "Kimi K2.6",
@@ -405,6 +417,8 @@ LEADERBOARD_STATIC_ENTRIES = [
         "vq_score": 0.00,
     },
 ]
+
+LEADERBOARD_STATIC_ENTRIES = []
 
 LEADERBOARD_BASE_SPLITS = [
     {
