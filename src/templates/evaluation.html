@@ -448,6 +448,41 @@
             box-shadow: 0 1px 3px rgba(17, 24, 39, 0.08), 0 0 0 1px var(--border);
         }
 
+        /* two-level leaderboard tabs */
+        .lb-tabs {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .lb-tabs .base-tabs {
+            align-self: flex-start;
+        }
+
+        .lb-tabs .cat-tabs {
+            display: none;
+            background: transparent;
+            padding: 0;
+            gap: 4px;
+        }
+
+        .lb-tabs .cat-tabs.active {
+            display: flex;
+        }
+
+        .lb-tabs .cat-tabs .subtab {
+            padding: 4px 11px;
+            font-size: 12.5px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+        }
+
+        .lb-tabs .cat-tabs .subtab.active {
+            box-shadow: none;
+            border-color: var(--ink-2);
+        }
+
         .lb-panel {
             display: none;
         }
@@ -1309,8 +1344,7 @@
     <main id="top">
         <!-- ================= Hero ================= -->
         <section class="hero container">
-            <p class="kicker">Benchmark · Agentic PowerPoint editing</p>
-            <h1>How well do LLM agents edit real PowerPoint decks?</h1>
+            <h1>The first benchmark for editing real PowerPoint decks.</h1>
             <p class="authors">
                 <b>Michael Ofengenden</b> · <b>Yunze Man</b> · <b>Ziqi Pang</b> · <b>Liang-Yan Gui</b> · <b>Yu-Xiong
                     Wang</b>
@@ -1350,24 +1384,29 @@
                 <div class="section-head">
                     <div>
                         <h2>Leaderboard</h2>
-                        <p class="sub">
-                            Systems ranked by PPTArena score — the mean per-case (instruction following + visual
-                            quality) on a curve where 5/5 = 100% and 4/5 ≈ 92%. Unscored cases count as 0.
-                        </p>
-                    </div>
-                    <div class="tabs" role="tablist" aria-label="Leaderboard split">
-                        {% for split in leaderboard_data.split_list %}
-                        <button type="button"
-                            class="tab {% if split.key == leaderboard_data.default_split %}active{% endif %}"
-                            data-leaderboard-target="{{ split.key }}"
-                            aria-pressed="{% if split.key == leaderboard_data.default_split %}true{% else %}false{% endif %}">
-                            {{ split.label }}
-                        </button>
-                        {% endfor %}
                     </div>
                 </div>
+                <div class="lb-tabs">
+                    <div class="tabs base-tabs" role="tablist" aria-label="Case set">
+                        {% for group in leaderboard_data.groups %}
+                        <button type="button"
+                            class="tab {% if group.base == leaderboard_data.default_split %}active{% endif %}"
+                            data-base-tab="{{ group.base }}">{{ group.label }}</button>
+                        {% endfor %}
+                    </div>
+                    {% for group in leaderboard_data.groups %}
+                    <div class="tabs cat-tabs {% if group.base == leaderboard_data.default_split %}active{% endif %}"
+                        data-cat-group="{{ group.base }}" role="tablist" aria-label="Category">
+                        {% for view in group.views %}
+                        <button type="button"
+                            class="tab subtab {% if view.key == leaderboard_data.default_split %}active{% endif %}"
+                            data-leaderboard-target="{{ view.key }}">{{ view.label }}</button>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
 
-                {% for split in leaderboard_data.split_list %}
+                {% for split in leaderboard_data.panel_list %}
                 <div class="lb-panel {% if split.key == leaderboard_data.default_split %}active{% endif %}"
                     data-leaderboard-panel="{{ split.key }}">
                     <div class="panel-meta">
@@ -1505,11 +1544,11 @@
                             spanning five edit categories.
                         </p>
                         <div class="chips">
-                            {% for split in leaderboard_data.split_list %}
-                            {% if split.key.startswith('category_') %}
-                            <span class="chip">{{ split.label }} <span class="num">{{ split.case_count }}</span></span>
-                            {% endif %}
-                            {% endfor %}
+                            {% for group in leaderboard_data.groups %}{% if group.base == 'full' %}
+                            {% for view in group.views %}{% if view.key != 'full' %}
+                            <span class="chip">{{ view.label }} <span class="num">{{ view.case_count }}</span></span>
+                            {% endif %}{% endfor %}
+                            {% endif %}{% endfor %}
                         </div>
                     </div>
                     <div class="method-col">
@@ -1756,7 +1795,9 @@
     </script>
 
     <script>
-        // ----- Leaderboard split tabs -----
+        // ----- Leaderboard two-level tabs (base: subset/full → category sub-tabs) -----
+        const baseTabs = document.querySelectorAll('[data-base-tab]');
+        const catGroups = document.querySelectorAll('[data-cat-group]');
         const leaderboardButtons = document.querySelectorAll('[data-leaderboard-target]');
         const leaderboardPanels = document.querySelectorAll('[data-leaderboard-panel]');
         function activateLeaderboardSplit(name) {
@@ -1771,6 +1812,14 @@
         }
         leaderboardButtons.forEach(btn => {
             btn.addEventListener('click', () => activateLeaderboardSplit(btn.dataset.leaderboardTarget));
+        });
+        baseTabs.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const base = btn.dataset.baseTab;
+                baseTabs.forEach(b => b.classList.toggle('active', b === btn));
+                catGroups.forEach(g => g.classList.toggle('active', g.dataset.catGroup === base));
+                activateLeaderboardSplit(base);   // land on that base's "All" view
+            });
         });
 
         // ----- Sortable leaderboard tables -----

@@ -651,19 +651,13 @@ def _build_static_entry(entry):
 
 
 def get_leaderboard_data():
-    splits = {
-        split["key"]: {
-            "label": split["label"],
-            "description": split["description"],
-            "case_count": 0,
-            "entries": [],
-        }
-        for split in LEADERBOARD_SPLITS
-    }
-
+    """Two-level leaderboard: base splits (Hard Subset / Full Set) each with an
+    'All' view plus category sub-views (Content, Layout, …) scoped to that base.
+    A category with no cases in a base (e.g. Interactivity in the subset) is
+    omitted from that base."""
     case_meta, cases_by_category = _load_case_metadata()
     all_case_names = set(case_meta)
-    splits["full"]["case_count"] = len(all_case_names)
+
     source_payloads = []
     subset_case_names = set()
     for source in LEADERBOARD_SOURCES:
@@ -672,82 +666,63 @@ def get_leaderboard_data():
         if source["split"] == "subset" and source.get("defines_subset", True):
             subset_case_names.update(source_case_names)
 
-    splits["subset"]["case_count"] = len(subset_case_names) or 25
-    for split in LEADERBOARD_CATEGORY_SPLITS:
-        splits[split["key"]]["case_count"] = len(cases_by_category.get(split["category"], set()))
+    base_cases = {"subset": subset_case_names, "full": all_case_names}
+    base_labels = {"subset": "Hard Subset", "full": "Full Set"}
+    base_desc = {
+        "subset": "Matched 25-case hard subset used for cost-sensitive agent comparisons.",
+        "full": "All 100 PPTArena cases, with unscored cases counted as 0.",
+    }
 
-    for source, scored, source_case_names in source_payloads:
-        base_entry = _build_leaderboard_entry(
-            source,
-            source["split"],
-            source["expected_cases"],
-            scored,
-        )
-        if base_entry:
-            splits[source["split"]]["entries"].append(base_entry)
-
-        if source.get("include_subset") and subset_case_names:
-            subset_scores = [
-                row for row in scored
-                if row["case_name"] in subset_case_names
-            ]
-            subset_entry = _build_leaderboard_entry(
-                source,
-                "subset",
-                len(subset_case_names),
-                subset_scores,
-            )
-            if subset_entry:
-                splits["subset"]["entries"].append(subset_entry)
-
-        if source["split"] == "full":
-            source_expected_names = all_case_names
-        else:
-            source_expected_names = set(source_case_names)
-
-        for split in LEADERBOARD_CATEGORY_SPLITS:
-            category_names = cases_by_category.get(split["category"], set())
-            expected_names = source_expected_names & category_names
-            if not expected_names:
+    def build_view(view_key, view_cases, base_key):
+        entries = []
+        for source, scored, source_case_names in source_payloads:
+            if base_key == "full":
+                expected = view_cases                       # missing counts as 0
+            else:
+                expected = view_cases & set(source_case_names)
+            if not expected:
                 continue
-            category_scores = [
-                row for row in scored
-                if row["case_name"] in expected_names
-            ]
-            entry = _build_leaderboard_entry(
-                source,
-                split["key"],
-                len(expected_names),
-                category_scores,
-            )
-            if entry:
-                splits[split["key"]]["entries"].append(entry)
+            view_scores = [r for r in scored if r["case_name"] in expected]
+            e = _build_leaderboard_entry(source, view_key, len(expected), view_scores)
+            if e:
+                entries.append(e)
+        for st in LEADERBOARD_STATIC_ENTRIES:
+            if st.get("split") == base_key and (view_key == base_key):
+                b = _build_static_entry(st)
+                if b:
+                    entries.append(b)
+        entries.sort(key=lambda r: r["score_pct"], reverse=True)
+        return entries
 
-    for entry in LEADERBOARD_STATIC_ENTRIES:
-        built = _build_static_entry(entry)
-        if built and entry["split"] in splits:
-            splits[entry["split"]]["entries"].append(built)
-
-    for split in splits.values():
-        split["entries"].sort(key=lambda row: row["score_pct"], reverse=True)
-        split["system_count"] = len(split["entries"])
-
-    split_list = [
-        {
-            "key": key,
-            "label": split["label"],
-            "description": split["description"],
-            "case_count": split["case_count"],
-            "system_count": split["system_count"],
-            "entries": split["entries"],
-        }
-        for key, split in splits.items()
-    ]
+    groups = []
+    panel_list = []
+    for base_key in ("subset", "full"):
+        bcases = base_cases[base_key]
+        n_all = len(all_case_names) if base_key == "full" else (len(bcases) or 25)
+        views = []
+        # "All" view = the base split itself
+        all_entries = build_view(base_key, bcases if bcases else all_case_names, base_key)
+        v_all = {"key": base_key, "label": "All", "description": base_desc[base_key],
+                 "case_count": n_all, "system_count": len(all_entries), "entries": all_entries}
+        views.append(v_all)
+        panel_list.append(v_all)
+        # category sub-views scoped to this base
+        for cat in LEADERBOARD_CATEGORY_SPLITS:
+            cat_cases = bcases & cases_by_category.get(cat["category"], set())
+            if not cat_cases:
+                continue
+            key = f"{base_key}:{cat['key']}"
+            ent = build_view(key, cat_cases, base_key)
+            v = {"key": key, "label": cat["label"], "description": cat["description"],
+                 "case_count": len(cat_cases), "system_count": len(ent), "entries": ent}
+            views.append(v)
+            panel_list.append(v)
+        groups.append({"base": base_key, "label": base_labels[base_key], "views": views})
 
     return {
         "default_split": "subset",
-        "splits": splits,
-        "split_list": split_list,
+        "groups": groups,
+        "panel_list": panel_list,
     }
 
 
