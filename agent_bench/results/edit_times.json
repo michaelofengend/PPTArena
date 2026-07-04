@@ -1,0 +1,65 @@
+{
+  "codex_gpt55": {
+    "n": 25,
+    "mean_s": 323.1,
+    "median_s": 270.5,
+    "max_s": 666.7,
+    "source": "manifest"
+  },
+  "claude_code_opus48": {
+    "n": 25,
+    "mean_s": 159.9,
+    "median_s": 151.4,
+    "max_s": 485.0,
+    "source": "manifest"
+  },
+  "gemini_cli_35flash": {
+    "n": 25,
+    "mean_s": 281.9,
+    "median_s": 174.4,
+    "max_s": 1599.8,
+    "source": "manifest"
+  },
+  "opencode_glm52": {
+    "n": 24,
+    "mean_s": 646.6,
+    "median_s": 445.0,
+    "max_s": 2133.9,
+    "source": "manifest"
+  },
+  "opencode_minimax_m3": {
+    "n": 16,
+    "mean_s": 434.3,
+    "median_s": 202.6,
+    "max_s": 1736.8,
+    "source": "manifest"
+  },
+  "opencode_deepseek_v4": {
+    "n": 24,
+    "mean_s": 618.7,
+    "median_s": 253.4,
+    "max_s": 3242.0,
+    "source": "manifest"
+  },
+  "opencode_kimi_k27code": {
+    "n": 19,
+    "mean_s": 1012.7,
+    "median_s": 734.1,
+    "max_s": 3346.9,
+    "source": "manifest"
+  },
+  "pptpilot_kimi_k26": {
+    "n": 10,
+    "mean_s": 514.8,
+    "median_s": 234.8,
+    "max_s": 1329.2,
+    "source": "gen_csv"
+  },
+  "pptpilot_gemma431": {
+    "n": 0,
+    "mean_s": null,
+    "median_s": null,
+    "max_s": null,
+    "source": "gen_csv"
+  }
+}
