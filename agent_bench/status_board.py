@@ -62,7 +62,48 @@ def _read_scores(path: Path):
     return {"n": len(rows), "if": sum(ifs) / len(ifs), "vq": sum(vqs) / len(vqs)}
 
 
+def _edit_times():
+    """Mean edit (generation) seconds per system, live from the manifest
+    (last ok row per case) + PPTPilot gen CSVs."""
+    out = {}
+    last = {}
+    if MANIFEST.exists():
+        with MANIFEST.open() as fh:
+            for r in csv.DictReader(fh):
+                if r["status"] == "ok" and r.get("duration_seconds"):
+                    last[(r["agent"], r["slug"])] = float(r["duration_seconds"])
+    per = {}
+    for (a, _), d in last.items():
+        per.setdefault(a, []).append(d)
+    for a, ds in per.items():
+        out[a] = sum(ds) / len(ds)
+    for sid, name in (("pptpilot_kimi_k26", "pptpilot_kimi_k26_gen.csv"),
+                      ("pptpilot_gemma431", "pptpilot_gemma431_gen.csv")):
+        p = BENCH.parent / "src" / "benchmark_runs" / name
+        if p.exists():
+            ds = []
+            with p.open() as fh:
+                for r in csv.DictReader(fh):
+                    v = r.get("generation_time_seconds")
+                    if v:
+                        try:
+                            ds.append(float(v))
+                        except ValueError:
+                            pass
+            if ds:
+                out[sid] = sum(ds) / len(ds)
+    return out
+
+
+def _fmt_time(seconds):
+    if seconds is None:
+        return "—"
+    m = seconds / 60.0
+    return f"{m:.1f}m" if m >= 1 else f"{seconds:.0f}s"
+
+
 def load_state():
+    etimes = _edit_times()
     systems = []
     for sid, name, kind, accent in SYSTEMS:
         gen = len(list((PREDICTIONS / sid).glob("*.pptx"))) if (PREDICTIONS / sid).is_dir() else 0
@@ -70,7 +111,8 @@ def load_state():
         qwen = _read_scores(RESULTS / f"{sid}_qwen_judge_results.csv")
         score = (kimi["if"] + kimi["vq"]) * 10 if kimi else None  # 0-5 scale -> %
         systems.append({"id": sid, "name": name, "kind": kind, "accent": accent,
-                        "gen": gen, "kimi": kimi, "qwen": qwen, "score": score})
+                        "gen": gen, "kimi": kimi, "qwen": qwen, "score": score,
+                        "edit_s": etimes.get(sid)})
     # Rank: judged systems by score desc, then unjudged by generation, stable.
     systems.sort(key=lambda s: (s["score"] is None, -(s["score"] or 0), -s["gen"]))
 
@@ -108,6 +150,7 @@ def render() -> str:
             f'<b>{html.escape(s["name"])}</b> '
             f'<span class="kind" style="color:{kc};border-color:{kc}44">{s["kind"]}</span></td>'
             f'<td class="gen">{genbar}</td>'
+            f'<td class="gen">{_fmt_time(s["edit_s"])}</td>'
             f'{_cell(s["kimi"])}'
             f'{_cell(s["qwen"])}'
             f'</tr>')
@@ -143,7 +186,7 @@ def render() -> str:
 <div class="sub">auto-refreshes 10s · {time.strftime('%H:%M:%S UTC')} · {n_judged}/{len(systems)} systems fully judged ·
   {n_gen} predictions generated · ranked by PPTArena score (mean (IF+VQ)/10)</div>
 <table>
-<thead><tr><td></td><td>system</td><td>gen</td>
+<thead><tr><td></td><td>system</td><td>gen</td><td>avg edit</td>
   <td colspan="2" style="color:#a5b4fc">Kimi K2.6 &nbsp;IF/VQ · score</td>
   <td colspan="2" style="color:#fbbf24">Qwen3.7 &nbsp;IF/VQ · score</td></tr></thead>
 <tbody>{body}</tbody></table>

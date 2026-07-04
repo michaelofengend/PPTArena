@@ -577,6 +577,34 @@ def _collect_source_scores(source):
     return scored, source_case_names
 
 
+def _load_edit_times():
+    """Per-system avg edit (generation) times, recorded by
+    agent_bench/compute_edit_times.py. Keyed by system id."""
+    path = SCRIPT_DIR.parent / "agent_bench" / "results" / "edit_times.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+_EDIT_TIMES = _load_edit_times()
+
+
+def _edit_time_key(source):
+    """System id for a source = its result-CSV basename minus the suffix."""
+    p = source.get("path")
+    if not p:
+        return None
+    return Path(p).name.replace("_qwen_judge_results.csv", "").replace("_judge_results.csv", "")
+
+
+def _fmt_edit_time(seconds):
+    if seconds is None:
+        return None
+    m = seconds / 60.0
+    return f"{m:.1f} min" if m >= 1 else f"{seconds:.0f} s"
+
+
 def _build_leaderboard_entry(source, split_key, expected_cases, scored):
     scored_cases = len(scored)
     if not scored or expected_cases <= 0:
@@ -612,6 +640,8 @@ def _build_leaderboard_entry(source, split_key, expected_cases, scored):
         "expected_cases": expected_cases,
         "judge": source["judge"],
         "coverage_pct": round(scored_cases / expected_cases * 100, 1),
+        "edit_time_s": (_EDIT_TIMES.get(_edit_time_key(source)) or {}).get("mean_s"),
+        "edit_time_display": _fmt_edit_time((_EDIT_TIMES.get(_edit_time_key(source)) or {}).get("mean_s")),
     }
 
 

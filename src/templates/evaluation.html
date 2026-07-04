@@ -1433,6 +1433,7 @@
                                         <th data-sort="cases" title="Scored cases / expected cases in this split">Cases
                                         </th>
                                         <th data-sort="avg" title="Mean score over scored cases only">Avg scored</th>
+                                        <th data-sort="edit" title="Mean wall-clock time the system took to complete one edit (generation only)">Avg edit</th>
                                         <th class="left" style="text-align:left;">Judge</th>
                                     </tr>
                                 </thead>
@@ -1441,7 +1442,8 @@
                                     <tr class="{% if loop.index <= 3 %}top{% endif %}"
                                         data-score="{{ entry.score_pct }}" data-ifp="{{ entry.if_pct }}"
                                         data-vqp="{{ entry.vq_pct }}" data-cases="{{ entry.coverage_pct }}"
-                                        data-avg="{{ entry.mean_scored_pct }}">
+                                        data-avg="{{ entry.mean_scored_pct }}"
+                                        data-edit="{{ entry.edit_time_s if entry.edit_time_s is not none else 999999 }}">
                                         <td class="left rank num">{{ loop.index }}</td>
                                         <td class="left">
                                             <div class="model-cell">
@@ -1468,6 +1470,7 @@
                                         <td class="num">{{ entry.scored_cases }}<span class="dim">/{{
                                                 entry.expected_cases }}</span></td>
                                         <td class="num">{{ "%.1f"|format(entry.mean_scored_pct) }}</td>
+                                        <td class="num">{{ entry.edit_time_display if entry.edit_time_display else '—' }}</td>
                                         <td class="left judge-col">{{ entry.judge.replace(' judge', '') }}</td>
                                     </tr>
                                     {% endfor %}
