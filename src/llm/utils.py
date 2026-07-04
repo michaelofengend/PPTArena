@@ -94,6 +94,8 @@ def load_api_keys():
                                 API_KEYS["kimi"] = value.strip()
                             elif key.strip().upper() == "MOONSHOT_BASE_URL":
                                 API_KEYS["moonshot_base_url"] = value.strip()
+                            elif key.strip().upper() == "OPENROUTER_API_KEY":
+                                API_KEYS["openrouter"] = value.strip()
                 file_loaded = True
         except Exception as e:
             _log(f"Error loading {CREDENTIALS_FILE}: {e}")
@@ -119,6 +121,9 @@ def load_api_keys():
             API_KEYS["kimi"] = env_kimi
         if env_moonshot_base_url and "moonshot_base_url" not in API_KEYS:
             API_KEYS["moonshot_base_url"] = env_moonshot_base_url
+        env_openrouter = os.environ.get("OPENROUTER_API_KEY")
+        if env_openrouter and "openrouter" not in API_KEYS:
+            API_KEYS["openrouter"] = env_openrouter
 
         # Only warn if nothing was found anywhere
         if not API_KEYS and not file_loaded:
@@ -150,6 +155,27 @@ def _create_kimi_client(api_key: Optional[str] = None):
     except Exception as e:
         _log(f"Error creating Kimi/Moonshot client: {e}", None)
         return None
+
+def _create_openrouter_client(api_key: Optional[str] = None):
+    keys = load_api_keys()
+    resolved_key = api_key or keys.get("openrouter")
+    if not resolved_key:
+        return None
+    try:
+        return openai.OpenAI(api_key=resolved_key, base_url="https://openrouter.ai/api/v1")
+    except Exception as e:
+        _log(f"Error creating OpenRouter client: {e}", None)
+        return None
+
+
+def _is_openrouter_model(model_id: Optional[str]) -> bool:
+    """OpenRouter-served ids: explicit 'openrouter/' prefix or vendor-prefixed
+    ids we route there (qwen/…)."""
+    if not model_id:
+        return False
+    lowered = model_id.lower()
+    return lowered.startswith("openrouter/") or lowered.startswith("qwen/") or "qwen" in lowered
+
 
 def _is_openai_model(model_id: Optional[str]) -> bool:
     if not model_id:

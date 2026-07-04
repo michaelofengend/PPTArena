@@ -18,12 +18,14 @@ from llm.utils import (
     load_api_keys,
     _create_openai_client,
     _create_kimi_client,
+    _create_openrouter_client,
     _configure_gemini_client,
     _build_gemini_generation_config,
     extract_json_from_llm_response,
     _extract_text_from_openai_response,
     _is_kimi_model,
     _is_openai_model,
+    _is_openrouter_model,
     _log
 )
 from utils.image_utils import (
@@ -63,16 +65,19 @@ def call_llm_judge(
     if not judge_model:
         judge_model = "gemini-3-pro-preview"
 
-    use_kimi = _is_kimi_model(judge_model)
+    use_openrouter = _is_openrouter_model(judge_model)
+    use_kimi = (_is_kimi_model(judge_model) and not use_openrouter) or use_openrouter
     use_openai = _is_openai_model(judge_model) and not use_kimi
     openai_client = None
-    kimi_client = None
+    kimi_client = None  # OpenAI-compatible client: Moonshot or OpenRouter
     gemini_key = None
 
     # Resolve API key
     if not api_key and api_keys:
         if use_openai:
             api_key = api_keys.get("openai") or api_keys.get("openai_api_key")
+        elif use_openrouter:
+            api_key = api_keys.get("openrouter") or api_keys.get("openrouter_api_key")
         elif use_kimi:
             api_key = (
                 api_keys.get("moonshot")
@@ -87,6 +92,10 @@ def call_llm_judge(
         openai_client = _create_openai_client(api_key)
         if openai_client is None:
             return {"error": "OpenAI API key for judging not found."}
+    elif use_openrouter:
+        kimi_client = _create_openrouter_client(api_key)
+        if kimi_client is None:
+            return {"error": "OpenRouter API key for judging not found."}
     elif use_kimi:
         kimi_client = _create_kimi_client(api_key)
         if kimi_client is None:
@@ -113,20 +122,25 @@ def call_llm_judge(
 
     print(f"Calling LLM Judge ({judge_model})...")
 
+    # Request model id: strip an explicit "openrouter/" prefix if present.
+    _compat_model = judge_model.split("openrouter/", 1)[-1] if judge_model.lower().startswith("openrouter/") else judge_model
+    # Moonshot accepts a thinking toggle; other OpenAI-compatible hosts may not.
+    _compat_extra = {"thinking": {"type": "disabled"}} if _is_kimi_model(judge_model) and not use_openrouter else None
+
     def _call_kimi_chat_json(system_prompt: str, user_content, max_tokens: int = 2048) -> dict:
         response = kimi_client.chat.completions.create(
-            model=judge_model,
+            model=_compat_model,
             messages=[
                 {"role": "system", "content": system_prompt.strip()},
                 {"role": "user", "content": user_content},
             ],
             max_tokens=max_tokens,
-            extra_body={"thinking": {"type": "disabled"}},
+            extra_body=_compat_extra,
         )
         response_text = (response.choices[0].message.content or "").strip()
         parsed = extract_json_from_llm_response(response_text)
         if not isinstance(parsed, dict):
-            raise ValueError(f"Failed to parse JSON from Kimi judge output: {response_text[:200]}")
+            raise ValueError(f"Failed to parse JSON from judge output ({_compat_model}): {response_text[:200]}")
         return parsed
 
     # Alignment suggestion, quality of prediction criteria. 

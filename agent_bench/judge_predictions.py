@@ -91,8 +91,15 @@ def image_to_base64(image_path: str) -> str | None:
         return None
 
 
+def is_openrouter_judge(model_id: str) -> bool:
+    lower = (model_id or "").lower()
+    return lower.startswith(("openrouter/", "qwen/")) or "qwen" in lower
+
+
 def is_kimi_judge(model_id: str) -> bool:
     lower = (model_id or "").lower()
+    if is_openrouter_judge(lower):
+        return False
     return "kimi" in lower or "moonshot" in lower
 
 
@@ -262,9 +269,10 @@ def judge_case(case: dict, prediction_path: Path, artifacts_cache: CaseArtifacts
 
 def judge_agent(agent_id: str, cases: list[dict], artifacts_cache: CaseArtifacts,
                 api_keys: dict, judge_model: str, samples: int,
-                max_workers: int, resume: bool) -> None:
+                max_workers: int, resume: bool,
+                suffix: str = "_judge_results.csv") -> None:
     judge_label = judge_model if samples == 1 else f"{judge_model} (median of {samples})"
-    output_path = RESULTS_ROOT / f"{agent_id}_judge_results.csv"
+    output_path = RESULTS_ROOT / f"{agent_id}{suffix}"
     RESULTS_ROOT.mkdir(parents=True, exist_ok=True)
 
     done: set[str] = set()
@@ -322,6 +330,9 @@ def main() -> None:
                         help="Concurrent judge calls per agent (default: 6).")
     parser.add_argument("--no-resume", action="store_true",
                         help="Rewrite result CSVs from scratch instead of appending missing cases.")
+    parser.add_argument("--csv-suffix", default="_judge_results.csv",
+                        help="Result filename suffix — use a distinct one per judge for "
+                             "agreement studies (e.g. '_qwen_judge_results.csv').")
     args = parser.parse_args()
     if args.samples < 1:
         parser.error("--samples must be at least 1.")
@@ -344,7 +355,10 @@ def main() -> None:
     pairs.sort(key=lambda c: extract_case_index(c["name"]))
 
     keys = llm_handler.load_api_keys()
-    if is_kimi_judge(args.judge_model):
+    if is_openrouter_judge(args.judge_model):
+        if not (keys.get("openrouter") or keys.get("openrouter_api_key")):
+            sys.exit("OPENROUTER_API_KEY missing from credentials.env; required for OpenRouter judges.")
+    elif is_kimi_judge(args.judge_model):
         if not (keys.get("moonshot") or keys.get("kimi") or keys.get("kimi_api_key")):
             sys.exit("MOONSHOT_API_KEY missing from credentials.env; required for kimi-* judges.")
     elif is_openai_judge(args.judge_model):
@@ -356,7 +370,8 @@ def main() -> None:
     artifacts_cache = CaseArtifacts()
     for agent_id in agent_ids:
         judge_agent(agent_id, pairs, artifacts_cache, keys, args.judge_model,
-                    args.samples, args.max_workers, resume=not args.no_resume)
+                    args.samples, args.max_workers, resume=not args.no_resume,
+                    suffix=args.csv_suffix)
 
     print("\nAll done. Result CSVs are in agent_bench/results/ — commit them and the "
           "leaderboard rows appear automatically (sources pre-registered in src/app.py).")
