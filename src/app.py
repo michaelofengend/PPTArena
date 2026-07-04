@@ -342,35 +342,8 @@ LEADERBOARD_SOURCES = [
         "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
-    # --- PPTPilot (our system) with alternative pilot models ---
-    # Generated with run_xml_loop_subsample.py --collect-dir, judged via
-    # agent_bench/judge_predictions.py like the CLI-agent cohort.
-    {
-        "name": "PPTPilot (Kimi K2.6)",
-        "model": "Kimi K2.6",
-        "provider": "PPTPilot",
-        "brand": "PPTPilot",
-        "icon": "P",
-        "color": "#2563eb",
-        "split": "subset",
-        "expected_cases": 25,
-        "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "pptpilot_kimi_k26_judge_results.csv",
-        "judge": "Kimi K2.6 judge",
-        "defines_subset": False,
-    },
-    {
-        "name": "PPTPilot (Gemma 4 31B)",
-        "model": "Gemma 4 31B IT",
-        "provider": "PPTPilot",
-        "brand": "PPTPilot",
-        "icon": "P",
-        "color": "#7c3aed",
-        "split": "subset",
-        "expected_cases": 25,
-        "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "pptpilot_gemma431_judge_results.csv",
-        "judge": "Kimi K2.6 judge",
-        "defines_subset": False,
-    },
+    # (PPTPilot Kimi/Gemma pilot rows removed from the board — scored too low to
+    # be informative; their CSVs remain in agent_bench/results/ if ever restored.)
     # --- CUA (computer-use agent) cohort ---
     # Product agents driving a browser/desktop rather than a CLI; judged in an
     # earlier era, labels kept truthful. None redefine the canonical subset.
@@ -605,24 +578,24 @@ def _fmt_edit_time(seconds):
     return f"{m:.1f} min" if m >= 1 else f"{seconds:.0f} s"
 
 
-# Judge points (out of 5) that map to 100%. A 4/5 ("excellent") on a metric
-# reads as full marks, since a perfect 5/5 on these hard editing tasks is
-# aspirational and rarely awarded. This is an ABSOLUTE, MONOTONIC rescale
-# (a fixed curve — adding a system later never shifts anyone's score, and it
-# never reorders systems); it widens the visible spread and lifts the top
-# without distorting near-ties. Set to 5.0 for the literal 5/5=100% scale,
-# or 3.5 for a more aggressive spread.
-SCORE_CEILING = 4.0
+# Display curve: a raw judge metric (0–5) maps to a percentage via a smooth,
+# concave "diminishing-returns near the ceiling" curve rather than a hard cap:
+#     5/5 = 100%   4/5 = 92%   3/5 = 76%   2/5 = 55%   1/5 = 30%   0 = 0%.
+# So a perfect score is the true 100% (no information lost at the top) while the
+# field still spreads. It is ABSOLUTE and MONOTONIC — adding a system never
+# shifts anyone's score and it never reorders. _SCORE_K is chosen so 4/5 = 92%.
+_SCORE_K = 1.5693  # = log(0.08)/log(0.2); larger K => steeper near the top
 
 
 def _metric_pct(score):
-    """Single 0–5 judge metric → 0–100, capped at the excellence ceiling."""
-    return min(score / SCORE_CEILING, 1.0) * 100
+    """Single 0–5 judge metric → 0–100 via the display curve (5/5=100, 4/5=92)."""
+    x = max(0.0, min(score, 5.0)) / 5.0
+    return (1 - (1 - x) ** _SCORE_K) * 100
 
 
 def _case_pct(if_score, vq_score):
-    """Combined per-case IF+VQ → 0–100, capped (a great case can't exceed 100)."""
-    return min((if_score + vq_score) / (2 * SCORE_CEILING), 1.0) * 100
+    """Per-case score = mean of the two curved metrics."""
+    return (_metric_pct(if_score) + _metric_pct(vq_score)) / 2
 
 
 def _build_leaderboard_entry(source, split_key, expected_cases, scored):

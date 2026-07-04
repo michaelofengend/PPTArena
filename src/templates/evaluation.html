@@ -1310,12 +1310,7 @@
         <!-- ================= Hero ================= -->
         <section class="hero container">
             <p class="kicker">Benchmark · Agentic PowerPoint editing</p>
-            <h1>PPTArena</h1>
-            <p class="lede">
-                How well do LLM agents edit real PowerPoint decks? Each case pairs a natural instruction with a
-                human-made ground truth, scored on <b>instruction following</b> and <b>visual quality</b> by VLM
-                judges.
-            </p>
+            <h1>How well do LLM agents edit real PowerPoint decks?</h1>
             <p class="authors">
                 <b>Michael Ofengenden</b> · <b>Yunze Man</b> · <b>Ziqi Pang</b> · <b>Liang-Yan Gui</b> · <b>Yu-Xiong
                     Wang</b>
@@ -1357,7 +1352,7 @@
                         <h2>Leaderboard</h2>
                         <p class="sub">
                             Systems ranked by PPTArena score — the mean per-case (instruction following + visual
-                            quality), normalized so 4/5 (“excellent”) reads as 100%. Unscored cases count as 0.
+                            quality) on a curve where 5/5 = 100% and 4/5 ≈ 92%. Unscored cases count as 0.
                         </p>
                     </div>
                     <div class="tabs" role="tablist" aria-label="Leaderboard split">
@@ -1426,7 +1421,7 @@
                                         <th class="left">#</th>
                                         <th class="left">Model</th>
                                         <th data-sort="score" data-dir="desc" class="sorted"
-                                            title="Mean per-case (IF + VQ) across all expected cases, normalized so 4/5='excellent'=100%">
+                                            title="Mean per-case (IF + VQ) across all expected cases, on a curve where 5/5=100% and 4/5≈92%">
                                             Score</th>
                                         <th data-sort="ifp" title="Instruction following, normalized to 100">IF</th>
                                         <th data-sort="vqp" title="Visual quality, normalized to 100">VQ</th>
@@ -1479,9 +1474,9 @@
                         </div>
                         <div class="table-foot">
                             IF = instruction following, VQ = visual quality; each judged 0–5 per case by a VLM judge.
-                            Scores are normalized so a 4/5 (“excellent”) reads as 100% — a perfect 5/5 on these hard
-                            editing tasks is aspirational and rarely awarded; missing/unscored cases count as 0. Click a
-                            column to sort. Entries tagged <span class="tag">paper</span> are reported from the PPTArena paper.
+                            Scores map to a percentage on a smooth curve where 5/5 = 100% and 4/5 ≈ 92% (a perfect
+                            score is the true 100%, with diminishing returns near the top); missing/unscored cases count
+                            as 0. Click a column to sort. Entries tagged <span class="tag">paper</span> are reported from the PPTArena paper.
                         </div>
                     </div>
                     {% else %}
@@ -1521,9 +1516,9 @@
                         <h3>Scoring</h3>
                         <p>
                             A VLM judge compares each prediction against the ground truth and scores
-                            <b>instruction following</b> and <b>visual quality</b> from 0–5. The case score is
-                            (IF + VQ) normalized so 4/5 (“excellent”) on both reads as 100% — a perfect 5/5 on these
-                            hard editing tasks is aspirational and rarely awarded. A system's split score is the mean
+                            <b>instruction following</b> and <b>visual quality</b> from 0–5. Each is mapped to a
+                            percentage on a smooth curve (5/5 = 100%, 4/5 ≈ 92%, 3/5 ≈ 76%) that rewards a perfect
+                            result while keeping diminishing returns near the top. A system's split score is the mean
                             over all expected cases, with missing or unscored cases counted as 0.
                         </p>
                     </div>
