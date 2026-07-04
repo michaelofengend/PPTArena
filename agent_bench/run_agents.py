@@ -157,7 +157,7 @@ def build_command(agent: dict, prompt: str) -> list[str]:
 
 
 def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool,
-             timeout_override: int | None = None) -> str:
+             idle_limit: int | None = None, max_timeout: int | None = None) -> str:
     original_path = (PROJECT_ROOT / task.case["original"]).resolve()
     notes: list[str] = []
     exit_code: int | None = None
@@ -206,34 +206,66 @@ def run_task(task: Task, manifest_lock: Lock, manifest_path: Path, verbose: bool
                 shutil.copy2(real_auth, xdg / "opencode" / "auth.json")
             env["XDG_DATA_HOME"] = str(xdg)
         log_path = task.workdir / "agent_output.log"
-        timeout = timeout_override or int(task.agent.get("timeout_seconds", 1800))
+        # No fixed wall-clock cap: a model gets as long as it needs, as long as
+        # it keeps making progress. We poll the output log and only abort if it
+        # goes completely silent for `idle_limit` seconds — that signals a stuck
+        # or looping agent, not a slow one. `max_timeout` is an optional
+        # last-resort absolute backstop (default None = unbounded).
+        idle_limit = idle_limit or int(task.agent.get("idle_timeout_seconds", 1800))
 
         try:
             with log_path.open("w", encoding="utf-8") as log_file:
                 log_file.write(f"$ {' '.join(command)}\n\n")
                 log_file.flush()
-                proc = subprocess.run(
+                proc = subprocess.Popen(
                     command,
                     cwd=task.workdir,
                     stdout=log_file,
                     stderr=subprocess.STDOUT,
-                    timeout=timeout,
-                    check=False,
                     env=env,
                 )
-            exit_code = proc.returncode
-            if exit_code != 0:
-                notes.append(f"exit code {exit_code}")
-        except subprocess.TimeoutExpired:
-            notes.append(f"timed out after {timeout}s")
-            exit_code = None
+                last_size = -1
+                last_progress = time.time()
+                aborted: str | None = None
+                while True:
+                    try:
+                        proc.wait(timeout=15)
+                        break  # process exited on its own
+                    except subprocess.TimeoutExpired:
+                        pass
+                    now = time.time()
+                    try:
+                        size = log_path.stat().st_size
+                    except OSError:
+                        size = last_size
+                    if size != last_size:
+                        last_size = size
+                        last_progress = now
+                    if now - last_progress > idle_limit:
+                        aborted = f"stalled: no output for {idle_limit}s"
+                        break
+                    if max_timeout and now - started > max_timeout:
+                        aborted = f"exceeded max_timeout {max_timeout}s"
+                        break
+                if aborted is not None:
+                    proc.terminate()
+                    try:
+                        proc.wait(timeout=20)
+                    except subprocess.TimeoutExpired:
+                        proc.kill()
+                    notes.append(aborted)
+                    exit_code = None
+                else:
+                    exit_code = proc.returncode
+                    if exit_code != 0:
+                        notes.append(f"exit code {exit_code}")
         except FileNotFoundError:
             notes.append(f"CLI not found: {command[0]}")
             exit_code = None
 
         duration = round(time.time() - started, 1)
 
-        if "timed out" in " ".join(notes):
+        if any(k in " ".join(notes) for k in ("stalled", "exceeded max_timeout", "timed out")):
             status = "timeout"
         elif any(n.startswith("CLI not found") for n in notes):
             status = "cli_missing"
@@ -323,8 +355,12 @@ def main() -> None:
                         help="Only run the first N cases per agent (smoke tests).")
     parser.add_argument("--force", action="store_true",
                         help="Re-run tasks even if a prediction already exists.")
-    parser.add_argument("--timeout", type=int, default=None,
-                        help="Override every agent's timeout_seconds (straggler-sweep retries).")
+    parser.add_argument("--idle-timeout", type=int, default=None,
+                        help="Abort an agent only after this many seconds of NO output "
+                             "(stuck/looping, not slow). Default: agent's idle_timeout_seconds or 1800.")
+    parser.add_argument("--max-timeout", type=int, default=None,
+                        help="Optional absolute wall-clock backstop in seconds "
+                             "(default: none — a productive agent runs as long as it needs).")
     parser.add_argument("--check", action="store_true",
                         help="Only verify that each agent CLI is installed and exits cleanly.")
     parser.add_argument("--dry-run", action="store_true",
@@ -375,7 +411,7 @@ def main() -> None:
     started = time.time()
     with ThreadPoolExecutor(max_workers=args.parallel) as pool:
         futures = {pool.submit(run_task, t, manifest_lock, manifest_path, False,
-                               args.timeout): t for t in tasks}
+                               args.idle_timeout, args.max_timeout): t for t in tasks}
         for future in as_completed(futures):
             task = futures[future]
             try:
