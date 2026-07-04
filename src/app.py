@@ -383,8 +383,8 @@ LEADERBOARD_SOURCES = [
         "color": "#d97757",
         "split": "subset",
         "expected_cases": 25,
-        "path": SCRIPT_DIR.parent / "claude_evaluation_results.json",
-        "judge": "Gemini 3.1 Pro judge",
+        "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "cua_claude37_judge_results.csv",
+        "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
     {
@@ -396,8 +396,8 @@ LEADERBOARD_SOURCES = [
         "color": "#0f0f0f",
         "split": "subset",
         "expected_cases": 25,
-        "path": SCRIPT_DIR / "Main Results" / "chatgpt_agent_samples_judge_results1.csv",
-        "judge": "GPT-5.2 judge",
+        "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "cua_chatgpt_agent_judge_results.csv",
+        "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
     {
@@ -409,8 +409,8 @@ LEADERBOARD_SOURCES = [
         "color": "#6d5dfc",
         "split": "subset",
         "expected_cases": 25,
-        "path": SCRIPT_DIR / "benchmark_runs" / "minimax_agent_samples_judge_results.csv",
-        "judge": "GPT-5.2 judge",
+        "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "cua_minimax_agent_judge_results.csv",
+        "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
 ]
