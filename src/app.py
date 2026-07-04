@@ -291,7 +291,7 @@ LEADERBOARD_SOURCES = [
         "split": "subset",
         "expected_cases": 25,
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "codex_gpt55_judge_results.csv",
-        "judge": "Gemini 3.5 Flash judge",
+        "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
     {
@@ -304,7 +304,7 @@ LEADERBOARD_SOURCES = [
         "split": "subset",
         "expected_cases": 25,
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "claude_code_opus48_judge_results.csv",
-        "judge": "Gemini 3.5 Flash judge",
+        "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
     {
@@ -317,7 +317,7 @@ LEADERBOARD_SOURCES = [
         "split": "subset",
         "expected_cases": 25,
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "opencode_glm52_judge_results.csv",
-        "judge": "Gemini 3.5 Flash judge",
+        "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
     {
@@ -330,7 +330,7 @@ LEADERBOARD_SOURCES = [
         "split": "subset",
         "expected_cases": 25,
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "gemini_cli_35flash_judge_results.csv",
-        "judge": "Gemini 3.5 Flash judge",
+        "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
     {
@@ -343,7 +343,7 @@ LEADERBOARD_SOURCES = [
         "split": "subset",
         "expected_cases": 25,
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "opencode_minimax_m3_judge_results.csv",
-        "judge": "Gemini 3.5 Flash judge",
+        "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
     {
@@ -356,7 +356,7 @@ LEADERBOARD_SOURCES = [
         "split": "subset",
         "expected_cases": 25,
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "opencode_deepseek_v4_judge_results.csv",
-        "judge": "Gemini 3.5 Flash judge",
+        "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
     {
@@ -369,7 +369,7 @@ LEADERBOARD_SOURCES = [
         "split": "subset",
         "expected_cases": 25,
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "opencode_kimi_k27code_judge_results.csv",
-        "judge": "Gemini 3.5 Flash judge",
+        "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
 ]
