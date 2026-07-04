@@ -151,7 +151,10 @@ def _create_kimi_client(api_key: Optional[str] = None):
         return None
     base_url = keys.get("moonshot_base_url") or DEFAULT_MOONSHOT_BASE_URL
     try:
-        return openai.OpenAI(api_key=resolved_key, base_url=base_url)
+        # Bound hangs: a silently stalled stream otherwise blocks for the SDK
+        # default timeout x retries (~30 min).
+        return openai.OpenAI(api_key=resolved_key, base_url=base_url,
+                             timeout=900.0, max_retries=1)
     except Exception as e:
         _log(f"Error creating Kimi/Moonshot client: {e}", None)
         return None
@@ -162,7 +165,8 @@ def _create_openrouter_client(api_key: Optional[str] = None):
     if not resolved_key:
         return None
     try:
-        return openai.OpenAI(api_key=resolved_key, base_url="https://openrouter.ai/api/v1")
+        return openai.OpenAI(api_key=resolved_key, base_url="https://openrouter.ai/api/v1",
+                             timeout=900.0, max_retries=1)
     except Exception as e:
         _log(f"Error creating OpenRouter client: {e}", None)
         return None

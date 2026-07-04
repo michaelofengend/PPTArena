@@ -124,8 +124,14 @@ def call_llm_judge(
 
     # Request model id: strip an explicit "openrouter/" prefix if present.
     _compat_model = judge_model.split("openrouter/", 1)[-1] if judge_model.lower().startswith("openrouter/") else judge_model
-    # Moonshot accepts a thinking toggle; other OpenAI-compatible hosts may not.
-    _compat_extra = {"thinking": {"type": "disabled"}} if _is_kimi_model(judge_model) and not use_openrouter else None
+    # Moonshot accepts a thinking toggle; OpenRouter exposes a unified
+    # reasoning switch. Judges should answer, not deliberate for minutes.
+    if use_openrouter:
+        _compat_extra = {"reasoning": {"enabled": False}}
+    elif _is_kimi_model(judge_model):
+        _compat_extra = {"thinking": {"type": "disabled"}}
+    else:
+        _compat_extra = None
 
     def _call_kimi_chat_json(system_prompt: str, user_content, max_tokens: int = 2048) -> dict:
         response = kimi_client.chat.completions.create(

@@ -191,9 +191,16 @@ def call_openai_api(
             payload_content = message_content_parts if (image_inputs and model_id in ["gpt-4o", "gpt-4-turbo", "gpt-4-vision-preview"]) else text_prompt_content
             _log(f"Calling OpenAI Chat Completions ({model_id}) (multimodal: {bool(image_inputs and 'gpt-4' in model_id)})", request_id)
             llm_start_time = time.time()
+            chat_kwargs = {}
+            if use_kimi:
+                # Kimi defaults to thinking mode, which can grind for many
+                # minutes on large XML-edit prompts; the judge disables it too.
+                chat_kwargs["extra_body"] = {"thinking": {"type": "disabled"}}
+                chat_kwargs["max_tokens"] = 16384
             chat_completion = client.chat.completions.create(
                 messages=[{"role": "user", "content": payload_content}],
                 model=model_id,
+                **chat_kwargs,
             )
             llm_end_time = time.time()
             response_data["inference_time_seconds"] = round(llm_end_time - llm_start_time, 3)
