@@ -1356,8 +1356,8 @@
                     <div>
                         <h2>Leaderboard</h2>
                         <p class="sub">
-                            Systems ranked by PPTArena score — the mean of (instruction following + visual quality) / 10
-                            per case, as a percentage. Unscored cases count as 0.
+                            Systems ranked by PPTArena score — the mean per-case (instruction following + visual
+                            quality), normalized so 4/5 (“excellent”) reads as 100%. Unscored cases count as 0.
                         </p>
                     </div>
                     <div class="tabs" role="tablist" aria-label="Leaderboard split">
@@ -1426,7 +1426,7 @@
                                         <th class="left">#</th>
                                         <th class="left">Model</th>
                                         <th data-sort="score" data-dir="desc" class="sorted"
-                                            title="Mean of (IF + VQ) / 10 across all expected cases, as a percentage">
+                                            title="Mean per-case (IF + VQ) across all expected cases, normalized so 4/5='excellent'=100%">
                                             Score</th>
                                         <th data-sort="ifp" title="Instruction following, normalized to 100">IF</th>
                                         <th data-sort="vqp" title="Visual quality, normalized to 100">VQ</th>
@@ -1478,9 +1478,10 @@
                             </table>
                         </div>
                         <div class="table-foot">
-                            IF = instruction following, VQ = visual quality; each judged 0–5 per case by a VLM judge
-                            and normalized to 100. Click a column to sort. Entries tagged
-                            <span class="tag">paper</span> are reported from the PPTArena paper.
+                            IF = instruction following, VQ = visual quality; each judged 0–5 per case by a VLM judge.
+                            Scores are normalized so a 4/5 (“excellent”) reads as 100% — a perfect 5/5 on these hard
+                            editing tasks is aspirational and rarely awarded; missing/unscored cases count as 0. Click a
+                            column to sort. Entries tagged <span class="tag">paper</span> are reported from the PPTArena paper.
                         </div>
                     </div>
                     {% else %}
@@ -1521,8 +1522,9 @@
                         <p>
                             A VLM judge compares each prediction against the ground truth and scores
                             <b>instruction following</b> and <b>visual quality</b> from 0–5. The case score is
-                            (IF + VQ) / 10 as a percentage; a system's split score is the mean over all expected
-                            cases, with missing or unscored cases counted as 0.
+                            (IF + VQ) normalized so 4/5 (“excellent”) on both reads as 100% — a perfect 5/5 on these
+                            hard editing tasks is aspirational and rarely awarded. A system's split score is the mean
+                            over all expected cases, with missing or unscored cases counted as 0.
                         </p>
                     </div>
                     <div class="method-col">

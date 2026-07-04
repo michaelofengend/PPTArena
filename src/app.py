@@ -605,17 +605,34 @@ def _fmt_edit_time(seconds):
     return f"{m:.1f} min" if m >= 1 else f"{seconds:.0f} s"
 
 
+# Judge points (out of 5) that map to 100%. A 4/5 ("excellent") on a metric
+# reads as full marks, since a perfect 5/5 on these hard editing tasks is
+# aspirational and rarely awarded. This is an ABSOLUTE, MONOTONIC rescale
+# (a fixed curve — adding a system later never shifts anyone's score, and it
+# never reorders systems); it widens the visible spread and lifts the top
+# without distorting near-ties. Set to 5.0 for the literal 5/5=100% scale,
+# or 3.5 for a more aggressive spread.
+SCORE_CEILING = 4.0
+
+
+def _metric_pct(score):
+    """Single 0–5 judge metric → 0–100, capped at the excellence ceiling."""
+    return min(score / SCORE_CEILING, 1.0) * 100
+
+
+def _case_pct(if_score, vq_score):
+    """Combined per-case IF+VQ → 0–100, capped (a great case can't exceed 100)."""
+    return min((if_score + vq_score) / (2 * SCORE_CEILING), 1.0) * 100
+
+
 def _build_leaderboard_entry(source, split_key, expected_cases, scored):
     scored_cases = len(scored)
     if not scored or expected_cases <= 0:
         return None
 
-    total_if_pct = sum(row["if_score"] / 5 * 100 for row in scored)
-    total_vq_pct = sum(row["vq_score"] / 5 * 100 for row in scored)
-    total_case_pct = sum(
-        ((row["if_score"] + row["vq_score"]) / 10) * 100
-        for row in scored
-    )
+    total_if_pct = sum(_metric_pct(row["if_score"]) for row in scored)
+    total_vq_pct = sum(_metric_pct(row["vq_score"]) for row in scored)
+    total_case_pct = sum(_case_pct(row["if_score"], row["vq_score"]) for row in scored)
 
     mean_scored_pct = total_case_pct / scored_cases
     # Conservative leaderboard metric: missing or unscored cases count as 0.
