@@ -359,6 +359,7 @@ LEADERBOARD_SOURCES = [
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "cua_claude37_judge_results.csv",
         "judge": "Kimi K2.6 judge",
         "defines_subset": False,
+        "subset_only": True,
     },
     {
         "name": "ChatGPT Agent (CUA)",
@@ -372,6 +373,7 @@ LEADERBOARD_SOURCES = [
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "cua_chatgpt_agent_judge_results.csv",
         "judge": "Kimi K2.6 judge",
         "defines_subset": False,
+        "subset_only": True,
     },
     {
         "name": "MiniMax Agent (CUA)",
@@ -385,6 +387,7 @@ LEADERBOARD_SOURCES = [
         "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "cua_minimax_agent_judge_results.csv",
         "judge": "Kimi K2.6 judge",
         "defines_subset": False,
+        "subset_only": True,
     },
 ]
 
@@ -658,13 +661,22 @@ def get_leaderboard_data():
     case_meta, cases_by_category = _load_case_metadata()
     all_case_names = set(case_meta)
 
+    # Canonical 25-case hard subset, pinned to subset25.json so that full-100
+    # sources (whose CSVs now cover all 100 cases) can't redefine it.
+    try:
+        _subset_raw = json.loads((SCRIPT_DIR.parent / "agent_bench" / "subset25.json").read_text(encoding="utf-8"))
+        subset_case_names = {n.strip() for n in _subset_raw} & all_case_names
+    except Exception:
+        subset_case_names = set()
+
     source_payloads = []
-    subset_case_names = set()
     for source in LEADERBOARD_SOURCES:
         scored, source_case_names = _collect_source_scores(source)
         source_payloads.append((source, scored, source_case_names))
-        if source["split"] == "subset" and source.get("defines_subset", True):
-            subset_case_names.update(source_case_names)
+    if not subset_case_names:  # fallback: derive from defines_subset sources
+        for source, scored, scn in source_payloads:
+            if source["split"] == "subset" and source.get("defines_subset", True):
+                subset_case_names.update(scn)
 
     base_cases = {"subset": subset_case_names, "full": all_case_names}
     base_labels = {"subset": "Hard Subset", "full": "Full Set"}
@@ -676,6 +688,10 @@ def get_leaderboard_data():
     def build_view(view_key, view_cases, base_key):
         entries = []
         for source, scored, source_case_names in source_payloads:
+            # Subset-only systems (e.g. CUA product agents, run on the 25-case
+            # subset) don't appear on the Full Set — they'd read as 25/100.
+            if base_key == "full" and source.get("subset_only"):
+                continue
             if base_key == "full":
                 expected = view_cases                       # missing counts as 0
             else:

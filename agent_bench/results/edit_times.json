@@ -1,51 +1,51 @@
 {
   "codex_gpt55": {
-    "n": 25,
-    "mean_s": 323.1,
-    "median_s": 270.5,
-    "max_s": 666.7,
+    "n": 100,
+    "mean_s": 288.4,
+    "median_s": 228.9,
+    "max_s": 822.4,
     "source": "manifest"
   },
   "claude_code_opus48": {
-    "n": 25,
-    "mean_s": 159.9,
-    "median_s": 151.4,
-    "max_s": 485.0,
+    "n": 100,
+    "mean_s": 136.2,
+    "median_s": 98.2,
+    "max_s": 676.3,
     "source": "manifest"
   },
   "gemini_cli_35flash": {
-    "n": 25,
-    "mean_s": 281.9,
-    "median_s": 174.4,
+    "n": 38,
+    "mean_s": 250.1,
+    "median_s": 162.2,
     "max_s": 1599.8,
     "source": "manifest"
   },
   "opencode_glm52": {
-    "n": 24,
-    "mean_s": 775.2,
-    "median_s": 443.2,
-    "max_s": 2794.0,
+    "n": 46,
+    "mean_s": 718.1,
+    "median_s": 275.1,
+    "max_s": 4039.8,
     "source": "manifest"
   },
   "opencode_minimax_m3": {
-    "n": 18,
-    "mean_s": 464.9,
-    "median_s": 202.6,
-    "max_s": 1736.8,
+    "n": 42,
+    "mean_s": 605.4,
+    "median_s": 229.2,
+    "max_s": 2677.9,
     "source": "manifest"
   },
   "opencode_deepseek_v4": {
-    "n": 25,
-    "mean_s": 690.1,
-    "median_s": 319.2,
-    "max_s": 3242.0,
+    "n": 55,
+    "mean_s": 401.8,
+    "median_s": 152.7,
+    "max_s": 3240.1,
     "source": "manifest"
   },
   "opencode_kimi_k27code": {
-    "n": 19,
-    "mean_s": 1042.7,
-    "median_s": 749.3,
-    "max_s": 3346.9,
+    "n": 72,
+    "mean_s": 729.7,
+    "median_s": 296.9,
+    "max_s": 3604.2,
     "source": "manifest"
   },
   "pptpilot_kimi_k26": {
