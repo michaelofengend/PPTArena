@@ -736,7 +736,7 @@ def get_leaderboard_data():
         groups.append({"base": base_key, "label": base_labels[base_key], "views": views})
 
     return {
-        "default_split": "subset",
+        "default_split": "full",
         "groups": groups,
         "panel_list": panel_list,
     }

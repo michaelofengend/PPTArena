@@ -14,9 +14,9 @@
     "source": "manifest"
   },
   "gemini_cli_35flash": {
-    "n": 38,
-    "mean_s": 250.1,
-    "median_s": 162.2,
+    "n": 92,
+    "mean_s": 253.6,
+    "median_s": 193.6,
     "max_s": 1599.8,
     "source": "manifest"
   },
