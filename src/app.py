@@ -342,6 +342,20 @@ LEADERBOARD_SOURCES = [
         "judge": "Kimi K2.6 judge",
         "defines_subset": False,
     },
+    # --- External full-set agents ---
+    {
+        "name": "Baidu DuMate",
+        "model": "PPTX Skill r266 · Moonshot native",
+        "provider": "Baidu",
+        "brand": "Baidu",
+        "icon": "D",
+        "color": "#2932e1",
+        "split": "subset",
+        "expected_cases": 25,
+        "path": SCRIPT_DIR.parent / "agent_bench" / "results" / "baidu_dumate_pptx_skill_r266_judge_results.csv",
+        "judge": "Kimi K2.6 judge",
+        "defines_subset": False,
+    },
     # (PPTPilot Kimi/Gemma pilot rows removed from the board — scored too low to
     # be informative; their CSVs remain in agent_bench/results/ if ever restored.)
     # --- CUA (computer-use agent) cohort ---
@@ -581,23 +595,14 @@ def _fmt_edit_time(seconds):
     return f"{m:.1f} min" if m >= 1 else f"{seconds:.0f} s"
 
 
-# Display curve: a raw judge metric (0–5) maps to a percentage via a smooth,
-# concave "diminishing-returns near the ceiling" curve rather than a hard cap:
-#     5/5 = 100%   4/5 = 92%   3/5 = 76%   2/5 = 55%   1/5 = 30%   0 = 0%.
-# So a perfect score is the true 100% (no information lost at the top) while the
-# field still spreads. It is ABSOLUTE and MONOTONIC — adding a system never
-# shifts anyone's score and it never reorders. _SCORE_K is chosen so 4/5 = 92%.
-_SCORE_K = 1.5693  # = log(0.08)/log(0.2); larger K => steeper near the top
-
-
 def _metric_pct(score):
-    """Single 0–5 judge metric → 0–100 via the display curve (5/5=100, 4/5=92)."""
+    """Single 0–5 judge metric as a linear percentage of available points."""
     x = max(0.0, min(score, 5.0)) / 5.0
-    return (1 - (1 - x) ** _SCORE_K) * 100
+    return x * 100
 
 
 def _case_pct(if_score, vq_score):
-    """Per-case score = mean of the two curved metrics."""
+    """Per-case score = equal-weight mean of linear IF and VQ percentages."""
     return (_metric_pct(if_score) + _metric_pct(vq_score)) / 2
 
 
@@ -692,10 +697,9 @@ def get_leaderboard_data():
             # subset) don't appear on the Full Set — they'd read as 25/100.
             if base_key == "full" and source.get("subset_only"):
                 continue
-            if base_key == "full":
-                expected = view_cases                       # missing counts as 0
-            else:
-                expected = view_cases & set(source_case_names)
+            # Every system is scored against the canonical cases in this view.
+            # A missing row therefore remains in the denominator and counts as 0.
+            expected = view_cases
             if not expected:
                 continue
             view_scores = [r for r in scored if r["case_name"] in expected]

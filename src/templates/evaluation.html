@@ -536,7 +536,8 @@
 
         .chart {
             min-width: 540px;
-            margin-top: 18px;
+            max-width: 820px;
+            margin: 18px auto 0;
         }
 
         .chart-plot {
@@ -556,7 +557,7 @@
             position: absolute;
             left: 0;
             right: 0;
-            border-top: 1px solid var(--hairline);
+            border-top: 1px dashed var(--border);
         }
 
         .gridline.zero {
@@ -581,13 +582,13 @@
             bottom: 0;
             display: flex;
             align-items: flex-end;
-            justify-content: space-around;
-            gap: 12px;
+            justify-content: center;
+            gap: 4px;
         }
 
         .chart-col {
-            flex: 1 1 0;
-            max-width: 88px;
+            flex: 0 0 58px;
+            max-width: 58px;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -597,38 +598,59 @@
 
         .chart-val {
             font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--ink-2);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, .18);
         }
 
         .chart-bar {
-            width: 58%;
-            max-width: 44px;
-            border-radius: 3px 3px 0 0;
+            position: relative;
+            width: 42px;
+            border-radius: 4px 4px 0 0;
             min-height: 2px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 9px;
+            box-sizing: border-box;
+        }
+
+        .chart-bar.short .chart-val {
+            position: absolute;
+            bottom: calc(100% + 6px);
+            color: var(--ink-2);
+            text-shadow: none;
         }
 
         .chart-labels {
             display: flex;
-            justify-content: space-around;
-            gap: 12px;
+            justify-content: center;
+            gap: 4px;
             margin: 10px 0 0 40px;
             padding-right: 4px;
         }
 
         .chart-label {
-            flex: 1 1 0;
-            max-width: 88px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            text-align: center;
-            font-size: 11.5px;
-            line-height: 1.3;
+            position: relative;
+            flex: 0 0 58px;
+            max-width: 58px;
+            height: 154px;
+            text-align: left;
+            font-size: 11px;
+            line-height: 1.2;
             color: var(--muted);
             font-weight: 500;
+        }
+
+        .chart-label-text {
+            position: absolute;
+            top: 32px;
+            left: 31px;
+            width: 118px;
+            transform: rotate(55deg);
+            transform-origin: top left;
+            white-space: nowrap;
         }
 
         /* ---------- Model icons ---------- */
@@ -645,6 +667,9 @@
         }
 
         .chart-label .micon {
+            position: absolute;
+            top: 0;
+            left: 17px;
             width: 25px;
             height: 25px;
         }
@@ -1418,9 +1443,9 @@
                     {% if split.entries %}
                     <div class="card chart-card">
                         <p class="chart-title">PPTArena score</p>
-                        <p class="chart-sub">Combined instruction following + visual quality, normalized to 100</p>
+                        <p class="chart-sub">Mean instruction following + visual quality, shown as a linear percentage of available points</p>
                         <div class="chart-scroll">
-                            <div class="chart">
+                            <div class="chart" style="width: {{ 56 + (split.entries|length * 62) }}px;">
                                 <div class="chart-plot">
                                     <div class="chart-grid" aria-hidden="true">
                                         <div class="gridline" style="bottom:100%"><span>100</span></div>
@@ -1431,10 +1456,10 @@
                                     </div>
                                     <div class="chart-cols">
                                         {% for entry in split.entries %}
-                                        <div class="chart-col" title="{{ entry.name }} — {{ '%.1f'|format(entry.score_pct) }}">
-                                            <span class="chart-val num">{{ "%.1f"|format(entry.score_pct) }}</span>
-                                            <div class="chart-bar"
+                                        <div class="chart-col" title="{{ entry.name }}: {{ '%.1f'|format(entry.score_pct) }}">
+                                            <div class="chart-bar {% if entry.bar_pct < 18 %}short{% endif %}"
                                                 style="height:{{ entry.bar_pct }}%;background:{{ entry.color }};">
+                                                <span class="chart-val num">{{ "%.1f"|format(entry.score_pct) }}</span>
                                             </div>
                                         </div>
                                         {% endfor %}
@@ -1444,7 +1469,7 @@
                                     {% for entry in split.entries %}
                                     <div class="chart-label">
                                         {{ model_icon(entry) }}
-                                        <span>{{ entry.name }}</span>
+                                        <span class="chart-label-text">{{ entry.name }}</span>
                                     </div>
                                     {% endfor %}
                                 </div>
@@ -1460,10 +1485,10 @@
                                         <th class="left">#</th>
                                         <th class="left">Model</th>
                                         <th data-sort="score" data-dir="desc" class="sorted"
-                                            title="Mean per-case (IF + VQ) across all expected cases, on a curve where 5/5=100% and 4/5≈92%">
+                                            title="Mean per-case IF and VQ across all expected cases, linearly scaled from 0–5 to 0–100">
                                             Score</th>
-                                        <th data-sort="ifp" title="Instruction following, normalized to 100">IF</th>
-                                        <th data-sort="vqp" title="Visual quality, normalized to 100">VQ</th>
+                                        <th data-sort="ifp" title="Instruction following, linearly scaled to 100">IF</th>
+                                        <th data-sort="vqp" title="Visual quality, linearly scaled to 100">VQ</th>
                                         <th data-sort="cases" title="Scored cases / expected cases in this split">Cases
                                         </th>
                                         <th data-sort="avg" title="Mean score over scored cases only">Avg scored</th>
@@ -1512,10 +1537,9 @@
                             </table>
                         </div>
                         <div class="table-foot">
-                            IF = instruction following, VQ = visual quality; each judged 0–5 per case by a VLM judge.
-                            Scores map to a percentage on a smooth curve where 5/5 = 100% and 4/5 ≈ 92% (a perfect
-                            score is the true 100%, with diminishing returns near the top); missing/unscored cases count
-                            as 0. Click a column to sort. Entries tagged <span class="tag">paper</span> are reported from the PPTArena paper.
+                            IF = instruction following, VQ = visual quality; each is judged 0–5 per case by a VLM judge
+                            and linearly scaled to a percentage of available points. Missing or unscored cases count as
+                            0. Click a column to sort. Entries tagged <span class="tag">paper</span> are reported from the PPTArena paper.
                         </div>
                     </div>
                     {% else %}
@@ -1555,18 +1579,18 @@
                         <h3>Scoring</h3>
                         <p>
                             A VLM judge compares each prediction against the ground truth and scores
-                            <b>instruction following</b> and <b>visual quality</b> from 0–5. Each is mapped to a
-                            percentage on a smooth curve (5/5 = 100%, 4/5 ≈ 92%, 3/5 ≈ 76%) that rewards a perfect
-                            result while keeping diminishing returns near the top. A system's split score is the mean
-                            over all expected cases, with missing or unscored cases counted as 0.
+                            <b>instruction following</b> and <b>visual quality</b> from 0–5. Each score is linearly
+                            converted to a percentage of available points, so 4/5 = 80% and 5/5 = 100%. A system's
+                            split score is the equal-weight mean across both metrics and all expected cases, with
+                            missing or unscored cases counted as 0.
                         </p>
                     </div>
                     <div class="method-col">
                         <h3>Splits &amp; judges</h3>
                         <p>
                             The <b>full set</b> covers all 100 cases; the <b>hard subset</b> is a matched 25-case
-                            slice used for cost-sensitive agent comparisons. Runs are judged with GPT-5.2 or
-                            Gemini 3.1 Pro, and every case can be re-run and re-judged live below.
+                            slice used for cost-sensitive agent comparisons. Each leaderboard row identifies its
+                            judge, and every case can be re-run and re-judged live below.
                         </p>
                     </div>
                 </div>
