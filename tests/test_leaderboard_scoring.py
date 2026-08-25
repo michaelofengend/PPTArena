@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 APP_PATH = ROOT / "src" / "app.py"
 DUMATE_RESULTS = ROOT / "agent_bench" / "results" / "baidu_dumate_pptx_skill_r266_judge_results.csv"
+DUMATE_ICON = ROOT / "src" / "static" / "dumate-icon.png"
 SUBSET_PATH = ROOT / "agent_bench" / "subset25.json"
 
 
@@ -56,6 +57,36 @@ def load_leaderboard_functions():
     module = ast.Module(body=selected, type_ignores=[])
     exec(compile(module, str(APP_PATH), "exec"), namespace)
     return namespace
+
+
+def load_leaderboard_sources():
+    """Execute the production source registry without importing the Flask app."""
+    tree = ast.parse(APP_PATH.read_text(encoding="utf-8"), filename=str(APP_PATH))
+    source_assignment = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "LEADERBOARD_SOURCES"
+            for target in node.targets
+        )
+    )
+    namespace = {"SCRIPT_DIR": ROOT / "src"}
+    module = ast.Module(body=[source_assignment], type_ignores=[])
+    exec(compile(module, str(APP_PATH), "exec"), namespace)
+    return namespace["LEADERBOARD_SOURCES"]
+
+
+def contrast_ratio_with_white(hex_color):
+    channels = [int(hex_color[index : index + 2], 16) / 255 for index in (1, 3, 5)]
+    linear = [
+        channel / 12.92
+        if channel <= 0.04045
+        else ((channel + 0.055) / 1.055) ** 2.4
+        for channel in channels
+    ]
+    luminance = 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+    return 1.05 / (luminance + 0.05)
 
 
 class LeaderboardScoringTests(unittest.TestCase):
@@ -138,6 +169,72 @@ class LeaderboardScoringTests(unittest.TestCase):
         self.assertEqual(len(subset_rows), 25)
         subset_scores = linear_scores(subset_rows)
         self.assertEqual(tuple(round(value, 1) for value in subset_scores), (48.8, 62.4, 55.6))
+
+    def test_dumate_entry_renders_the_official_icon_and_compact_chart_label(self):
+        sources = load_leaderboard_sources()
+        source = next(entry for entry in sources if entry["name"] == "Baidu DuMate")
+
+        with DUMATE_RESULTS.open(newline="", encoding="utf-8-sig") as handle:
+            result_rows = list(csv.DictReader(handle))
+        scored = [
+            {
+                "case_name": row["case_name"],
+                "if_score": float(row["instruction_following_score"]),
+                "vq_score": float(row["visual_quality_score"]),
+            }
+            for row in result_rows
+        ]
+        case_names = {row["case_name"] for row in scored}
+        namespace = load_leaderboard_functions()
+        namespace.update(
+            {
+                "LEADERBOARD_SOURCES": [source],
+                "_load_case_metadata": lambda: ({name: {} for name in case_names}, {}),
+                "_collect_source_scores": lambda selected_source: (scored, case_names),
+            }
+        )
+        leaderboard = namespace["get_leaderboard_data"]()
+        full_group = next(group for group in leaderboard["groups"] if group["base"] == "full")
+        entry = full_group["views"][0]["entries"][0]
+
+        self.assertEqual(entry["color"], "#5869E8")
+        self.assertGreaterEqual(contrast_ratio_with_white(entry["color"]), 4.5)
+        self.assertEqual(entry["chart_label"], "DuMate")
+        self.assertTrue(DUMATE_ICON.exists(), f"missing {DUMATE_ICON}")
+        self.assertEqual(DUMATE_ICON.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
+
+        from jinja2 import ChainableUndefined, Environment, FileSystemLoader
+
+        environment = Environment(
+            loader=FileSystemLoader(ROOT / "src" / "templates"),
+            undefined=ChainableUndefined,
+        )
+        environment.globals["url_for"] = (
+            lambda endpoint, **values: f"/static/{values['filename']}"
+            if endpoint == "static"
+            else f"/{endpoint}"
+        )
+        template_context = {
+            "active_tab": "evaluation",
+            "leaderboard_data": {"default_split": "full", "groups": [], "panel_list": []},
+            "evaluation_pairs": [],
+            "selected_pair": {
+                "name": "Case 1",
+                "prompt": "Test prompt",
+                "style_target": "Test target",
+                "original": "Original/test.pptx",
+                "ground_truth": "GroundTruth/test.pptx",
+            },
+            "test_pdf_name": "test.pdf",
+            "prediction_pdf_name": "prediction.pdf",
+            "prediction_pptx_name": "prediction.pptx",
+            "is_prediction": False,
+        }
+        template_module = environment.get_template("evaluation.html").make_module(template_context)
+        icon_html = str(template_module.model_icon(entry))
+
+        self.assertIn('title="Baidu DuMate"', icon_html)
+        self.assertIn('src="/static/dumate-icon.png"', icon_html)
 
 
 if __name__ == "__main__":
